@@ -1,0 +1,433 @@
+{% load i18n static raven has_group crispy_forms_tags notifications_tags %}
+{% notifications_unread as unread_count %}
+<!DOCTYPE html>
+<html lang="en" {% block extra_html_tag %}{% endblock %}>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="description" content="Gathera">
+      <meta name="author" content="University of Waterloo - Information Retrieval Lab">
+      <title>Gathera - {% block pagetitle %}home{% endblock %}</title>
+      <!-- Bootstrap core CSS -->
+      <link href="{% static 'css/hical-bootstrap.min.css' %}" rel="stylesheet">
+      <!-- Custom styles for Gathera -->
+      <link href="{% static 'css/project.css' %}" rel="stylesheet">
+      <!-- Other -->
+      <link href="{% static 'css/pace.css' %}" rel="stylesheet">
+      <link href="{% static 'css/font-awesome-all.css' %}" rel="stylesheet">
+      {% include "raven-config.html" %}
+      <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+      <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js" type="application/javascript"></script>
+      <script src="{% static 'js/identicon.js' %}"></script>
+      <script>
+        // set up options
+        var IdenticonHash = "d3b0sdffd113edec49eaa6238ad5ff00";  // 15+ hex chars
+        var IdenticonOptions = {
+            format: 'svg'                             // use SVG instead of PNG
+        };
+
+        function createIdenticonImage(input, width, height, css){
+          // create a base64 encoded SVG
+          const svg = new Identicon(input+IdenticonHash, IdenticonOptions).toString();
+          // write to a data URI
+          if (!css){
+            css = "";
+          }
+          document.write(`<img alt="${input}" title="${input}" width=${width} height=${height} class="${css}" src="data:image/svg+xml;base64, ${svg} ">`);
+        }
+      </script>
+      {% block extra_head %}{% endblock %}
+
+  </head>
+
+  <body>
+    <nav class="navbar navbar-main navbar-expand-lg navbar-light fixed-top bg-white" style="border-bottom: #fff 1px solid; transition: border-bottom 0.1s linear;">
+        <div class="navbar-brand pr-4 pb-1 align-self-center">
+          <a href="/"><img src="{% static 'images/logo.svg' %}" alt="gathera" class="pb-1" width="100px"></a>
+          <span class="px-3 d-none d-md-inline border-sm-0 border-right"></span>
+        </div>
+      {% block navbar-noncollapse %}{% endblock %}
+      <button class="navbar-toggler text-secondary" type="button" data-toggle="collapse" data-target="#navbars">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse d-flex flex-column flex-md-row align-items-end align-right align-self-center" id="navbars">
+        {% if request.user.is_authenticated and request.user.current_session %}
+        <div class="navbar-nav order-2 order-md-1 align-self-md-center">
+          {% if activated_shared_session and activated_shared_session.disallow_search %}
+          {% else %}
+          <a class="nav-item nav-link" href="{% url 'search:main' %}">Search</a>
+          {% endif %}
+
+          {% if activated_shared_session and activated_shared_session.disallow_CAL %}
+          {% else %}
+          <a class="nav-item nav-link" href="{% url 'CAL:main' %}">Discovery</a>
+          {% endif %}
+          <a class="nav-item nav-link" href="{% url 'CAL:main' %}">Review</a>
+        </div>
+        {% endif %}
+        <ul class="nav navbar-nav flex-fill justify-content-center align-self-center center-text pl-5 pr-5 order-2 {%block navbar-hidesmall %}d-none d-sm-block{%endblock%}">
+          {% block navbar-center %}
+          <span class="navbar-text text-truncate p-0" style="max-width: 15rem;">
+           {% if request.user.current_session %}{{user.current_session.topic.title}}{% elif request.user.is_authenticated %}{% endif %}
+          </span>
+          {% endblock %}
+        </ul>
+
+        {% block navbar-form %} {% endblock %}
+
+        <ul class="navbar-nav pl-md-3 border-sm-0 ml-0 ml-md-4 order-4 align-self-md-center">
+
+          <a class="nav-item nav-link"  data-toggle="modal" data-target="#helpModal" href="#">
+            <h5 class="d-none d-md-inline pr-2"><i class="fas fa-question-circle" title="Help"></i></h5>
+            <span class="d-md-none">Help</span>
+          </a>
+
+          <a class="nav-item nav-link" data-toggle="modal" data-target="#notificationsModal" href="#" id="notificationDetails">
+            <h5 class="d-none d-md-inline"><i class="fas fa-bell" title="Notification"></i>{% if unread_count %}<span class="badge badge-notify badge-pill bg-danger text-white">{{ unread_count }}</span>{% endif %}
+            </h5>
+            <span class="d-md-none">Notifications</span>
+          </a>
+
+          {% if request.user.is_authenticated and request.user.current_session  %}
+          <a class="nav-item nav-link session-details"  data-toggle="modal" data-target="#sessionModal" href="#"
+               data-is-shared-session={% if not current_session_owner %}"true"{% else %}"false"{% endif %}
+               data-session-id={% if user.current_session.username != user %}"{{ activated_shared_session.uuid }}"{% else %}"{{ user.current_session.uuid }}"{% endif %}
+               data-session-title="{{ user.current_session.topic.title }}"
+            >
+            <h5 class="d-none d-md-inline pr-2"><i class="fas fa-info-circle" title="Session Information"></i></h5>
+            <span class="d-md-none">Session Information</span>
+          </a>
+          {% endif %}
+
+
+          <li class="nav-item dropdown align-self-center">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+              <h5 class="d-none d-md-inline pr-2"><i class="fas fa-plus" title="Create"></i></h5>
+              <span class="d-md-none">Create</span>
+              <i class="fas fa-caret-down"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+
+              <a class="dropdown-item align-items-center d-flex flex-row" data-toggle="modal" data-target="#createSessionModal" href="#">Create session</a>
+
+              {% if request.user.is_authenticated and request.user.current_session and current_session_owner  %}
+              <div class="dropdown-divider"></div>
+              <span class="dropdown-item bg-transparent text-muted gray-text small py-0 mb-1">This session</span>
+              <a class="dropdown-item align-items-center d-flex flex-row" data-toggle="modal" data-target="#shareSessionModal" href="#">Share</a>
+              {% endif %}
+
+            </div>
+          </li>
+
+
+
+
+          {% if request.user.is_authenticated %}
+          <li class="nav-item dropdown align-self-center">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+              <h5 class="d-none d-md-inline pr-2"><i class="fas fa-cog" title="Settings"></i></h5>
+              <span class="d-md-none">Settings</span>
+              <i class="fas fa-caret-down"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+              <span class="dropdown-item py-0 text-muted align-items-center d-flex flex-row bg-transparent"><span>Signed in as <strong> {{ request.user.username }}</strong></span></span>
+              <div class="dropdown-divider"></div>
+
+              <a class="dropdown-item align-items-center d-flex flex-row" href="{% url 'judgment:view' %}">Judged Documents</a>
+              <a class="dropdown-item align-items-center d-flex flex-row" href="{% url 'core:sessions' %}">View Sessions</a>
+
+              <div class="dropdown-divider"></div>
+              {% if request.user.is_authenticated and request.user|has_group:"practice" %}
+              <a class="dropdown-item align-items-center d-flex flex-row" href="{% url 'core:practice_complete' %}"><i class="fas fa-sign-out-alt mr-3"></i> Exit practice</a>
+              {% elif request.user.is_authenticated %}
+              <a class="dropdown-item align-items-center d-flex flex-row" href="{% url 'account_logout'  %}"><i class="fas fa-sign-out-alt mr-3 small"></i>Sign out</a>
+              {% else %}
+              <a class="dropdown-item align-items-center d-flex flex-row" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt mr-3 small"></i>Sign In</a>
+              {% endif %}
+            </div>
+          </li>
+          {% else %}
+          <a class="btn btn-secondary d-flex align-items-center" href="{% url 'core:practice' %}">Click here to try</a>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Notifications modal -->
+    {% include 'modals/notification_modal.html' %}
+
+    <!-- Help modal -->
+    {% include 'modals/help_modal.html' %}
+
+    <!-- Create session modal -->
+    {% include 'modals/create_session_modal.html' %}
+
+    {% if request.user.is_authenticated and request.user.current_session %}
+    {% if current_session_owner or request.resolver_match.url_name == "sessions" %}
+    <!-- Share session modal -->
+    {% include 'modals/share_session_modal.html' %}
+    {% endif %}
+    {% endif %}
+
+    {% if request.user.is_authenticated and request.user.current_session  %}
+    <!-- Session details modal -->
+    {% include 'modals/session_details_modal.html' %}
+    {% endif %}
+
+
+    <div class="container-fluid">
+      <div class="row">
+        <main class="{%block main-class%}col-12 pt-4{%endblock%}">
+          {% block messages %}
+          {% include 'alert.html' %}
+          {% endblock %}
+
+          {% block main %}
+          MAIN CONTENT HERE
+          {% endblock %}
+        </main>
+
+        {% block extra_body %}{% endblock %}
+
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{% static 'js/jquery.mark.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
+    <script>
+
+        // Adds border-bottom to navbar when scroll
+        $(window).scroll(function () {
+          $('.navbar-main').toggleClass('border-bottom', $(this).scrollTop() > 1);
+        })
+
+        window.jquery_ajax = $.ajax;
+        $.ajax = function (param) {
+            var tmp_success_callback = param['success'];
+            param['success'] = function (data, tmp, xhr) {
+                if (xhr.getResponseHeader('completed') == "1" && window.location.pathname != "/completed/") {
+                    window.location.href = "/completed/";
+                } else
+                    tmp_success_callback(data, tmp, xhr);
+            };
+            window.jquery_ajax(param);
+        };
+
+
+    window.paceOptions = {ajax: { trackMethods: ['GET', 'POST'] }};
+
+    $('#navbars').collapse()
+    $('#navbars').collapse('hide')
+    // Fixes using d-flex with collapse
+    $('#navbars').on('hidden.bs.collapse', function () {
+      $(this).removeClass("d-flex");
+    })
+    $('#navbars').on('show.bs.collapse', function () {
+      $(this).addClass("d-flex");
+    })
+
+    </script>
+
+    {% if request.user.is_authenticated and request.user.current_session and current_session_owner  %}
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+    {{ share_session_form.media }}
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+    <script>
+      // Fetch notifications
+      $(document).on("click", "#notificationDetails", function () {
+            $("#notificationModalSpinner").removeClass("d-none");
+            $("#notificationsModalError").addClass("d-none");
+
+            // fetch notification details
+            $.ajax({
+                url: '{% url 'notifications:live_unread_notification_list' %}',
+                method: 'GET',
+                success: function (result) {
+                  console.log(result);
+                  $("#notificationModalList").html(JSON.stringify(result, null, 2));
+                  $("#notificationModalSpinner").addClass("d-none");
+                },
+                error: function (result) {
+                    let message = "Ops! Could not fetch notifications."
+                    $("#notificationsModalError").removeClass("d-none");
+                    $("#notificationsModalError").html(message);
+                    $("#sessionModalSpinner").addClass("d-none");
+                }
+              });
+
+        });
+    </script>
+    {% endif %}
+
+    {% if request.user.is_authenticated and request.user.current_session %}
+    <script>
+        function templateSharedToUser(shared_by, shared_with, shared_on, shared_session_uuid){
+          let filledTemplate = `
+          <div class="row mb-4 flex-row">
+            <div class="col-6 border-0">
+              <h6 class="text-truncate text-secondary">${shared_with}</h6>
+              <p class="text-muted m-0" style="font-size: 65%;">Shared by ${shared_by} on ${shared_on}</p>
+            </div>
+            <div class="col align-self-center text-right">
+              <button type="submit"
+                      data-session-id="${shared_session_uuid}"
+                      name="revoke_sessionid"
+                      value="${shared_session_uuid}"
+                      class="btn btn-sm btn-outline-danger">Revoke
+              </button>
+            </div>
+          </div>
+          `
+          return filledTemplate;
+        }
+
+
+        $(document).on("click", ".session-details", function () {
+             var session_title = $(this).data('session-title');
+             var session_id = $(this).data('session-id');
+             var is_shared_session = $(this).data('is-shared-session')
+
+             $("#sessionModalTitle").html( session_title );
+
+             $("#sessionModalSpinner").removeClass("d-none");
+             $(".sessionModalDetails").addClass("d-none");
+             $("#sessionModalError").addClass("d-none");
+             $("#sessionDetailsTabs").addClass("d-none");
+
+             // fetch session details
+              $.ajax({
+                url: '{% url 'core:get_session_details' %}?uuid=' +session_id +'&is_shared_session=' + is_shared_session,
+                method: 'GET',
+                success: function (result) {
+
+                  let session = result
+                  // session["total_highlyRelevant"]
+                  // session["total_nonrelevant"]
+                  // session["total_relevant"]
+                  // session["total_judged"]
+                  let owner = session['owner']
+                  let shared_with_obj = session['shared_with']
+                  let title = session['topic_title']
+                  let number = session['topic_number']
+                  let show_full_document_content = session['show_full_document_content']
+                  let effort = session['effort']
+                  if (effort <= 0){
+                    effort = "No max";
+                  }
+
+                  if (!owner){
+                    $("#sessionDetailsTabs").addClass("d-none");
+                  }else{
+                    $("#sessionDetailsTabs").removeClass("d-none");
+                    // Update shared with list
+                    $("#sessionSharedWithList").html("");
+                    for (let i = 0; i < shared_with_obj.length; i++){
+                      const shared_with_obj_i = shared_with_obj[i];
+                      $("#sessionSharedWithList").append(templateSharedToUser(
+                              shared_with_obj_i["shared_by"],
+                              shared_with_obj_i["shared_with"],
+                              shared_with_obj_i["shared_on"],
+                              shared_with_obj_i["uuid"],
+                      ))
+                    }
+                  }
+
+
+                  $("#session_created_at").html(session['created_at']);
+                  $("#session_description").html(session['topic_description']);
+                  $("#session_narrative").html(session['topic_narrative']);
+                  $("#session_seed_query").html(session['topic_seed_query']);
+                  $("#session_strategy").html(session['strategy']);
+                  $("#session_effort").html(effort);
+
+
+                  // Update piechart
+                  var ctx = document.getElementById("piechart");
+                  var data = {
+                          labels: [
+                              "Highly relevant",
+                              "Relevant",
+                              "Non relevant"
+                          ],
+                          datasets: [
+                              {
+                                  data: [
+                                      session["total_highlyRelevant"],
+                                      session["total_relevant"],
+                                      session["total_nonrelevant"]],
+                                  backgroundColor: [
+                                      "#5cb85c",
+                                      "#f0ad4e",
+                                      "#d9534f"
+                                  ],
+                                  hoverBackgroundColor: [
+                                      "#5cb85c",
+                                      "#f0ad4e",
+                                      "#d9534f"
+                                  ]
+                              }]
+                      };
+                  var myPieChart = new Chart(ctx, {
+                          type: 'pie',
+                          data: data,
+                          options: {
+                              legend: {
+                                  display: true,
+                                  position: 'right'
+                              }
+                          }
+                      });
+
+
+                  $("#sessionModalSpinner").addClass("d-none");
+                  $(".sessionModalDetails").removeClass("d-none");
+
+                },
+                error: function (result) {
+                    let message = result["responseJSON"]["message"]
+                    $("#sessionModalError").removeClass("d-none");
+                    $("#sessionModalError").html(message);
+                    $("#sessionModalSpinner").addClass("d-none");
+                }
+              });
+
+
+             return false;
+        });
+
+        // dynamically show "show_full_document_content" field based on strategy field value
+        $('#id_topic-strategy').on('change', function() {
+          let newval = this.value;
+          if (newval.includes("para")){
+            $("#topic-show_full_document_content").removeClass("d-none");
+          }else{
+            $("#topic-show_full_document_content").addClass("d-none");
+          }
+        });
+        $('#id_predefined-strategy').on('change', function() {
+          let newval = this.value;
+          if (newval.includes("para")){
+            $("#predefined-show_full_document_content").removeClass("d-none");
+          }else{
+            $("#predefined-show_full_document_content").addClass("d-none");
+          }
+        });
+    </script>
+    {% endif %}
+
+
+    {% block extra_scripts %}{% endblock %}
+
+    <script src="{% static 'js/pace.min.js' %}"></script>
+  </body>
+</html>

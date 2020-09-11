@@ -1,0 +1,79 @@
+{% if error %}
+<div class="row">
+    <div class="col-md-12">
+        <span class="text-danger">{{ error }}</span>
+    </div>
+</div>
+{% endif %}
+
+
+
+{% if not  documents.items %}
+<div class="med card-section">
+  <p style="padding-top:.33em">
+    Your search - <em>{{ query }}</em> - did not match any documents. </p>
+  <p style="margin-top:1em">Suggestions:</p>
+  <ul style="margin-left:1.3em;margin-bottom:2em">
+    <li>Make sure that all words are spelled correctly.</li>
+    <li>Try different keywords.</li>
+    <li>Try more general keywords.</li>
+    <li>Try fewer keywords.</li>
+  </ul>
+</div>
+{% else %}
+<div class="row">
+<div class="col-2">
+  <div class="card border-0">
+    <div class="card-header py-2 text-secondary">
+      Filter
+    </div>
+    <div class="card-body">
+      <span>sdlkfjkl</span>
+    </div>
+    <div class="card-header py-2 text-secondary">
+      Labels
+    </div>
+  </div>
+</div>
+
+<div class="col-5">
+
+{% if total_time %}
+<small class="gray-text ml-3 d-none">{{ total_time }} seconds.</small>
+{% endif %}
+
+
+
+{% for doc_id, document_values in documents.items %}
+<div class="document d-flex flex-grow-1 searchItemSelector"
+     id="doc_{{document_values.docno}}_card"
+     data-rank="{{ document_values.rank }}"
+     data-doc-id="{{ document_values.docno }}"
+     data-title="{{ document_values.title|safe }}"
+     data-toggle="modal" data-target="#documentModal"
+     style="min-height: 5rem;cursor: pointer; cursor: hand; transition: border-color 0.3s ease-in"
+    >
+  <div class="align-self-center align-self-stretch p-2" style="border-width: 0.25rem!important; border-style: none none none solid; border-color: {% if document_values.relevance_judgment == 2 %}#84c273{% elif document_values.relevance_judgment == 1 %}#c6fab8{% elif document_values.relevance_judgment == 0 %}#a5a5a5{% else %}hsla(50, 50%, 50%, 0.0){% endif %};"></div>
+  <div class="align-self-center py-0">
+    <h6 class="title" style="margin-bottom: 0;">{{ document_values.title|safe }}</h6>
+    <div class="url small">doc_id: {{ document_values.docno }}</div>
+    <div class="snippet"> {{ document_values.snippet|safe }} </div>
+  </div>
+</div>
+
+
+{% endfor %}
+</div>
+
+<div class="offset-1 col-3">
+  <div class="card border-0">
+    <div class="card-header py-2 text-primary">
+      Similar queries
+    </div>
+    <div class="card-body">
+      <span>sdlkfjkl</span>
+    </div>
+  </div>
+</div>
+</div>
+{% endif %}

@@ -1,0 +1,15 @@
+/data/*.bin
+/data/*.tgz
+/data/*.svmlight
+/CALEngine/.idea/
+/web/.idea/
+
+.DS_STORE
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
