@@ -52,6 +52,9 @@ class Session(models.Model):
                 pass
         super(Session, self).save(*args, **kwargs)
 
+    def is_summary(self):
+        return "para" in self.strategy
+
     def __unicode__(self):
         return "<User:{}, Num:{}>".format(self.username, self.topic.number)
 

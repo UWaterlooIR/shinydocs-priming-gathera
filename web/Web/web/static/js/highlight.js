@@ -183,7 +183,6 @@ $(function() {
     $content.unmark({
       className: $className,
       done: function() {
-        console.log("Marking", searchVal);
         $content.mark(searchVal, {
           className: $className,
           separateWordSearch: true,
