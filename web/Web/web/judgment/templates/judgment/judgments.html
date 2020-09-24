@@ -23,18 +23,29 @@
               </thead>
               <tbody>
               {% for row in judgments %}
-              <tr data-toggle="modal" data-target=".doc-modal" style="cursor: pointer;" onclick="return load_doc('{{ row.doc_id }}');">
+              <tr
+                  id="doc_{{row.doc_id}}_card"
+                  data-doc-id="{{ row.doc_id }}"
+                  data-title="{{ row.doc_title|safe }}"
+                  data-toggle="modal" data-target="#documentModal"
+                  class="searchItemSelector"
+                  {%comment%}
+                  data-toggle="modal"
+                  data-target=".doc-modal"
+                  style="cursor: pointer;" onclick="return load_doc('{{ row.doc_id }}');"
+                  {%endcomment%}
+              >
                 <th scope="row"><code><span
                   class="text-primary small">{{ row.doc_id }}</span></code>
                 </th>
                 <td>{{ row.doc_title|truncatechars:100 }}</td>
                 <td>
                   {% if row.relevance == 2 %}
-                  <span class="text-success">Highly relevant</span>
+                  <span class="highlyRelevantColor">Highly relevant</span>
                   {% elif row.relevance == 1 %}
-                  <span class="text-warning">Relevant</span>
+                  <span class="relevantColor">Relevant</span>
                   {% else %}
-                  <span class="text-danger">Non-relevant</span>
+                  <span class="nonrelevantColor">Non-relevant</span>
                   {% endif %}
                 </td>
                 <td>{{ row.user }}</td>
@@ -131,8 +142,12 @@
   </div>
 
 
+
+  <!-- Document modal -->
+  {% include 'modals/document_modal.html' %}
+
   <!-- Document Modal -->
-  <div class="modal doc-modal" id="doc-modal" tabindex="-1" role="dialog">
+  {%comment%}<div class="modal doc-modal" id="doc-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xlg">
       <div class="modal-content">
         <div class="modal-header">
@@ -212,13 +227,37 @@
         </div>
       </div>
     </div>
-  </div>
+  </div>{%endcomment%}
 </div>
 {% endblock %}
 
 
 {% block extra_scripts %}
+    <script src="https://unpkg.com/runtime-memcache@2.0.0"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/document-viewer.js' %}"></script>
+
     <script>
+
+        var dv = new docView();
+        dv.init({
+          singleDocumentMode: true,
+          searchMode: true,
+          getDocumentsToJudgeURL: '{% url 'CAL:get_docs' %}',
+          getPrevDocumentsJudgedURL: '{% url 'judgment:get_latest' number_of_docs_to_show=50 %}',
+          getDocumentIDsToJudgeURL: '{% url 'CAL:get_docs_ids' %}',
+          sendDocumentJudgmentURL: '{% url 'judgment:post_judgment' %}',
+          getDocumentURL: '{% url 'core:get_single_doc' %}?docid=',
+          fetchPreviouslyJudgedDocsOnInit: false,
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        });
+
+        var loaded_docs = {}; // dict of loaded documents to prevent reloading doc content.
+
+        // flag to check if a modal is currently opened
+        var isModalOpen = false;
+        var currentOpenedModalDocId = null;
+
 
         var loaded_docs = {}; // dict of loaded documents to prevent reloading doc content.
 

@@ -23,7 +23,7 @@
               <div class="card-block highlight-include" id="docView" data-doc-id="" style="padding: 0rem !important;">
                 <span id="docViewDocMessage" class="docView-default-font-family p-4 my-3 highlight-exclude"></span>
                 <div class="document-body" id="docViewDocWrapper">
-                  <div class="card border-0">
+                  <div class="card border-0 {% if not request.user.current_session.is_summary %}d-none{% endif %}">
                     <div class="card-body">
                       <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
                         <small class="highlight-exclude">Summary</small>
@@ -75,7 +75,7 @@
                       <button class="btn btn-sm btn-light" data-search="next" id="searchNext"
                            type="button">&darr;</button>
                       <button class="btn btn-sm btn-light" data-search="prev" type="button">&uarr;</button>
-                      <button class="btn btn-sm btn-light" data-search="clear" type="button">&times;</button>
+                      {%comment%}<button class="btn btn-sm btn-light" data-search="clear" type="button">&times;</button>{%endcomment%}
                     </div>
                   </div>
                   <ul class="list-group" id="highlighted_terms_list"></ul>

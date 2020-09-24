@@ -323,7 +323,7 @@ class JudgmentsView(views.LoginRequiredMixin, generic.TemplateView):
 
         judgments = Judgment.objects.filter(user=self.request.user,
                                             session=self.request.user.current_session,
-                                            relevance__isnull=False)
+                                            relevance__isnull=False).order_by('-created_at')
 
         context["judgments"] = judgments
         context['upload_form'] = UploadForm()

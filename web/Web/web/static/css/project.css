@@ -911,3 +911,13 @@ mark.current {
 .select2-container .select2-selection--single {
   height: 38px !important;
 }
+
+.highlyRelevantColor {
+  color: #84c273;
+}
+.relevantColor{
+  color: #c6fab8;
+}
+.nonrelevantColor{
+  color: #a5a5a5;
+}

@@ -286,7 +286,6 @@
 
         var find_borders_css = function (index, className){return (className.match (/(^|\s)border-\S+/g) || []).join(' ');};
         function update_doc_status(doc_id, relevance){
-            console.log("Updating document " + doc_id + " status");
             if(relevance === 2){
                 $("#doc_"+doc_id+"_card").removeClass(find_borders_css).addClass("border-left border-3 border-success");
             }else if(relevance === 1){
@@ -298,7 +297,6 @@
         }
 
         function hide_modal(doc_id){
-            console.log("hiding modal: ", doc_id);
             $('#doc-'+doc_id+'-modal').modal('hide');
             resetMatchesLists();
         }
