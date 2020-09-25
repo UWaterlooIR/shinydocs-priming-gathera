@@ -122,7 +122,7 @@ docView.prototype = {
     validateSelector(options.documentModalSelector, true, "documentModalSelector");
 
     // Don't touch these settings
-    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentViewUpdateCompleted", "afterLoadDocumentsToJudge"];
+    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentViewUpdateCompleted", "afterLoadDocumentsToJudge", "afterDocumentJudge"];
 
     for (var k in s) {
       if (settings.hasOwnProperty(s[k])) {
@@ -177,8 +177,7 @@ docView.prototype = {
      * Calls server to request document information and shows it once received.
      */
     function showDocument(docid) {
-      // this.beforeDocumentLoad();
-      console.log("Showing document", docid);
+      parent.beforeDocumentLoad(docid);
       if (options.allowDocumentCaching){
         // check if it exists in cache
         if (parent.documentCacheStore.get(docid) !== null){
@@ -250,7 +249,9 @@ docView.prototype = {
       let color = null;
       if (docid in parent.previouslyJudgedDocs){
         color = relToColor(parent.previouslyJudgedDocs[docid]);
-        showCloseButton();
+        if (!(options.singleDocumentMode || options.searchMode)){
+          showCloseButton();
+        }
       } else{
         hideCloseButton();
         color = options.otherColor;
@@ -492,7 +493,9 @@ docView.prototype = {
     }
 
     function sendJudgment(rel, callback) {
-      window.scrollTo(0, 0);
+      if (!(options.singleDocumentMode || options.searchMode)){
+        window.scrollTo(0, 0);
+      }
       const docid = parent.currentDocID;
       if (docid === null){
         return;
@@ -556,6 +559,7 @@ docView.prototype = {
                   callback();
                 }
               }
+              parent.afterDocumentJudge(docid, rel);
           },
           error: function (result){
             if (parent.currentDocID === null){
@@ -617,6 +621,8 @@ docView.prototype = {
       }else{
         checkIfDocumentPreviouslyJudged(docid);
       }
+
+      parent.afterDocumentLoad(docid);
     }
 
 
@@ -789,6 +795,16 @@ docView.prototype = {
   beforeDocumentLoad: function(docid) {
 		"use strict";
 		return this.triggerEvent("beforeDocumentLoad", [docid]);
+	},
+
+  afterDocumentLoad: function(docid) {
+		"use strict";
+		return this.triggerEvent("afterDocumentLoad", [docid]);
+	},
+
+  afterDocumentJudge: function(docid, rel) {
+		"use strict";
+		return this.triggerEvent("afterDocumentJudge", [docid, rel]);
 	},
 
 };

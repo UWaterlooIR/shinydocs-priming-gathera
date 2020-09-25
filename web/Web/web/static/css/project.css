@@ -912,12 +912,32 @@ mark.current {
   height: 38px !important;
 }
 
+.judgment_table {
+
+}
+
+.judgment_table th,
+.judgment_table td{
+  padding: .25rem;
+}
+
+.SERP_indicator {
+  border-width: 0.25rem!important; border-style: none none none solid;
+  border-color: hsla(50, 50%, 50%, 0.0);
+  transition: border-color .15s;
+}
+
+
+.badge-highlyRelevant{color:#000;background-color:#84c273}
+.badge-relevant{color:#000;background-color:#c6fab8}
+.badge-nonRelevant{color:#000;background-color:#a5a5a5}
+
 .highlyRelevantColor {
   color: #84c273;
 }
 .relevantColor{
   color: #c6fab8;
 }
-.nonrelevantColor{
+.nonRelevantColor{
   color: #a5a5a5;
 }

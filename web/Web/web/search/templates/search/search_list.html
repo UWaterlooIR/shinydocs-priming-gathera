@@ -53,7 +53,7 @@
      data-toggle="modal" data-target="#documentModal"
      style="min-height: 5rem;cursor: pointer; cursor: hand; transition: border-color 0.3s ease-in"
     >
-  <div class="align-self-center align-self-stretch p-2" style="border-width: 0.25rem!important; border-style: none none none solid; border-color: {% if document_values.relevance_judgment == 2 %}#84c273{% elif document_values.relevance_judgment == 1 %}#c6fab8{% elif document_values.relevance_judgment == 0 %}#a5a5a5{% else %}hsla(50, 50%, 50%, 0.0){% endif %};"></div>
+  <div class="align-self-center align-self-stretch p-2 SERP_indicator" id="doc_{{ document_values.docno }}_SERP_indicator"  style="border-color: {% if document_values.relevance_judgment == 2 %}#84c273{% elif document_values.relevance_judgment == 1 %}#c6fab8{% elif document_values.relevance_judgment == 0 %}#a5a5a5{% else %}hsla(50, 50%, 50%, 0.0){% endif %};"></div>
   <div class="align-self-center py-0">
     <h6 class="title" style="margin-bottom: 0;">{{ document_values.title|safe }}</h6>
     <div class="url small">doc_id: {{ document_values.docno }}</div>
