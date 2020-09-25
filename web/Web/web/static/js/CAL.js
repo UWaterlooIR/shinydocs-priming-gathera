@@ -21,7 +21,6 @@ Mousetrap.bind(['h', 's', 'r', 'u'], function(e, key) {
 
 Mousetrap.bind(['ctrl+f', 'command+f'], function(e) {
     e.preventDefault();
-    //post_ctrlf();
     $( "#search_content" ).focus();
     document.body.click();
     return false;
@@ -31,7 +30,6 @@ var search_content_form = document.getElementById('search_content');
 var search_content_form_mousetrap = new Mousetrap(search_content_form);
 search_content_form_mousetrap.bind(['ctrl+f', 'command+f'], function(e) {
     $( "#search_content" ).focus();
-    //post_ctrlf();
     document.body.click();
     return false;
 });
