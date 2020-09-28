@@ -134,8 +134,6 @@
     </div>
   </div>
 
-
-
   <!-- Document modal -->
   {% include 'modals/document_modal.html' %}
 
@@ -221,9 +219,10 @@
       </div>
     </div>
   </div>{%endcomment%}
-</div>
-{% endblock %}
 
+</div>
+
+{% endblock %}
 
 {% block extra_scripts %}
     <script src="https://unpkg.com/runtime-memcache@2.0.0"></script>
@@ -250,201 +249,19 @@
             let relText = "";
             switch (rel) {
               case 0:
-                newColor = "badge-nonRelevant";
-                relText = "Non-relevant"
+                newColor = "badge-nonRelevant"; relText = "Non-relevant"
                 break;
               case 1:
-                newColor = "badge-relevant";
-                relText = "Relevant";
+                newColor = "badge-relevant"; relText = "Relevant";
                 break;
               case 2:
-                newColor = "badge-highlyRelevant";
-                relText = "Highly Relevant";
+                newColor = "badge-highlyRelevant"; relText = "Highly Relevant";
                 break;
             }
             $(`#doc_${docid}_judgment_badge`).attr('class', `badge ${newColor}`);
             $(`#doc_${docid}_judgment_badge`).text(relText);
             console.log(`badge ${newColor}`);
           }
-        });
-
-        var loaded_docs = {}; // dict of loaded documents to prevent reloading doc content.
-
-        // flag to check if a modal is currently opened
-        var isModalOpen = false;
-        var currentOpenedModalDocId = null;
-
-
-        var loaded_docs = {}; // dict of loaded documents to prevent reloading doc content.
-
-        function load_doc(docid) {
-            if (!(docid in loaded_docs)) {
-
-                // Show loading message and content
-                $("#modal-title").html("<span class='text-danger'>Fetching...</span>");
-                $('.document_content_text').html("<span class='text-danger'>Please wait. Fetching document.</span>");
-                $('.document_content_date').html("");
-                $('.document_content_id').html("");
-
-
-                $.ajax({
-                    url: '{% url 'search:get_doc' %}?docid=' + docid,
-                    method: 'GET',
-                    success: function (result) {
-                        var title = result[0]['title'];
-                        var content = result[0]['content'];
-                        var date = result[0]['date'];
-                        $("#modal-title").html(title);
-                        $('.document_content_text').html(content);
-                        $('.document_content_date').html(date);
-                        $('.document_content_id').html(docid);
-                        loaded_docs[docid] = {
-                            "title": title,
-                            "content": content,
-                            "date": date
-                        };
-                    },
-                    error: function (result) {
-                        var error_msg = "<code>" + "[" + result['status'] + "] " + "Failed to get document. Error message: " + result["statusText"] + "." + "</code>";
-                        modal.find('.document_content').html(error_msg).addClass("text-danger");
-                        console.error(error_msg);
-                    },
-                    statusCode: {
-                        502: function (xhr) {
-                            var error_msg = "<code>" + "[502] Failed to get document. Error message: " + xhr.responseText + "</code>";
-                            modal.find('.document_content').html(error_msg).addClass("text-danger");
-                            console.error(error_msg);
-                        }
-                    }
-                });
-            }else{
-                var title = loaded_docs[docid]["title"];
-                var content = loaded_docs[docid]["content"];
-                var date = loaded_docs[docid]["date"];
-                $("#modal-title").html(title);
-                $('.document_content_text').html(content);
-                $('.document_content_date').html(date);
-                $('.document_content_id').html(docid);
-            }
-        }
-
-
-        $(function() {
-
-          // the input field
-          var $input = $("#search_content_doc"),
-            // clear button
-            $clearBtn = $("button[data-search='clear']"),
-            // prev button
-            $prevBtn = $("button[data-search='prev']"),
-            // next button
-            $nextBtn = $("button[data-search='next']"),
-            // the context where to search
-            $content = $("#doc-modal"),
-            // list of selectors to ignore during the search
-            $exclude = [".document_content_date", ".document_content_id", ".sidebar-nav-fixed", ".btn", ".gray-text", ".badge"],
-            // jQuery object to save <mark> elements
-            $results = "",
-            // the class that will be appended to the current
-            // focused element
-            currentClass = "current",
-            // top offset for the jump (the search bar)
-            offsetTop = 50,
-            // the current index of the focused element
-            currentIndex = 0;
-
-            var search_form = document.getElementById("search_content_doc");
-
-
-          /**
-           * Jumps to the element matching the currentIndex
-           */
-          function jumpTo() {
-            if ($results.length) {
-              $input.addClass("greenBorder").css("border-color","#449D44");
-              var position,
-                $current = $results.eq(currentIndex);
-              $results.removeClass(currentClass);
-              if ($current.length) {
-                $current.addClass(currentClass);
-                position = $current[0].offsetTop - offsetTop;
-                $("#doc-modal").scrollTop(position);
-              }
-            }else{
-              if(!$input.val()){
-                  $input.removeAttr( 'style' );
-              }else if ($input.is(':focus')){
-                $input.addClass("redBorder").css("border-color","#C9302C");
-              }
-              $("#doc-modal").scrollTop(0);
-            }
-          }
-
-          /**
-           * Searches for the entered keyword in the
-           * specified context on input
-           */
-          $input.on("input", function() {
-            var searchVal = this.value;
-            $content.unmark({
-              done: function() {
-                $content.mark(searchVal, {
-                  separateWordSearch: true,
-                  exclude: $exclude,
-                  done: function() {
-                    updateMatchesLists();
-                    $results = $content.find("mark");
-                    currentIndex = 0;
-                    jumpTo();
-                  }
-                });
-              }
-            });
-          });
-
-          $content.on( "updated", function() {
-              var searchVal = $input.val();
-               if(searchVal != undefined){
-                   $content.unmark({
-                      done: function () {
-                          $content.mark(searchVal, {
-                              separateWordSearch: true,
-                              exclude: $exclude,
-                              done: function () {
-                                  updateMatchesLists();
-                                  $results = $content.find("mark");
-                                  currentIndex = 0;
-                              }
-                          });
-                      }
-                  });
-               }
-            });
-
-          /**
-           * Clears the search
-           */
-          $clearBtn.on("click", function() {
-            resetMatchesDict();
-            $content.unmark();
-            $input.val("").focus();
-          });
-
-          /**
-           * Next and previous search jump to
-           */
-          $nextBtn.add($prevBtn).on("click", function() {
-            if ($results.length) {
-              currentIndex += $(this).is($prevBtn) ? -1 : 1;
-              if (currentIndex < 0) {
-                currentIndex = $results.length - 1;
-              }
-              if (currentIndex > $results.length - 1) {
-                currentIndex = 0;
-              }
-              jumpTo();
-            }
-          });
         });
 
     </script>
