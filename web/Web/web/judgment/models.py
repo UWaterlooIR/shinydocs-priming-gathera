@@ -20,9 +20,20 @@ class Judgment(models.Model):
     doc_search_snippet = models.TextField(null=False, blank=False)
     query = models.TextField(null=True, blank=True)
 
-    # A judgment can have null fields if its only been viewed but not judged
-    # 2 indicates highly rel, 1 for rel, and 0 for non-relevant.
-    relevance = models.IntegerField(null=True, blank=True)
+    # 2 indicates high level,
+    # 1 for medium/low,
+    # and 0 for not matching the judging criteria.
+    class JudgingChoices(models.IntegerChoices):
+        HIGHLY_RELEVANT = (2, 'Highly Relevant')
+        RELEVANT = (1, 'Relevant')
+        NON_RELEVANT = (0, 'Non-Relevant')
+
+    # A judgment can have null fields if its only been viewed but not judged.
+    # This field is the main judging criteria used to update the ML models
+    relevance = models.IntegerField(verbose_name='Relevance',
+                                    choices=JudgingChoices.choices,
+                                    null=True, blank=True)
+    other_criteria = JSONField()  # Field to store other criteria specified by user
 
     # method used to make the judgment: click/keyboard
     method = models.CharField(null=True, blank=True, max_length=64)
