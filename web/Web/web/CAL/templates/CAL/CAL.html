@@ -14,7 +14,7 @@
 			<button class="btn btn-sm btn-light" data-search="next" id="searchNext"
 		       type="button">&darr;</button>
 			<button class="btn btn-sm btn-light" data-search="prev" type="button">&uarr;</button>
-			<button class="btn btn-sm btn-light" data-search="clear" type="button">&times;</button>
+			<!--<button class="btn btn-sm btn-light" data-search="clear" type="button">&times;</button>-->
 		</div>
 	</div>
 </form>
@@ -133,10 +133,16 @@
 
           <div class="text-left">
             <div class="btn-group mt-3" role="group">
-              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocNonRelButton">Not relevant</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocNonRelButton">Not Relevant</a>
               <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">Relevant</a>
-              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly relevant</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly Relevant</a>
             </div>
+
+            {% if additional_judging_criteria %}
+            <h5 class="card-title text-secondary mt-4 mb-1 unselectable" unselectable="on">Additional Criteria <a class="badge badge-secondary float-right shadow-none small" data-toggle="modal" data-target="#additionalJudgingCriteriaModal" href="#"><i class="fas fa-info-circle"></i> Learn more</a></h5>
+            {% include 'cards/configurable_criteria_card.html' %}
+            {% endif %}
+
           </div>
 
           <div id="highlighted_words">
@@ -161,7 +167,6 @@
                 </div>
                 <!-- end loader -->
                 <div id="previouslyReviewedList" class="overflow-auto small previouslyReviewedList" style="min-width: 0">
-
                 </div>
 
               </div>
@@ -175,8 +180,8 @@
   </div>
 </div>
 
-<!-- Collaboration modal -->
-{% include 'modals/collaboration_modal.html' %}
+<!-- Judging criteria modal -->
+{% include 'modals/additional_judging_criteria_modal.html' %}
 <!-- Keyboard shortcuts modal -->
 {% include 'modals/keyboard_shortcuts_modal.html' %}
 

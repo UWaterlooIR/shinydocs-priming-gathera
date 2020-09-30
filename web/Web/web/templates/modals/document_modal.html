@@ -18,7 +18,7 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-9">
+          <div class="col-8">
             <div class="card border-0">
               <div class="card-block highlight-include" id="docView" data-doc-id="" style="padding: 0rem !important;">
                 <span id="docViewDocMessage" class="docView-default-font-family p-4 my-3 highlight-exclude"></span>
@@ -52,7 +52,7 @@
               </div>
             </div>
           </div>
-          <div class="col-3 d-none d-sm-block">
+          <div class="col-4 d-none d-sm-block">
             <div class="sticky-top card border-0 mr-2" style="top:75px; z-index: 0;">
               <div class="card-body p-0 mt-3">
                 <h5 class="card-title text-secondary mb-0 unselectable" unselectable="on">Judge Document</h5>
@@ -64,6 +64,11 @@
                     <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">Relevant</a>
                     <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly relevant</a>
                   </div>
+
+                  {% if additional_judging_criteria %}
+                  <h5 class="card-title text-secondary mt-4 mb-1 unselectable" unselectable="on">Additional Criteria <a class="badge badge-secondary float-right shadow-none small" data-toggle="modal" data-target="#additionalJudgingCriteriaModal" href="#"><i class="fas fa-info-circle"></i> Learn more</a></h5>
+                  {% include 'cards/configurable_criteria_card.html' %}
+                  {% endif %}
                 </div>
 
                 <div id="highlighted_words">

@@ -33,7 +33,8 @@ class Judgment(models.Model):
     relevance = models.IntegerField(verbose_name='Relevance',
                                     choices=JudgingChoices.choices,
                                     null=True, blank=True)
-    other_criteria = JSONField()  # Field to store other criteria specified by user
+    # Field to store other criteria specified by user
+    other_criteria = JSONField(null=True, blank=True, default=dict)
 
     # method used to make the judgment: click/keyboard
     method = models.CharField(null=True, blank=True, max_length=64)
