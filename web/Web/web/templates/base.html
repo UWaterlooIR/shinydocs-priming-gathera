@@ -355,9 +355,9 @@
                   var ctx = document.getElementById("piechart");
                   var data = {
                           labels: [
-                              "Highly relevant",
-                              "Relevant",
-                              "Non relevant"
+                              "Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}",
+                              "{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}",
+                              "Non {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}"
                           ],
                           datasets: [
                               {

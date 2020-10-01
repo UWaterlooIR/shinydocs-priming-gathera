@@ -348,7 +348,7 @@ PARA_URL = 'http://nginx:9000/para'
 
 # JUDGING CRITERIA
 # ------------------------------------------------------------------------------
-MAIN_JUDGING_CRITERIA_NAME = "Useful"
+MAIN_JUDGING_CRITERIA_NAME = "Useful"  # Adjective of criteria
 ADDITIONAL_JUDGING_CRITERIA = [
     {
         "name": "Credibility",

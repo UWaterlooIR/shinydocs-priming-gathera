@@ -25,9 +25,9 @@
 <div class=" nav navbar-nav mx-auto justify-content-center center-text pl-2 pr-2">
   <form class="form-inline">
     <div class="btn-group" role="group">
-        <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocNonRelButton">Not Rel</a>
-        <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">Rel</a>
-        <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly Rel</a>
+        <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocNonRelButton">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name|truncatechars:3 }}{% else %}Rel{% endif %}</a>
+        <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">{% if main_judging_criteria_name %}{{ main_judging_criteria_name|truncatechars:3 }}{% else %}Rel{% endif %}</a>
+        <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name|truncatechars:3 }}{% else %}Rel{% endif %}</a>
      </div>
   </form>
 </div>
@@ -133,9 +133,9 @@
 
           <div class="text-left">
             <div class="btn-group mt-3" role="group">
-              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocNonRelButton">Not Relevant</a>
-              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">Relevant</a>
-              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly Relevant</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocNonRelButton">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
             </div>
 
             {% if additional_judging_criteria %}
@@ -205,6 +205,7 @@
           sendDocumentJudgmentURL: '{% url 'judgment:post_judgment' %}',
           getDocumentURL: '{% url 'core:get_single_doc' %}?docid=',
           fetchPreviouslyJudgedDocsOnInit: true,
+          mainJudgingCriteriaName: '{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}',
           csrfmiddlewaretoken: "{{ csrf_token }}",
         });
 

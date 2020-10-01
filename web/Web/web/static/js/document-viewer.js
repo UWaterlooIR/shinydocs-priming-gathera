@@ -27,6 +27,7 @@ var docView = function() {
     fetchPreviouslyJudgedDocsOnInit: false,
     singleDocumentMode: false,
     searchMode: false,
+    mainJudgingCriteriaName: "Relevant", // adjective of criteria
 
     // Selectors
     docViewSelector: "#docView",
@@ -874,15 +875,15 @@ docView.prototype = {
     }
 
     /**
-     * Given a numerical value of the relevance, return the appropriate title.
+     * Given a numerical value of the the main judging criteria, return the appropriate title.
      * */
     function relToTitle(rel) {
       if (rel === 2) {
-        return "Highly Relevant";
+        return `Highly ${options.mainJudgingCriteriaName}`;
       }else if (rel === 1) {
-        return "Relevant";
+        return `${options.mainJudgingCriteriaName}`;
       } else if (rel === 0) {
-        return "NonRelevant";
+        return `Non${options.mainJudgingCriteriaName}`;
       }
       return "";
     }
