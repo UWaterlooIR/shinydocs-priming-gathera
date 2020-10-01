@@ -44,7 +44,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
             doc_title = self.request_json[u"doc_title"]
             doc_CAL_snippet = self.request_json.get(u"doc_CAL_snippet", None)
             doc_search_snippet = self.request_json.get(u"doc_search_snippet", None)
-            relevance = self.request_json[u"relevance"]
+            relevance = self.request_json.get(u"relevance", None)
             additional_judging_criteria = self.request_json.get(u"additional_judging_criteria", None)
             source = self.request_json[u"source"]
             method = self.request_json.get(u"method", None)
@@ -74,8 +74,10 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                 exists.doc_CAL_snippet = doc_CAL_snippet
             if doc_search_snippet != "":
                 exists.doc_search_snippet = doc_search_snippet
-            exists.relevance = relevance
-            exists.additional_judging_criteria = additional_judging_criteria
+            if relevance is not None:
+                exists.relevance = relevance
+            if additional_judging_criteria is not None:
+                exists.additional_judging_criteria = additional_judging_criteria
             exists.source = source
             exists.method = method
             exists.historyVerbose.append(historyItem)
@@ -110,6 +112,11 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
         context = {u"message": u"Your judgment on {} has been received!".format(doc_id),
                    u"is_max_judged_reached": False}
         error_message = None
+
+        # This will take care of incomplete judgments (e.g. updating additional judging
+        # criteria without making a final judgment on the document)
+        if relevance is None:
+            return self.render_json_response(context)
 
         is_from_cal = source == "CAL"
         is_from_search = "search" in source
@@ -218,7 +225,8 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
         if not exists:
             # Check if user has judged `max_judged` documents in total.
             judgements = Judgment.objects.filter(user=self.request.user,
-                                                 session=self.request.user.current_session)
+                                                 session=self.request.user.current_session).filter(
+                relevance__isnull=False)
             max_judged = self.request.user.current_session.max_number_of_judgments
             # Exit task only if number of judgments reached max (and maxjudged is enabled)
             if len(judgements) >= max_judged > 0:
