@@ -2,7 +2,7 @@
   <div class="card-body">
 
     {% for criteria in additional_judging_criteria %}
-      <div class="additional_judging_criterion" data-criterion-name="{{criteria.stored_as}}">
+      <div class="additionalJudgingCriterion" data-criterion-name="{{criteria.stored_as}}">
         <h6 class="text-secondary">{{criteria.name}}</h6>
         {% for option in criteria.options %}
         <div class="custom-control custom-radio text-secondary custom-control-inline">

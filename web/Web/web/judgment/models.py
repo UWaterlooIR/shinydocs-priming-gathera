@@ -34,7 +34,7 @@ class Judgment(models.Model):
                                     choices=JudgingChoices.choices,
                                     null=True, blank=True)
     # Field to store other criteria specified by user
-    other_criteria = JSONField(null=True, blank=True, default=dict)
+    additional_judging_criteria = JSONField(null=True, blank=True, default=dict)
 
     # method used to make the judgment: click/keyboard
     method = models.CharField(null=True, blank=True, max_length=64)

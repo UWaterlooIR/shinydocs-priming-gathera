@@ -45,6 +45,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
             doc_CAL_snippet = self.request_json.get(u"doc_CAL_snippet", None)
             doc_search_snippet = self.request_json.get(u"doc_search_snippet", None)
             relevance = self.request_json[u"relevance"]
+            additional_judging_criteria = self.request_json.get(u"additional_judging_criteria", None)
             source = self.request_json[u"source"]
             method = self.request_json.get(u"method", None)
             query = self.request_json.get(u"query", None)
@@ -74,6 +75,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
             if doc_search_snippet != "":
                 exists.doc_search_snippet = doc_search_snippet
             exists.relevance = relevance
+            exists.additional_judging_criteria = additional_judging_criteria
             exists.source = source
             exists.method = method
             exists.historyVerbose.append(historyItem)
@@ -94,6 +96,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                 session=self.request.user.current_session,
                 query=query,
                 relevance=relevance,
+                additional_judging_criteria=additional_judging_criteria,
                 source=source,
                 method=method,
                 historyVerbose=[historyItem],
@@ -197,6 +200,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                         "session": str(self.request.user.current_session.uuid),
                         "query": query,
                         "relevance": relevance,
+                        "additional_judging_criteria": additional_judging_criteria,
                         "source": source,
                         "method": method,
                         "historyVerbose": historyItem,
@@ -309,6 +313,7 @@ class GetLatestAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                     "doc_CAL_snippet": judgment.doc_CAL_snippet,
                     "doc_content": "",
                     "relevance": judgment.relevance,
+                    "additional_judging_criteria": judgment.additional_judging_criteria
                 }
             )
 

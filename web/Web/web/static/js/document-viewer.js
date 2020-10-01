@@ -43,6 +43,7 @@ var docView = function() {
     documentHRelButtonSelector: ".docViewDocHRelButton",
     documentRelButtonSelector: ".docViewDocRelButton",
     documentNonRelButtonSelector: ".docViewDocNonRelButton",
+    documentAdditionalJudgingCriterionSelector: ".additionalJudgingCriterion",
     previouslyReviewedListSelector: ".previouslyReviewedList",
     previouslyReviewedListSpinnerSelector: ".previouslyReviewedListSpinner",
     searchItemSelector: ".searchItemSelector",
@@ -63,7 +64,7 @@ var docView = function() {
     secondaryTitleFont: "docView-default-font-family",
 
     // others
-    prevReviewedDocumentItemClass: "prev-reviewed-doc-item"
+    prevReviewedDocumentItemClass: "prev-reviewed-doc-item",
   };
 
   /*************
@@ -74,6 +75,7 @@ var docView = function() {
   this.previouslyJudgedDocs = {};
   this.previouslyJudgedDocsStack = [];
   this.documentCacheStore = null;
+  this.additionalJudgingCriteriaList = [];
 
 
   this._init = function() {
@@ -120,6 +122,7 @@ docView.prototype = {
     validateSelector(options.documentCloseButtonSelector, true, "documentCloseButtonSelector");
     validateSelector(options.searchItemSelector, true, "searchItemSelector");
     validateSelector(options.documentModalSelector, true, "documentModalSelector");
+    validateSelector(options.documentAdditionalJudgingCriterionSelector, true, "additionalJudgingCriterion");
 
     // Don't touch these settings
     var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentViewUpdateCompleted", "afterLoadDocumentsToJudge", "afterDocumentJudge"];
@@ -130,7 +133,7 @@ docView.prototype = {
       }
     }
 
-    // start linking selectors
+    // start linking selectors and collect info on configurable additional judging criteria
     $(document).ready(function(){
       $(options.documentHRelButtonSelector).on("click", function(){sendJudgment(2, options.searchMode? closeDocumentModal : refreshDocumentView)});
       $(options.documentRelButtonSelector).on("click", function(){sendJudgment(1, options.searchMode? closeDocumentModal : refreshDocumentView)});
@@ -138,6 +141,10 @@ docView.prototype = {
       $(options.documentCloseButtonSelector).on("click", function(){closePreviouslyReviewedDocument()});
 
       $('body').on("click", options.searchItemSelector, function(){showDocument($(this).data("doc-id").toString())});
+
+      $(".additionalJudgingCriterion").each(function(){
+        parent.additionalJudgingCriteriaList.push($(this).data("criterion-name"));
+      });
     });
 
     if (!options.singleDocumentMode && !options.searchMode){
@@ -248,7 +255,7 @@ docView.prototype = {
     function checkIfDocumentPreviouslyJudged(docid) {
       let color = null;
       if (docid in parent.previouslyJudgedDocs){
-        color = relToColor(parent.previouslyJudgedDocs[docid]);
+        color = relToColor(parent.previouslyJudgedDocs[docid]["relevance"]);
         if (!(options.singleDocumentMode || options.searchMode)){
           showCloseButton();
         }
@@ -256,7 +263,23 @@ docView.prototype = {
         hideCloseButton();
         color = options.otherColor;
       }
-      updateDocumentIndicator(relToTitle(parent.previouslyJudgedDocs[docid]), color);
+
+      const prevJudgedDocObj = parent.previouslyJudgedDocs[docid];
+      let prevJudgedDocRel = null;
+      if (prevJudgedDocObj !== undefined){
+        prevJudgedDocRel = prevJudgedDocObj["relevance"];
+        updateAdditionalJudgingCriteriaValues(prevJudgedDocObj["additional_judging_criteria"]);
+      }
+      updateDocumentIndicator(relToTitle(prevJudgedDocRel), color);
+
+
+    }
+
+    function updateAdditionalJudgingCriteriaValues(criteria_value_map) {
+      // update radio buttons for the additional judging criteria
+      $.each(criteria_value_map, function (criteria , value) {
+        $(`input[name="${criteria}_radio"][value="${value}"]`).prop("checked", "on");
+      });
     }
 
     function closeDocumentModal() {
@@ -269,6 +292,7 @@ docView.prototype = {
 
     function clearDocumentView() {
       updateDocumentIndicator("",options.otherColor);
+      clearAdditionalJudgingCriteria();
       updateDocID(null);
       updateTitle("");
       updateMessage("");
@@ -367,6 +391,27 @@ docView.prototype = {
       }
     }
 
+    function clearAdditionalJudgingCriteria() {
+      $.each(parent.additionalJudgingCriteriaList, function(index, value){
+        $(`input[name="${value}_radio"]`).prop('checked', false);
+      });
+    }
+
+    function collectAdditionalJudgingCriteria() {
+      let additional_judging_criteria_values = {};
+      $.each(parent.additionalJudgingCriteriaList, function(index, value){
+        const criteria_val = $(`input[name="${value}_radio"]:checked`).val();
+        if (criteria_val !== undefined) {
+          additional_judging_criteria_values[value] = criteria_val;
+        }
+      });
+      return additional_judging_criteria_values;
+    }
+
+    function setAdditionalJudgingCriterionValue(criterion_name, value){
+      $(`input[name="${criterion_name}_radio"][value="${value}"]`).prop("checked", "on");
+    }
+
     function hideWrapperContent() {
       $(options.documentWrapperSelector).addClass("d-none");
     }
@@ -463,7 +508,10 @@ docView.prototype = {
             parent.previouslyJudgedDocsStack = [];
             for (let i = 0; i < result.length; i++){
               let item = result[result.length - 1 - i];
-              parent.previouslyJudgedDocs[item["doc_id"]] = item["relevance"];
+              parent.previouslyJudgedDocs[item["doc_id"]] = {
+                "relevance": item["relevance"],
+                "additional_judging_criteria": item["additional_judging_criteria"]
+              };
               updateOrCreatePreviouslyReviewedListItem(item["doc_id"], item["doc_title"], item["relevance"]);
             }
             if (typeof callback === "function") {
@@ -501,7 +549,11 @@ docView.prototype = {
         return;
       }
 
-      parent.previouslyJudgedDocs[docid] = rel;
+      const additional_judging_criteria = collectAdditionalJudgingCriteria();
+      parent.previouslyJudgedDocs[docid] = {
+        "relevance": rel,
+        "additional_judging_criteria": additional_judging_criteria
+      };
       const currentTitle = getCurrentDocTitle();
       const currentSnippet = getCurrentDocSnippet();
       updateOrCreatePreviouslyReviewedListItem(docid, currentTitle, rel);
@@ -524,6 +576,7 @@ docView.prototype = {
           'doc_CAL_snippet': currentSnippet,
           'doc_search_snippet': "",
           'relevance': rel,
+          'additional_judging_criteria': additional_judging_criteria,
           'source': options.judgingSourceName,
           'client_time': now,
           'search_query': null,
@@ -618,6 +671,7 @@ docView.prototype = {
         const color = relToColor(data.rel);
         checkIfDocumentPreviouslyJudged(docid);
         updateDocumentIndicator(relToTitle(data.rel), color);
+        updateAdditionalJudgingCriteriaValues(data.additional_judging_criteria);
       }else{
         checkIfDocumentPreviouslyJudged(docid);
       }
