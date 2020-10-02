@@ -1,6 +1,6 @@
 /data/*.bin
 /data/*.tgz
-/data/*.svmlightz
+/data/*.svmlight
 /CALEngine/.idea/
 /web/.idea/
 
