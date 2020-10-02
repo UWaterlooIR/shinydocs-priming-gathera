@@ -340,7 +340,7 @@ DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True,
 CAL_SERVER_IP = 'nginx'
 CAL_SERVER_PORT = '9001'
 # Please read hical.github.io/documentation.html#IntegratingSearch before integrating search
-SEARCH_SERVER_IP = '127.0.0.1'
+SEARCH_SERVER_IP = 'search'
 SEARCH_SERVER_PORT = '80'
 DOCUMENTS_URL = 'http://nginx:9000/doc'
 PARA_URL = 'http://nginx:9000/para'
