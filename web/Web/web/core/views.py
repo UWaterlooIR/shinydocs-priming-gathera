@@ -273,6 +273,7 @@ class GetDocAJAXView(views.CsrfExemptMixin,
                                          )
         if exists:
             result[0]["rel"] = exists.first().relevance
+            result[0]["additional_judging_criteria"] = exists.first().additional_judging_criteria
 
         return self.render_json_response(result)
 

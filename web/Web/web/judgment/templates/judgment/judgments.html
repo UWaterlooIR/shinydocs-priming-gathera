@@ -38,7 +38,7 @@
                 <td>
                   <span id="doc_{{row.doc_id}}_judgment_badge" class="badge
                   {% if row.relevance == 2 %}badge-highlyRelevant {% elif row.relevance == 1 %}badge-relevant{% else %}badge-nonRelevant{%endif%}">
-                    {% if row.relevance == 2 %}Highly Relevant{% elif row.relevance == 1 %}Relevant{% else %}Non-Relevant{%endif%}
+                    {% if row.relevance == 2 %}Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %} {% elif row.relevance == 1 %}{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}{% else %}Non-{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}{%endif%}
                   </span>
                 </td>
                 <td>{{ row.user }}</td>
@@ -136,89 +136,8 @@
 
   <!-- Document modal -->
   {% include 'modals/document_modal.html' %}
-
-  <!-- Document Modal -->
-  {%comment%}<div class="modal doc-modal" id="doc-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-xlg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modal-title">
-            <span class="text-danger">Please wait...</span>
-          </h5>
-          <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
-          </button>
-        </div>
-        <div class="modal-body" style="overflow: auto; min-height: 450px; max-height: inherit;">
-          <div class="row">
-            <div class="col-md-8">
-              <div class="document-modal-content"
-                   id="document-modal-content"
-                   data-doc-id="">
-                <div class="document_content" id="document_content">
-                  <div class="row bottom-margin small">
-                    <div class="col-md-6 ">
-                      <small class="document_content_date"></small>
-                    </div>
-                    <div class="col-md-6 align-right small">
-                      <code class="document_content_id"></code>
-                    </div>
-                  </div>
-                  <div class="document_content_text"
-                       id="document_raw_content">
-                    <p><span class="text-danger">Fetching document. Please wait...</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-2 d-none d-md-block" id="sideBar">
-              <nav class="sidebar-nav-fixed bg-faded font-open-sans">
-                <ul class="nav nav-pills flex-column little-padding">
-                  <div class="cal-search">
-                    <li class="mt-1">
-                      <span class="gray-text align-left">Highlight content:</span>
-                      <form id="searchContentForm_doc"
-                            class="top-margin">
-                        <div class="input-group">
-                          <input id="search_content_doc"
-                                 type="search"
-                                 class="form-control"
-                                 placeholder="Search">
-
-                          <div class="input-group-append">
-                            <button class="btn btn-sm btn-secondary"
-                                    data-search="next"
-                                    id="searchNextDoc"
-                                    type="button">&darr;
-                            </button>
-                            <button class="btn btn-sm btn-secondary"
-                                    data-search="prev"
-                                    type="button">&uarr;
-                            </button>
-                            <button class="btn btn-sm btn-secondary"
-                                    data-search="clear"
-                                    type="button">&times;
-                            </button>
-                          </div>
-                        </div>
-                      </form>
-                    </li>
-                  </div>
-                </ul>
-
-              </nav>
-
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>{%endcomment%}
+  <!-- Judging criteria modal -->
+  {% include 'modals/additional_judging_criteria_modal.html' %}
 
 </div>
 
@@ -241,6 +160,7 @@
           sendDocumentJudgmentURL: '{% url 'judgment:post_judgment' %}',
           getDocumentURL: '{% url 'core:get_single_doc' %}?docid=',
           fetchPreviouslyJudgedDocsOnInit: false,
+          mainJudgingCriteriaName: '{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}',
           csrfmiddlewaretoken: "{{ csrf_token }}",
 
           afterDocumentJudge: function(docid, rel) {
@@ -249,13 +169,13 @@
             let relText = "";
             switch (rel) {
               case 0:
-                newColor = "badge-nonRelevant"; relText = "Non-relevant"
+                newColor = "badge-nonRelevant"; relText = "Non-{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}"
                 break;
               case 1:
-                newColor = "badge-relevant"; relText = "Relevant";
+                newColor = "badge-relevant"; relText = "{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}";
                 break;
               case 2:
-                newColor = "badge-highlyRelevant"; relText = "Highly Relevant";
+                newColor = "badge-highlyRelevant"; relText = "Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}";
                 break;
             }
             $(`#doc_${docid}_judgment_badge`).attr('class', `badge ${newColor}`);

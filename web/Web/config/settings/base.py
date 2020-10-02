@@ -184,10 +184,13 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                # Your stuff: custom template context processors go here
+                # Custom template context processors go here
+                # Core
                 'web.core.context_processor.create_form_processor',
                 'web.core.context_processor.shared_session_processor',
                 'web.core.context_processor.get_current_year_to_context',
+                # Judgments
+                'web.judgment.context_processor.judging_criteria_processor',
             ],
         },
     },
@@ -342,6 +345,31 @@ SEARCH_SERVER_PORT = '80'
 DOCUMENTS_URL = 'http://nginx:9000/doc'
 PARA_URL = 'http://nginx:9000/para'
 
+
+# JUDGING CRITERIA
+# ------------------------------------------------------------------------------
+MAIN_JUDGING_CRITERIA_NAME = "Useful"  # Adjective of criteria
+ADDITIONAL_JUDGING_CRITERIA = [
+    {
+        "name": "Credibility",
+        "stored_as": "credibility",
+        "description": "Additional information on the criteria itself",
+        "options": [
+            "Credible",
+            "Non-credible"
+        ]
+    },
+    {
+        "name": "Definitive Answer",
+        "stored_as": "definitive_answer",
+        "description": "Additional information on the criteria itself",
+        "options": [
+            "Unclear",
+            "Yes",
+            "No"
+        ]
+    }
+]
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------

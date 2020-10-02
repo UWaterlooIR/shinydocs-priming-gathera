@@ -14,21 +14,21 @@
       <tbody>
       <tr>
         <th scope="row"><span
-          class="highlyRelevantColor">Highly relevant</span></th>
+          class="highlyRelevantColor">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</span></th>
         <td>{{ total_highlyRelevant_CAL }}</td>
         <td>{{ total_highlyRelevant_search }}</td>
         <td>{{ total_highlyRelevant_CAL|add:total_highlyRelevant_search }}</td>
       </tr>
       <tr>
         <th scope="row"><span
-          class="relevantColor">Relevant</span></th>
+          class="relevantColor">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</span></th>
         <td>{{ total_relevant_CAL }}</td>
         <td>{{ total_relevant_search }}</td>
         <td>{{ total_relevant_CAL|add:total_relevant_search }}</td>
       </tr>
       <tr>
         <th scope="row"><span
-          class="nonRelevantColor">Non relevant</span></th>
+          class="nonRelevantColor">Non {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</span></th>
         <td>{{ total_nonrelevant_CAL }}</td>
         <td>{{ total_nonrelevant_search }}</td>
         <td>{{ total_nonrelevant_CAL|add:total_nonrelevant_search }}</td>

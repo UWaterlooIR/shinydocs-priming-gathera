@@ -43,6 +43,8 @@
 
 <!-- Document modal -->
 {% include 'modals/document_modal.html' %}
+<!-- Judging criteria modal -->
+{% include 'modals/additional_judging_criteria_modal.html' %}
 
 {% endblock %}
 
@@ -66,6 +68,7 @@
           sendDocumentJudgmentURL: '{% url 'judgment:post_judgment' %}',
           getDocumentURL: '{% url 'core:get_single_doc' %}?docid=',
           fetchPreviouslyJudgedDocsOnInit: false,
+          mainJudgingCriteriaName: '{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}',
           csrfmiddlewaretoken: "{{ csrf_token }}",
 
           afterDocumentJudge: function(docid, rel) {
