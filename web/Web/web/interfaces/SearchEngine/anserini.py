@@ -1,21 +1,39 @@
 import requests
 from config.settings.base import SEARCH_SERVER_IP
 from config.settings.base import SEARCH_SERVER_PORT
-from web.interfaces.SearchEngine.base import Search
+from web.interfaces.SearchEngine.base import SearchInterface
+from collections import OrderedDict
 
 
-class Anserini(Search):
+class Anserini(SearchInterface):
 
-    def search(self, query: str, number_of_results: int) -> list:
-        r = requests.get("{}:{}/search/{}".format(SEARCH_SERVER_IP,
-                                                  SEARCH_SERVER_PORT,
-                                                  query))
-        # Todo: check status code
-        results = r.json()
-        return []
+    @staticmethod
+    def search(query: str, size: int):
+        response = requests.get(
+            f"http://{SEARCH_SERVER_IP}:{SEARCH_SERVER_PORT}/search",
+            params={
+                "query": query,
+                "size": size
+            }
+        )
+        response.raise_for_status()
+        response_json = response.json()
+        return response_json
 
-    def get_content(self, docid: str) -> str:
-        return ""
+    @staticmethod
+    def get_content(docno: str):
+        response = requests.get(
+            f"http://{SEARCH_SERVER_IP}:{SEARCH_SERVER_PORT}/docs/{docno}/content",
+        )
+        response.raise_for_status()
+        response_json = response.json()
+        return response_json
 
-    def get_raw(self, docid: str) -> str:
-        raise NotImplementedError
+    @staticmethod
+    def get_raw(docno: str):
+        response = requests.get(
+            f"http://{SEARCH_SERVER_IP}:{SEARCH_SERVER_PORT}/docs/{docno}/raw",
+        )
+        response.raise_for_status()
+        response_json = response.json()
+        return response_json
