@@ -86,27 +86,26 @@ class SearchListView(views.CsrfExemptMixin, generic.base.View):
             return HttpResponse(rendered_template, content_type='text/html')
 
         context = {}
-        documents, document_ids = None, None
+
         try:
             results = SearchEngine.search(search_input, size=numdisplay)
             documents = results["hits"]
             document_ids = [hit["docno"] for hit in results["hits"]]
             total_time = results["total_time"]
+            total_matches = results["total_matches"]
         except (requests.exceptions.HTTPError, TimeoutError) as e:
             context['error'] = f"{e}. Please check search server."
+            rendered_template = template.render(context)
+            return HttpResponse(rendered_template, content_type='text/html')
 
-        documents_values = OrderedDict(zip(document_ids, documents))
+        if total_matches:
+            documents = helpers.join_judgments(documents, document_ids,
+                                               self.request.user,
+                                               self.request.user.current_session)
 
-        if document_ids:
-            # document_ids = helpers.padder(document_ids)
-            documents_values = helpers.join_judgments(documents_values, document_ids,
-                                                      self.request.user,
-                                                      self.request.user.current_session)
-
-        context["documents"] = documents_values
+        context["documents"] = documents
         context["query"] = search_input
-        if total_time:
-            context["total_time"] = "{0:.2f}".format(round(float(total_time), 2))
+        context["total_time"] = "{0:.2f}".format(round(float(total_time), 2))
 
         rendered_template = template.render(context)
         return HttpResponse(rendered_template, content_type='text/html')
