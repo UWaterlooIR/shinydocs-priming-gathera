@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from config.settings.base import SEARCH_ENGINE
 from config.utils import never_ever_cache
 import json
@@ -10,22 +9,20 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.template import loader
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.utils.module_loading import import_string
 from django.views import generic
-import requests
 
 from web.core.mixin import RetrievalMethodPermissionMixin
 from web.interfaces.DocumentSnippetEngine import functions as DocEngine
 from web.interfaces.SearchEngine.base import SearchInterface
-from web.search import helpers
 from web.search.models import Query
 from web.search.models import SearchResult
 from web.search.models import SERPClick
+from web.search import helpers
 
-SearchEngine : SearchInterface = import_string(SEARCH_ENGINE)
+SearchEngine: SearchInterface = import_string(SEARCH_ENGINE)
 logger = logging.getLogger(__name__)
 
 
@@ -55,14 +52,20 @@ class SearchListView(views.LoginRequiredMixin, generic.TemplateView):
         prev_clicks = SERPClick.objects.filter(username=self.request.user).values_list('docno', flat=True).distinct()
         prev_clicks = list(prev_clicks)
 
+        SERP = SERPInstance.SERP
+
+        SERP["hits"] = helpers.join_judgments(SERP["hits"],
+                                              [hit["docno"] for hit in SERP["hits"]],
+                                              self.request.user,
+                                              self.request.user.current_session)
+
         context = {
             "isQueryPage": True,
             "queryID": query_id,
             "query": SERPInstance.query.query,
             "prevClickedUrlsDuringSession": prev_clicks,
-            "SERP": SERPInstance.SERP,
+            "SERP": SERP,
         }
-        print(SERPInstance.SERP)
 
         return context
 
@@ -112,6 +115,7 @@ class SearchSubmitView(views.CsrfExemptMixin,
         return JsonResponse({
             "query_url": self.get_success_url({"query_id": str(query_instance.query_id)})
         })
+
 
 class SearchButtonView(views.CsrfExemptMixin,
                        views.LoginRequiredMixin,
