@@ -2,13 +2,13 @@ from django.db.models import Q
 from web.judgment.models import Judgment
 
 
-def join_judgments(document_values, document_ids, user, session):
+def join_judgments(documents, document_ids, user, session):
     """
     Adds the relevance judgment of the document to the document_values dict.
     If document has not been judged yet, `isJudged` will be False.
     :param user:
     :param session:
-    :param document_values:
+    :param documents:
     :param document_ids:
     :return: document_values with extra information about the document
     """
@@ -18,16 +18,17 @@ def join_judgments(document_values, document_ids, user, session):
                                           relevance__isnull=False)
 
     judged_docs = {j.doc_id: j for j in judged_docs}
-    for id in document_values:
-        is_judged = True if id in judged_docs else False
+    for hit in documents:
+        is_judged = True if hit['docno'] in judged_docs else False
 
         if is_judged:
-            judgment_object = judged_docs.get(id)
-            document_values[id]['rel'] = judgment_object.relevance
-            document_values[id]['isJudged'] = is_judged
-            document_values[id]['relevance_judgment'] = judgment_object.relevance
+            judgment_object = judged_docs.get(hit['docno'])
+            hit['rel'] = judgment_object.relevance
+            hit['isJudged'] = is_judged
+            hit['relevance_judgment'] = judgment_object.relevance
+            hit['additional_judging_criteria'] = judgment_object.additional_judging_criteria
 
-    return document_values
+    return documents
 
 
 def padder(doc_ids):

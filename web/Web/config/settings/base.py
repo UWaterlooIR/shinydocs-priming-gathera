@@ -345,6 +345,10 @@ DOCUMENTS_URL = 'http://nginx:9000/doc'
 PARA_URL = 'http://nginx:9000/para'
 
 
+# SEARCH INTERFACE
+SEARCH_ENGINE = "web.interfaces.SearchEngine.anserini.Anserini"
+
+
 # JUDGING CRITERIA
 # ------------------------------------------------------------------------------
 MAIN_JUDGING_CRITERIA_NAME = "Useful"  # Adjective of criteria

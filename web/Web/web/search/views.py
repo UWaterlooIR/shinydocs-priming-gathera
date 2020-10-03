@@ -1,17 +1,22 @@
 import json
 import logging
+from collections import OrderedDict
 
 from braces import views
 from django.http import HttpResponse
 from django.template import loader
 from django.views import generic
-import httplib2
+import requests
 
 from web.interfaces.DocumentSnippetEngine import functions as DocEngine
-from web.interfaces.SearchEngine import functions as SearchEngine
+from config.settings.base import SEARCH_ENGINE
+from django.utils.module_loading import import_string
 from web.search import helpers
 from web.core.mixin import RetrievalMethodPermissionMixin
 
+from web.interfaces.SearchEngine.base import SearchInterface
+
+SearchEngine : SearchInterface = import_string(SEARCH_ENGINE)
 logger = logging.getLogger(__name__)
 
 
@@ -79,26 +84,28 @@ class SearchListView(views.CsrfExemptMixin, generic.base.View):
         except KeyError:
             rendered_template = template.render({})
             return HttpResponse(rendered_template, content_type='text/html')
+
         context = {}
-        documents_values, document_ids = None, None
+
         try:
-            documents_values, document_ids, total_time = SearchEngine.get_documents(
-                                                            search_input,
-                                                            numdisplay=numdisplay
-                                                         )
-        except (TimeoutError, httplib2.HttpLib2Error):
-            context['error'] = "Error happened. Please check search server."
+            results = SearchEngine.search(search_input, size=numdisplay)
+            documents = results["hits"]
+            document_ids = [hit["docno"] for hit in results["hits"]]
+            total_time = results["total_time"]
+            total_matches = results["total_matches"]
+        except (requests.exceptions.HTTPError, TimeoutError) as e:
+            context['error'] = f"{e}. Please check search server."
+            rendered_template = template.render(context)
+            return HttpResponse(rendered_template, content_type='text/html')
 
-        if document_ids:
-            # document_ids = helpers.padder(document_ids)
-            documents_values = helpers.join_judgments(documents_values, document_ids,
-                                                      self.request.user,
-                                                      self.request.user.current_session)
+        if total_matches:
+            documents = helpers.join_judgments(documents, document_ids,
+                                               self.request.user,
+                                               self.request.user.current_session)
 
-        context["documents"] = documents_values
+        context["documents"] = documents
         context["query"] = search_input
-        if total_time:
-            context["total_time"] = "{0:.2f}".format(round(float(total_time), 2))
+        context["total_time"] = "{0:.2f}".format(round(float(total_time), 2))
 
         rendered_template = template.render(context)
         return HttpResponse(rendered_template, content_type='text/html')
@@ -154,7 +161,6 @@ class SearchGetDocAJAXView(views.CsrfExemptMixin,
                            RetrievalMethodPermissionMixin,
                            views.JsonRequestResponseMixin,
                            views.AjaxResponseMixin, generic.View):
-
     require_json = False
 
     def render_timeout_request_response(self, error_dict=None):
