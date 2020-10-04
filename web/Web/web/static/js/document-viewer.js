@@ -31,6 +31,7 @@ var docView = function() {
 
     // Selectors
     docViewSelector: "#docView",
+    documentTabSelector: "#docViewTab",
     documentIDSelector: "#docViewDocID",
     documentIndicatorSelector: "#docViewDocIndicator",
     documentTitleSelector: "#docViewDocTitle",
@@ -124,9 +125,10 @@ docView.prototype = {
     validateSelector(options.searchItemSelector, true, "searchItemSelector");
     validateSelector(options.documentModalSelector, true, "documentModalSelector");
     validateSelector(options.documentAdditionalJudgingCriterionSelector, true, "additionalJudgingCriterion");
+    validateSelector(options.documentTabSelector, true, "documentTabSelector");
 
     // Don't touch these settings
-    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentViewUpdateCompleted", "afterLoadDocumentsToJudge", "afterDocumentJudge"];
+    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentJudge", "afterErrorShown"];
 
     for (var k in s) {
       if (settings.hasOwnProperty(s[k])) {
@@ -235,7 +237,7 @@ docView.prototype = {
         return;
       }
       // If the current doc not already reviewed, add non-reviewed document back to stack
-      if ( (!(currentDocid in parent.previouslyJudgedDocs) || parent.previouslyJudgedDocs[currentDocid]["relevance"]  === null) ) {
+      if ( currentDocid !== null && (!(currentDocid in parent.previouslyJudgedDocs) || parent.previouslyJudgedDocs[currentDocid]["relevance"]  === null) ) {
         parent.viewStack.unshift(currentDocid);
       }
 
@@ -296,6 +298,7 @@ docView.prototype = {
 
     function clearDocumentView() {
       updateDocumentIndicator("",options.otherColor);
+      showDocTab();
       clearAdditionalJudgingCriteria();
       updateDocID(null);
       updateTitle("");
@@ -307,43 +310,62 @@ docView.prototype = {
       showWrapperContent();
     }
 
+    function showDocTab() {
+      const elm = $(options.documentTabSelector);
+      elm.removeClass("d-none");
+    }
+
+    function hideDocTab() {
+      const elm = $(options.documentTabSelector);
+      elm.addClass("d-none");
+    }
+
     function showLoading(){
+      updateDocumentIndicator("",options.otherColor);
       updateTitle("Loading...", {"font": options.secondaryTitleFont, "color": options.projectPrimaryColor});
       //updateMessage("");
       updateDocID(null);
       updateSnippet("Loading...", {"font": options.secondaryTitleFont, "color": options.secondaryColor});
       updateBody("Loading...", {"font": options.secondaryTitleFont, "color": options.secondaryColor});
       hideCloseButton();
+      hideDocTab();
     }
 
     function showNoDocumentIsSelected() {
+      updateDocumentIndicator("",options.otherColor);
       updateTitle("Please select a document to show", {"font": options.secondaryTitleFont, "color": options.projectPrimaryColor});
       updateMessage("No document has been selected. Please click on a document to view its content.");
       updateDocID(null);
       hideCloseButton();
+      hideDocTab();
     }
 
     function showNoMoreDocuments() {
+      updateDocumentIndicator("",options.otherColor);
       updateTitle("Please wait..", {"font": options.secondaryTitleFont, "color": options.projectPrimaryColor});
       updateMessage("There are no more documents to judge. Please wait or try refreshing the page.");
       updateDocID(null);
       hideCloseButton();
+      hideDocTab();
     }
 
     function showMaxJudgmentReached() {
+      updateDocumentIndicator("",options.otherColor);
       updateTitle("No more documents", {"font": options.secondaryTitleFont, "color": options.projectPrimaryColor});
       updateMessage("There are no more documents to judge. Please wait or try refreshing the page.");
       updateDocID(null);
       hideCloseButton();
-      // disable judgments
+      hideDocTab();
     }
 
 
     function showError(err_msg){
+      updateDocumentIndicator("",options.dangerColor);
       updateTitle("Error...", {"font": options.secondaryTitleFont, "color": options.dangerColor});
       updateMessage(err_msg, {"font": options.secondaryTitleFont, "color": options.dangerColor});
       updateDocID(null);
       hideCloseButton();
+      hideDocTab();
     }
 
     function updateTitle(content, styles) {
@@ -938,6 +960,10 @@ docView.prototype = {
 		return this.triggerEvent("afterDocumentJudge", [docid, rel]);
 	},
 
+  afterErrorShown: function () {
+    "use strict";
+		return this.triggerEvent("afterErrorShown");
+  }
 };
 
 /**
