@@ -21,7 +21,7 @@ def read_root():
 
 
 @app.get("/search/")
-def search(query: str, size: int = 10):
+def search(query: str, size: int = 100):
     start = timer()
     hits = searcher.search(query, k=size)
     end = timer()
@@ -29,6 +29,7 @@ def search(query: str, size: int = 10):
     return {
         "query": query,
         "total_matches": len(hits),
+        "size": size,
         "total_time": total_time,
         "hits":
             [{
