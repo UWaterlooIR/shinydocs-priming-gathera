@@ -76,3 +76,29 @@
   </div>
   {% endif %}
 {% endif %}
+
+<nav aria-label="...">
+  <ul class="pagination justify-content-center">
+      <li class="page-item {{ pagination.is_first_page|yesno:'disabled,' }}">
+      <a class="page-link" href="{% url 'search:query_result' query_id=queryID%}?page_number=1">First</a>
+    </li>
+    <li class="page-item {{ pagination.is_first_page|yesno:'disabled,' }}">
+      <a class="page-link" href="{% url 'search:query_result' query_id=queryID%}?page_number={{pagination.page_number|add:-1}}">Prev</a>
+    </li>
+    {% for i in pagination.page_range %}
+    <li class="page-item {% if pagination.page_number == i %} active {% endif %}">
+      <a class="page-link" href="{% url 'search:query_result' query_id=queryID%}?page_number={{i}}">
+        {{i}}
+        <span class="sr-only">(current)</span>
+      </a>
+    </li>
+    {% endfor %}
+    <li class="page-item {{ pagination.is_last_page|yesno:'disabled,' }}">
+        <a class="page-link" href="{% url 'search:query_result' query_id=queryID%}?page_number={{pagination.page_number|add:+1}}">Next</a>
+    </li>
+    <li class="page-item {{ pagination.is_last_page|yesno:'disabled,' }}">
+        <a class="page-link" href="{% url 'search:query_result' query_id=queryID%}?page_number={{pagination.last_page}}">Last</a>
+    </li>
+
+  </ul>
+</nav>

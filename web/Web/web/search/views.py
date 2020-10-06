@@ -1,3 +1,5 @@
+import math
+
 from config.settings.base import SEARCH_ENGINE
 from config.utils import never_ever_cache
 import json
@@ -54,7 +56,18 @@ class SearchListView(views.LoginRequiredMixin, generic.TemplateView):
 
         SERP = SERPInstance.SERP
 
-        SERP["hits"] = helpers.join_judgments(SERP["hits"],
+        try:
+            page_number = int(self.request.GET.get('page_number', 1))
+        except ValueError:
+            page_number = 1
+        num_display = 10
+        last_page = math.ceil(len(SERP["hits"]) / num_display)
+        page_number = page_number if 1 <= page_number <= last_page else 1
+
+        offset = (page_number - 1) * num_display
+        hits = SERP["hits"][offset: offset + num_display]
+
+        SERP["hits"] = helpers.join_judgments(hits,
                                               [hit["docno"] for hit in SERP["hits"]],
                                               self.request.user,
                                               self.request.user.current_session)
@@ -65,6 +78,14 @@ class SearchListView(views.LoginRequiredMixin, generic.TemplateView):
             "query": SERPInstance.query.query,
             "prevClickedUrlsDuringSession": prev_clicks,
             "SERP": SERP,
+            "pagination": {
+                "is_first_page": page_number == 1,
+                "is_last_page": page_number == last_page,
+                "page_number": page_number,
+                "page_range": range(max(1, page_number - 3), min(last_page, page_number + 3) + 1),
+                "last_page": last_page
+            }
+
         }
 
         return context
@@ -102,7 +123,7 @@ class SearchSubmitView(views.CsrfExemptMixin,
         )
 
         # Call search API to get search results
-        SERP = SearchEngine.search(search_input, size=10)
+        SERP = SearchEngine.search(search_input)
 
         # Create search result instance with the result of the search API call.
         SearchResult.objects.create(

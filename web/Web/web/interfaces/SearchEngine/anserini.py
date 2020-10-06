@@ -8,12 +8,12 @@ from collections import OrderedDict
 class Anserini(SearchInterface):
 
     @staticmethod
-    def search(query: str, size: int):
+    def search(query: str, size: int =100):
         response = requests.get(
             f"http://{SEARCH_SERVER_IP}:{SEARCH_SERVER_PORT}/search",
             params={
                 "query": query,
-                "size": size
+                "size": size,
             }
         )
         response.raise_for_status()
