@@ -75,9 +75,8 @@
     </div>
   </div>
   {% endif %}
-{% endif %}
 
-<nav aria-label="...">
+<nav class="my-4">
   <ul class="pagination justify-content-center">
       <li class="page-item {{ pagination.is_first_page|yesno:'disabled,' }}">
       <a class="page-link" href="{% url 'search:query_result' query_id=queryID%}?page_number=1">First</a>
@@ -102,3 +101,4 @@
 
   </ul>
 </nav>
+{% endif %}
