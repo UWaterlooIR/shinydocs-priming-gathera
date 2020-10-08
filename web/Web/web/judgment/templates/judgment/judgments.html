@@ -153,6 +153,7 @@
         var dv = new docView();
         dv.init({
           singleDocumentMode: true,
+          judgingSourceName: "judgmentsPage",
           searchMode: true,
           getDocumentsToJudgeURL: '{% url 'CAL:get_docs' %}',
           getPrevDocumentsJudgedURL: '{% url 'judgment:get_latest' number_of_docs_to_show=50 %}',

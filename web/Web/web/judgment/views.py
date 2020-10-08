@@ -119,7 +119,6 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
             return self.render_json_response(context)
 
         is_from_cal = source == "CAL"
-        is_from_search = "search" in source
         # mark relevant documents as 1 to CAL.
         rel_CAL = -1 if relevance <= 0 else 1
 
@@ -176,7 +175,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
             except Exception as e:
                 error_message = str(e)
 
-        elif is_from_search:
+        else:
             try:
                 CALFunctions.send_judgment(self.request.user.current_session.uuid,
                                            doc_id,
