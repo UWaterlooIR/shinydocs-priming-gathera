@@ -908,7 +908,7 @@ docView.prototype = {
         }
         // make sure stack doesn't include previously judged documents or current doc
         if ( (!(doc.doc_id in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[doc.doc_id]["relevance"]  === null)) &&  doc.doc_id !== parent.currentDocID ){
-          docids.push(result[i]);
+          docids.push(doc.doc_id);
         }
       }
       parent.viewStack = docids;
