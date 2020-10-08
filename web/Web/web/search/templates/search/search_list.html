@@ -26,6 +26,7 @@
   <div class="row">
     <div class="col-2">
       <div class="card border-0">
+        {% if SERP.total_time %}<small class="gray-text mx-auto mb-2">Your query took {{ SERP.total_time|floatformat }} seconds</small>{% endif %}
         <div class="card-header py-2 text-secondary">
           Filter
         </div>
@@ -40,9 +41,6 @@
 
     <div class="col-5">
 
-      {% if total_time %}
-      <small class="gray-text ml-3 d-none">{{ total_time }} seconds.</small>
-      {% endif %}
 
       {% for hit in SERP.hits %}
       <div class="document d-flex flex-grow-1 searchItemSelector"
