@@ -47,15 +47,15 @@
            id="doc_{{hit.docno}}_card"
            data-rank="{{ hit.rank }}"
            data-doc-id="{{ hit.docno }}"
-           data-title="{{ hit.title|safe }}"
+           data-title="{{ hit.title|escape }}"
            data-toggle="modal" data-target="#documentModal"
            style="min-height: 5rem;cursor: pointer; cursor: hand; transition: border-color 0.3s ease-in"
           >
         <div class="align-self-center align-self-stretch p-2 SERP_indicator" id="doc_{{ hit.docno }}_SERP_indicator"  style="border-color: {% if hit.relevance_judgment == 2 %}#84c273{% elif hit.relevance_judgment == 1 %}#c6fab8{% elif hit.relevance_judgment == 0 %}#a5a5a5{% else %}hsla(50, 50%, 50%, 0.0){% endif %};"></div>
         <div class="align-self-center py-0">
-          <h6 class="title" style="margin-bottom: 0;">{{ hit.title|safe }}</h6>
+          <h6 class="title" style="margin-bottom: 0;">{{ hit.title|escape }}</h6>
           <div class="url small">doc_id: {{ hit.docno }}</div>
-          <div class="snippet"> {{ hit.snippet|safe }} </div>
+          <div class="snippet"> {{ hit.snippet|escape }} </div>
         </div>
       </div>
       {% endfor %}
