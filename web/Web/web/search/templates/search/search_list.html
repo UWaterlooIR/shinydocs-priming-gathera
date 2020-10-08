@@ -24,7 +24,7 @@
   {% else %}
 
   <div class="row">
-    <div class="col-2">
+    <div class="col-2 d-none d-sm-block">
       <div class="card border-0">
         {% if SERP.total_time %}<small class="gray-text mx-auto mb-2">Your query took {{ SERP.total_time|floatformat }} seconds</small>{% endif %}
         <div class="card-header py-2 text-secondary">
@@ -39,12 +39,11 @@
       </div>
     </div>
 
-    <div class="col-7">
-
+    <div class="col-sm-12 col-md-7">
 
       {% for hit in SERP.hits %}
-      <div class="d-flex align-items-center">
-        <div class="document d-flex flex-grow-1 searchItemSelector col-8"
+      <div class="d-flex flex-column flex-md-row align-items-center">
+        <div class="document d-flex flex-grow-1 searchItemSelector col-sm-12 col-md-8"
              id="doc_{{hit.docno}}_card"
              data-rank="{{ hit.rank }}"
              data-doc-id="{{ hit.docno }}"
@@ -61,10 +60,10 @@
           </div>
         </div>
         <div class="mx-auto">
-          <div class="btn-group-vertical" role="group">
-            <a class="btn btn-sm center-text hoverOpacity btn-outline-secondary docViewDocNonRelButton" data-doc-id="{{ hit.docno }}" data-is-serp-judging="true">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
-            <a class="btn btn-sm center-text hoverOpacity btn-outline-secondary docViewDocRelButton" data-doc-id="{{ hit.docno }}" data-is-serp-judging="true">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
-            <a class="btn btn-sm center-text hoverOpacity btn-outline-secondary docViewDocHRelButton" data-doc-id="{{ hit.docno }}" data-is-serp-judging="true">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+          <div class="d-flex flex-row flex-md-column" role="group">
+            <a class="btn btn-sm center-text hoverOpacity btn-outline-secondary docViewDocNonRelButton rounded-0" data-doc-id="{{ hit.docno }}" data-is-serp-judging="true">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+            <a class="btn btn-sm center-text hoverOpacity btn-outline-secondary docViewDocRelButton rounded-0 mx-1 mx-md-0 my-0 my-md-1" data-doc-id="{{ hit.docno }}" data-is-serp-judging="true">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+            <a class="btn btn-sm center-text hoverOpacity btn-outline-secondary docViewDocHRelButton rounded-0" data-doc-id="{{ hit.docno }}" data-is-serp-judging="true">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
           </div>
         </div>
       </div>
@@ -72,7 +71,7 @@
       {% endfor %}
     </div>
 
-    <div class="col-3">
+    <div class="col-3 d-none d-sm-block">
       <div class="card border-0">
         <div class="card-header py-2 text-primary">
           Similar queries
@@ -85,7 +84,7 @@
   </div>
   {% endif %}
 
-<nav class="my-4">
+<nav class="my-5">
   <ul class="pagination justify-content-center">
       <li class="page-item {{ pagination.is_first_page|yesno:'disabled,' }}">
       <a class="page-link" href="{% url 'search:query_result' query_id=queryID%}?page_number=1">First</a>
