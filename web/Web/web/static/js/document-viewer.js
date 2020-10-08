@@ -179,6 +179,9 @@ docView.prototype = {
             sendAdditionalJudgingCriteriaJudgments();
         });
       });
+
+      $(options.documentCloseButtonSelector).on("click", function(){closePreviouslyReviewedDocument()});
+
     });
 
     if (!options.singleDocumentMode && !options.searchMode){
