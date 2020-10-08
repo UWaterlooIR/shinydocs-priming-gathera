@@ -811,7 +811,7 @@ docView.prototype = {
       if (!options.allowDocumentCaching){
         for (let i = 0; i < result.length; i++){
           // make sure stack doesn't include previously judged documents or current doc
-          if ( (!(result[i] in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[result[i]]["relevance"]  === null)) &&  result[i] !== parent.currentDocID ){
+          if ( (!(result[i]["doc_id"] in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[result[i]["doc_id"]]["relevance"]  === null)) &&  result[i]["doc_id"] !== parent.currentDocID ){
             docids.push(result[i]);
           }
         }
@@ -820,7 +820,7 @@ docView.prototype = {
           const doc = result[i];
           parent.documentCacheStore.set(doc.doc_id, doc);
           // make sure stack doesn't include previously judged documents
-          if ( (!(result[i] in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[result[i]]["relevance"]  === null)) && doc.doc_id !== parent.currentDocID){
+          if ( (!(result[i]["doc_id"] in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[result[i]["doc_id"]]["relevance"]  === null)) && doc.doc_id !== parent.currentDocID){
             docids.push(doc.doc_id);
           }
         }
