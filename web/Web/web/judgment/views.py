@@ -147,7 +147,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                 ret = {}
                 next_patch_ids = []
                 for docid_score_pair in next_patch:
-                    doc_id, doc_score = docid_score_pair.split(':')
+                    doc_id, doc_score = docid_score_pair.rsplit(':', 1)
                     ret[doc_id] = doc_score
                     next_patch_ids.append(doc_id)
 
