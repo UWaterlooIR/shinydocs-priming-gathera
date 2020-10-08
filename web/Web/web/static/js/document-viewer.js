@@ -666,10 +666,13 @@ docView.prototype = {
     }
 
     function sendSERPJudgment(docid, rel){
-      parent.previouslyJudgedDocs[docid] = {
-        "relevance": rel,
-        "additional_judging_criteria": {}
-      };
+      if (docid in parent.previouslyJudgedDocs){
+        parent.previouslyJudgedDocs[docid]["relevance"] = rel;
+      }else{
+        parent.previouslyJudgedDocs[docid] = {
+          "relevance": rel,
+        };
+      }
 
       const docTitle = $(`#doc_${docid}_card`).data("title");
       const docSnippet = $(`#doc_${docid}_card`).data("snippet");
@@ -681,7 +684,6 @@ docView.prototype = {
           'doc_CAL_snippet': "",
           'doc_search_snippet': docSnippet,
           'relevance': rel,
-          'additional_judging_criteria': {},
           'source': "SERP",
           'client_time': now,
           'search_query': null,
@@ -697,7 +699,6 @@ docView.prototype = {
             "query": options.query,
             "judged": true,
             "relevance": rel,
-            'additional_judging_criteria': {},
           },
       };
 
@@ -859,7 +860,7 @@ docView.prototype = {
         }
       }
 
-      if (data.rel && typeof data.rel === "number"){
+      if (data.rel !== undefined && typeof data.rel === "number"){
         const color = relToColor(data.rel);
         checkIfDocumentPreviouslyJudged(docid);
         updateDocumentIndicator(relToTitle(data.rel), color);
