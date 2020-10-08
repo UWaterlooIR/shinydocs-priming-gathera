@@ -199,7 +199,7 @@ docView.prototype = {
           return;
         }
       }
-
+      showLoading();
       fetchDocument(docid,  _showDocumentCallback);
     }
 
@@ -808,21 +808,14 @@ docView.prototype = {
      */
     function updateViewStack(result) {
       let docids = [];
-      if (!options.allowDocumentCaching){
-        for (let i = 0; i < result.length; i++){
-          // make sure stack doesn't include previously judged documents or current doc
-          if ( (!(result[i]["doc_id"] in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[result[i]["doc_id"]]["relevance"]  === null)) &&  result[i]["doc_id"] !== parent.currentDocID ){
-            docids.push(result[i]);
-          }
-        }
-      }else{
-        for (let i = 0; i < result.length; i++){
-          const doc = result[i];
+      for (let i = 0; i < result.length; i++){
+        const doc = result[i];
+        if (options.allowDocumentCaching){
           parent.documentCacheStore.set(doc.doc_id, doc);
-          // make sure stack doesn't include previously judged documents
-          if ( (!(result[i]["doc_id"] in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[result[i]["doc_id"]]["relevance"]  === null)) && doc.doc_id !== parent.currentDocID){
-            docids.push(doc.doc_id);
-          }
+        }
+        // make sure stack doesn't include previously judged documents or current doc
+        if ( (!(doc.doc_id in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[doc.doc_id]["relevance"]  === null)) &&  doc.doc_id !== parent.currentDocID ){
+          docids.push(result[i]);
         }
       }
       parent.viewStack = docids;
