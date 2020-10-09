@@ -1,5 +1,6 @@
 import math
 
+import requests
 from config.settings.base import SEARCH_ENGINE
 from config.utils import never_ever_cache
 import json
@@ -123,7 +124,13 @@ class SearchSubmitView(views.CsrfExemptMixin,
         )
 
         # Call search API to get search results
-        SERP = SearchEngine.search(search_input)
+        # TODO How to show errors?
+        try:
+            SERP = SearchEngine.search(search_input)
+        except requests.HTTPError as e:
+            context['error'] = f"Search Server Error: {e}"
+            return HttpResponseRedirect(self.get_failed_url())
+
 
         # Create search result instance with the result of the search API call.
         SearchResult.objects.create(

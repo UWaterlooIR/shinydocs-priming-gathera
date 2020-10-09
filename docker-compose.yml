@@ -30,15 +30,26 @@ services:
       - "8001"
     command: /start.sh
 
-  search:
-    build: ./search/
-    environment:
-      - ANSERINI_INDEXI_PATH=/data/lucene-index.athome.pos+docvectors+raw+content/
+#  search:
+#    build: ./search/
+#    environment:
+#      - ANSERINI_INDEXI_PATH=/data/lucene-index.athome.pos+docvectors+raw+content/
+#    volumes:
+#      - ./search/app:/app
+#      - ./data:/data
+#    ports:
+#      - "8003:80"
+#    expose:
+#      - "8003"
+
+  search_elastic:
+    build: ./search_elastic/
     volumes:
-      - ./search/app:/app
-      - ./data:/data
+      - ./search_elastic/app:/app
+    environment:
+      - discovery.type=single-node
     ports:
-      - "8003:80"
+      - "8003:9200"
     expose:
       - "8003"
 
