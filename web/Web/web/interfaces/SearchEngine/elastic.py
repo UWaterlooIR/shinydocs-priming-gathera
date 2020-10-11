@@ -21,6 +21,11 @@ class Elastic(SearchInterface):
                     }
                 },
                 "size": size,
+                "highlight": {
+                    "fields": {
+                        "contents": {}
+                    }
+                }
             }),
             headers=Elastic.headers
         )
@@ -33,7 +38,7 @@ class Elastic(SearchInterface):
                 "docno": hit["_id"],
                 "score": hit["_score"],
                 "title": hit["_source"]["contents"][:15],
-                "snippet": hit["_source"]["contents"][:50],
+                "snippet": '... ' + ' ... '.join(hit["highlight"]["contents"]) + '... '
             }
             for i, hit in enumerate(response_json["hits"]["hits"])
         ]

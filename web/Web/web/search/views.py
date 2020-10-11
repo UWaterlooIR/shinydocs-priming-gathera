@@ -125,11 +125,8 @@ class SearchSubmitView(views.CsrfExemptMixin,
 
         # Call search API to get search results
         # TODO How to show errors?
-        try:
-            SERP = SearchEngine.search(search_input)
-        except requests.HTTPError as e:
-            context['error'] = f"Search Server Error: {e}"
-            return HttpResponseRedirect(self.get_failed_url())
+        SERP = SearchEngine.search(search_input)
+
 
 
         # Create search result instance with the result of the search API call.
