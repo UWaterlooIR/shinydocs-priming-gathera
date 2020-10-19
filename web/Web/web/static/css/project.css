@@ -717,6 +717,11 @@ a.dropdown-item {
     color: black;
 }
 
+.document em {
+    font-weight: bold;
+}
+
+
 .document-cal {
   font-family: georgia, "times new roman", times, serif;
 }
@@ -947,3 +952,4 @@ mark.current {
 .hoverOpacity:hover{
   opacity: 1;
 }
+
