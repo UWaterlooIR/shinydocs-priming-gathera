@@ -26,6 +26,7 @@ services:
     environment:
       - POSTGRES_USER=web
       - USE_DOCKER=yes
+      - SEARCH_API_KEY=${SEARCH_API_KEY}
     expose:
       - "8001"
     command: /start.sh
