@@ -339,17 +339,23 @@ DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True,
 # ------------------------------------------------------------------------------
 CAL_SERVER_IP = 'nginx'
 CAL_SERVER_PORT = '9001'
-SEARCH_SERVER_IP = 'search'
-SEARCH_SERVER_PORT = '80'
-# SEARCH_SERVER_PORT = '9200'
-INDEX_NAME = 'athome4'
+
+SEARCH_SERVER_PORT = '9201'
+
+
+
+DEV = os.environ.get("DEV") == "true"
+SEARCH_SERVER_IP = 'http://search' if DEV else 'https://localhost'
+INDEX_NAME = 'athome4' if DEV else 'commoncrawl'
+SEARCH_API_KEY = "" if DEV else os.environ.get("SEARCH_API_KEY", "")
+
 DOCUMENTS_URL = 'http://nginx:9000/doc'
 PARA_URL = 'http://nginx:9000/para'
 DEFAULT_NUM_DISPLAY = 10
 
 # SEARCH INTERFACE
-SEARCH_ENGINE = "web.interfaces.SearchEngine.anserini.Anserini"
-# SEARCH_ENGINE = "web.interfaces.SearchEngine.elastic.Elastic"
+# SEARCH_ENGINE = "web.interfaces.SearchEngine.anserini.Anserini"
+SEARCH_ENGINE = "web.interfaces.SearchEngine.elastic.Elastic"
 
 
 

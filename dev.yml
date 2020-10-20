@@ -1,0 +1,22 @@
+version: '2'
+services:
+  web:
+    environment:
+      - DEV=true
+
+  search_elastic:
+    image: elasticsearch:7.9.2
+    volumes:
+      - ./data/esdata:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - http.port=9201
+    ports:
+      - "8003:9201"
+    expose:
+      - "8003"
+    networks:
+      default:
+        aliases:
+          - search
