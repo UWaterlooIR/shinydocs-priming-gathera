@@ -8,7 +8,7 @@ services:
   cal:
     build: ./CALEngine/
     container_name: cal
-    command: bash -c "cd /src; make clean; DEBUG=${DEBUG} make bmi_fcgi && /usr/bin/spawn-fcgi -p 8002 -n -- ./bmi_fcgi --doc-features ${DOC_BIN} --para-features ${PARA_BIN} --threads 16"
+    command: bash -c "cd /src; make clean; DEBUG=${DEBUG} make bmi_fcgi && /usr/bin/spawn-fcgi -p 8002 -n -- ./bmi_fcgi --doc-features ${DOC_BIN} --para-features ${PARA_BIN} --threads 8"
     volumes:
       - ./CALEngine:/src
       - /uwatir/cc:/data
@@ -23,8 +23,8 @@ services:
       - postgres
     volumes:
       - ./web/Web:/app
-      - /uwatir/cc:/cc
       - ./zpipe:/zpipe
+      - /uwatir/cc:/cc
     environment:
       - POSTGRES_USER=web
       - USE_DOCKER=yes
@@ -33,24 +33,23 @@ services:
       - "8001"
     command: /start.sh
 
-    #   search:
-    #     build: ./search/
-    #     environment:
-    #       - ANSERINI_INDEX_PATH=/cc/indexes/lucene-index.cc.news.2020-01.2020-4.pos.preservelines.storecontents/
-    #      # - ANSERINI_SMALL_INDEX_PATH=/cc/indexes/lucene-index.cc.news.2020-01.2020-4.pos.preservelines.storecontents/
-    #      # - ANSERINI_SMALL_INDEX_PATH=/cc/indexes/lucene-index.cc.news.2020-01.2020-4.whitelist/
-    #       - ANSERINI_SMALL_INDEX_PATH=/cc/indexes/lucene-index.cc.news.2020-01.2020-4.whitelist.storeContent.preservelines/
-    #       - MAX_WORKERS=4
-    #     volumes:
-    #       - ./search/app:/app
-    #       - ./data:/data
-    #       - ./zpipe:/zpipe
-    #       - /uwatir/cc:/cc
-    #     ports:
-    #       - "8003:80"
-    #     expose:
-    #       - "8003"
-    #     mem_limit: 30000m
+
+  search_elastic:
+    image: elasticsearch:7.9.2
+    volumes:
+      - /uwatir/es_data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - http.port=9201
+    ports:
+      - "8003:9200"
+    expose:
+      - "8003"
+    networks:
+      default:
+        aliases:
+          - search
 
 
   postgres:
@@ -63,10 +62,6 @@ services:
     environment:
       - POSTGRES_USER=web
       - POSTGRES_HOST_AUTH_METHOD=trust
-#    ports:
-#      - "8004:5432"
-#    expose:
-#      - "8004"
 
   nginx:
     image: nginx:latest

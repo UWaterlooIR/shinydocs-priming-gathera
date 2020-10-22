@@ -1,7 +1,12 @@
 from config.settings.base import DOCUMENTS_URL
 from config.settings.base import PARA_URL
+from django.core.cache import cache
+from web.core.models import CCNewsRecord
+import os
+import subprocess
 
 import httplib2
+import requests
 
 try:
     # For c speedups
@@ -27,21 +32,85 @@ def get_subject(content):
     return ""
 
 
+def get_wet_content(record_id):
+    try:
+        row = CCNewsRecord.objects.get(record_id="{}".format(record_id))
+    except:
+        return ""
+
+    if row:
+        wet_path = "/cc/wet/{}/{}/{}".format(row.year, row.month, row.filename)
+
+        opts = ["-s", row.offset]
+        my_cmd = ["/zpipe/zchunk"] + opts
+        result = ""
+        with open(wet_path, "r") as infile:
+            result = subprocess.run(my_cmd, stdin=infile, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return result.stdout.decode('utf-8')
+
+
+def parse_content(content):
+    # Get url
+    start_url = content.index("WARC-Target-URI: ") + 17
+    url = content[start_url:content.index("\n", start_url)]
+    
+    # Get to the actual document content
+    content = content[content.index("\n", content.index("Content-Length:")):]
+    lines = content.splitlines()
+    
+    def clean(line):
+        words = line.split()
+        # Remove lines with less than 5 words
+        if len(words) <= 5:
+            return False
+        # Remove lines that contain a word with >= 50 chars
+        if any(len(y) >= 50 for y in words):
+            return False
+
+        return True
+
+    lines = list(filter(None, lines))
+    title = lines[0][:100]
+
+    # Clean content
+    lines  = list(filter(lambda line: clean(line), lines))
+
+    # Create paragraphs
+    paragraphs = "".join("<p>{}</p>".format(line) for line in lines[1:])
+
+    return title, url, paragraphs
+
+
 def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
     """
     :param query:
     :param doc_ids: the ids of documents to return
     :return: documents content
     """
+
     result = []
-    h = httplib2.Http()
     for idx, doc_id in enumerate(doc_ids):
-        url = '{}/{}'.format(DOCUMENTS_URL, doc_id)
-        resp, content = h.request(url,
-                                  method="GET")
-        content = content.decode('utf-8', 'ignore')
-        date = get_date(content)
-        title = get_subject(content)
+        if not doc_id.startswith("<urn:uuid:"):
+            doc_id = "<urn:uuid:{}>".format(doc_id)
+            
+        if cache.get(doc_id):
+            title, url, content = cache.get(doc_id)
+        else:
+            #response = requests.get(
+            #    f"{DOCUMENTS_URL}/{doc_id}/content"
+            #)
+            #response.raise_for_status()
+            #response_json = response.json()
+            #content = response_json["content"]   
+            content = get_wet_content(doc_id)
+            if content:
+                title, url, content = parse_content(content)
+                cache.set(doc_id, [title, url, content], 60*30)
+
+        #date = get_date(content)
+        #title = get_subject(content)
+        #title = content[:50]
+
         if len(content) == 0:
             if len(title) == 0:
                 title = '<i class="text-warning">The document title is empty</i>'
@@ -51,11 +120,11 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
                 title = content[:32]
 
         document = {
-            'doc_id': doc_id,
+            'doc_id': doc_id.replace("<urn:uuid:", "").replace(">", ""),
             'title': title,
             'content': content.replace("\n", "<br/>"),
-            'date': date,
-            'top_terms': top_terms.get(doc_id if orig_para_id is None else "{}.{}".format(doc_id, orig_para_id[idx]), None) if top_terms else None
+            'date': url,
+            'top_terms': {}#top_terms.get(doc_id if orig_para_id is None else "{}.{}".format(doc_id, orig_para_id[idx]), None) if top_terms else None
         }
         result.append(document)
 

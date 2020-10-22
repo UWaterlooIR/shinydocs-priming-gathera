@@ -222,6 +222,7 @@ docView.prototype = {
      */
     function showDocument(docid) {
       parent.beforeDocumentLoad(docid);
+      showLoading();
       if (options.allowDocumentCaching){
         // check if it exists in cache
         if (parent.documentCacheStore.get(docid) !== null){
@@ -794,6 +795,7 @@ docView.prototype = {
           method: 'POST',
           data: JSON.stringify(data),
           success: function (result) {
+	      console.log(result)
               if (!options.singleDocumentMode && !options.searchMode){
                 updateViewStack(result["next_docs"]);
               }
@@ -913,10 +915,11 @@ docView.prototype = {
         // make sure stack doesn't include previously judged documents or current doc
         if ( (!(doc.doc_id in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[doc.doc_id]["relevance"]  === null)) &&  doc.doc_id !== parent.currentDocID ){
           docids.push(doc.doc_id);
-        }
+       }
       }
       parent.viewStack = docids;
     }
+
 
     function generate_prev_reviewed_doc_div_elm(docid, title, rel) {
       const rel_color = relToColor(rel);

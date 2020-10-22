@@ -8,12 +8,26 @@ from web.interfaces.CAL import functions as CALFunctions
 from web.topic.models import Topic
 
 
+class CCNewsRecord(models.Model):
+    record_id = models.CharField(max_length=50, null=False, blank=False, unique=True)
+    year = models.CharField(max_length=5, null=True, blank=True)
+    month = models.CharField(max_length=5, null=True, blank=True)
+    filename = models.CharField(max_length=100, null=False, blank=False)
+    offset = models.CharField(max_length=15, null=False, blank=False)
+
+    def __unicode__(self):
+        return "<DocID:{}, Filename:{}, Offset:{}>".format(self.record_id, self.filename, self.offset)
+
+    def __str__(self):
+        return self.__unicode__()
+
+
 class Session(models.Model):
     STRATEGY_CHOICES = (
         ('doc', 'Document (CAL)'),
-        ('para', 'Paragraph (CAL)'),
-        ('doc_scal', 'Document (S-CAL)'),
-        ('para_scal', 'Paragraph (S-CAL)'),
+        #('para', 'Paragraph (CAL)'),
+        #('doc_scal', 'Document (S-CAL)'),
+        #('para_scal', 'Paragraph (S-CAL)'),
     )
 
     username = models.ForeignKey(User, on_delete=models.CASCADE)
