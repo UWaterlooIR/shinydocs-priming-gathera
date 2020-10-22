@@ -6,7 +6,6 @@ import os
 import subprocess
 
 import httplib2
-import requests
 
 try:
     # For c speedups
@@ -96,20 +95,10 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
         if cache.get(doc_id):
             title, url, content = cache.get(doc_id)
         else:
-            #response = requests.get(
-            #    f"{DOCUMENTS_URL}/{doc_id}/content"
-            #)
-            #response.raise_for_status()
-            #response_json = response.json()
-            #content = response_json["content"]   
             content = get_wet_content(doc_id)
             if content:
                 title, url, content = parse_content(content)
                 cache.set(doc_id, [title, url, content], 60*30)
-
-        #date = get_date(content)
-        #title = get_subject(content)
-        #title = content[:50]
 
         if len(content) == 0:
             if len(title) == 0:
@@ -124,7 +113,7 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
             'title': title,
             'content': content.replace("\n", "<br/>"),
             'date': url,
-            'top_terms': {}#top_terms.get(doc_id if orig_para_id is None else "{}.{}".format(doc_id, orig_para_id[idx]), None) if top_terms else None
+            'top_terms': {}
         }
         result.append(document)
 
