@@ -134,6 +134,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
 
         if is_from_cal:
             context[u"next_docs"] = []
+
             try:
                 next_patch, top_terms = CALFunctions.send_judgment(
                     self.request.user.current_session.uuid,
@@ -155,8 +156,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                     if '.' in doc_id:
                         doc['doc_id'], doc['para_id'] = doc_id.split('.')
                     doc_ids_hack.append(doc)
-                seed_query = self.request.user.current_session.topic.seed_query
-                
+                seed_query = self.request.user.current_session.topic.seed_query 
                 if 'doc' in self.request.user.current_session.strategy:
                     documents = DocEngine.get_documents(next_patch_ids,
                                                         seed_query,
