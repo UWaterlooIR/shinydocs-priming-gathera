@@ -33,40 +33,16 @@ services:
       - "8001"
     command: /start.sh
 
-    #   search:
-    #     build: ./search/
-    #     environment:
-    #       - ANSERINI_INDEX_PATH=/cc/indexes/lucene-index.cc.news.2020-01.2020-4.pos.preservelines.storecontents/
-    #      # - ANSERINI_SMALL_INDEX_PATH=/cc/indexes/lucene-index.cc.news.2020-01.2020-4.pos.preservelines.storecontents/
-    #      # - ANSERINI_SMALL_INDEX_PATH=/cc/indexes/lucene-index.cc.news.2020-01.2020-4.whitelist/
-    #       - ANSERINI_SMALL_INDEX_PATH=/cc/indexes/lucene-index.cc.news.2020-01.2020-4.whitelist.storeContent.preservelines/
-    #       - MAX_WORKERS=4
-    #     volumes:
-    #       - ./search/app:/app
-    #       - ./data:/data
-    #       - ./zpipe:/zpipe
-    #       - /uwatir/cc:/cc
-    #     ports:
-    #       - "8003:80"
-    #     expose:
-    #       - "8003"
-    #     mem_limit: 30000m
-
-
   postgres:
     build:
       context: ./web/Web
       dockerfile: ./compose/production/postgres/Dockerfile
     volumes:
-      - ./postgres_data_local:/var/lib/postgresql/data
-      - ./postgres_backup_local:/backups
+      - postgres_data_local:/var/lib/postgresql/data
+      - postgres_backup_local:/backups
     environment:
       - POSTGRES_USER=web
       - POSTGRES_HOST_AUTH_METHOD=trust
-#    ports:
-#      - "8004:5432"
-#    expose:
-#      - "8004"
 
   nginx:
     image: nginx:latest
