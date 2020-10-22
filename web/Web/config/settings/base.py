@@ -339,29 +339,18 @@ DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True,
 # ------------------------------------------------------------------------------
 CAL_SERVER_IP = 'nginx'
 CAL_SERVER_PORT = '9001'
+SEARCH_SERVER_PORT = evn.str("SEARCH_SERVER_PORT", default="80")
+SEARCH_SERVER_IP = env.str('SEARCH_SERVER_IP', default='search')
+INDEX_NAME = 'commoncrawl'
+SEARCH_API_KEY = env.str("SEARCH_API_KEY", default="")
+DOCUMENTS_URL = env.str("DOCUMENT_URL", default="http://nginx:9000/doc")
+PARA_URL = env.str("PARA_URL", default="http://nginx:9000/para")
 
-SEARCH_SERVER_PORT = '9201'
-
-
-
-DEV = os.environ.get("DEV") == "true"
-SEARCH_SERVER_IP = 'http://search' if DEV else 'https://192.168.253.21'
-INDEX_NAME = 'athome4' if DEV else 'commoncrawl'
-SEARCH_API_KEY = "" if DEV else os.environ.get("SEARCH_API_KEY", "")
-
-print(SEARCH_SERVER_IP)
-print(INDEX_NAME)
-print(SEARCH_API_KEY)
-
-DOCUMENTS_URL = 'http://nginx:9000/doc'
-PARA_URL = 'http://nginx:9000/para'
-DEFAULT_NUM_DISPLAY = 10
 
 # SEARCH INTERFACE
 # SEARCH_ENGINE = "web.interfaces.SearchEngine.anserini.Anserini"
 SEARCH_ENGINE = "web.interfaces.SearchEngine.elastic.Elastic"
-
-
+DEFAULT_NUM_DISPLAY = 10
 
 
 # JUDGING CRITERIA
