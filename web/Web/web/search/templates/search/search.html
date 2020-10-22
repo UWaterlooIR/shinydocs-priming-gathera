@@ -90,7 +90,6 @@
           csrfmiddlewaretoken: "{{ csrf_token }}",
 
           afterDocumentJudge: function(docid, rel) {
-            console.log(docid, rel);
             // update document indicator in SERP
             let newColor = "#fff";
             switch (rel) {
