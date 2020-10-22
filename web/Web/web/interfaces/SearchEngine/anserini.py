@@ -10,7 +10,7 @@ class Anserini(SearchInterface):
     @staticmethod
     def search(query: str, size: int = DEFAULT_NUM_DISPLAY, offset: int = 0):
         response = requests.get(
-            f"http://{SEARCH_SERVER_IP}:{SEARCH_SERVER_PORT}/search",
+            f"http://{SEARCH_SERVER_IP}:{SEARCH_SERVER_PORT}/search/",
             params={
                 "query": query,
                 "size": offset + size,
@@ -23,6 +23,8 @@ class Anserini(SearchInterface):
 
     @staticmethod
     def get_content(docno: str):
+        if not docno.startswith("<urn:uuid:"):
+            dono = "<urn:uuid:{}>".format(docno)
         response = requests.get(
             f"http://{SEARCH_SERVER_IP}:{SEARCH_SERVER_PORT}/docs/{docno}/content",
         )

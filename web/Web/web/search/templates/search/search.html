@@ -79,6 +79,7 @@
           queryID: "{{ queryID }}",
           query: "{{ query }}",
           searchMode: true,
+	  judgingSourceName: "search",
           getDocumentsToJudgeURL: '{% url 'CAL:get_docs' %}',
           getPrevDocumentsJudgedURL: '{% url 'judgment:get_latest' number_of_docs_to_show=50 %}',
           getDocumentIDsToJudgeURL: '{% url 'CAL:get_docs_ids' %}',
@@ -89,6 +90,7 @@
           csrfmiddlewaretoken: "{{ csrf_token }}",
 
           afterDocumentJudge: function(docid, rel) {
+            console.log(docid, rel);
             // update document indicator in SERP
             let newColor = "#fff";
             switch (rel) {

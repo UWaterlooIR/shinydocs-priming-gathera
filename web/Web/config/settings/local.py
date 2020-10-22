@@ -14,6 +14,7 @@ from .base import *  # noqa
 # DEBUG
 # ------------------------------------------------------------------------------
 DEBUG = env.bool('DJANGO_DEBUG', default=True)
+DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 # SECRET CONFIGURATION
@@ -43,10 +44,11 @@ CACHES = {
 
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
-# MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
-# INSTALLED_APPS += ['debug_toolbar', ]
+MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
+INSTALLED_APPS += ['debug_toolbar', ]
 
-INTERNAL_IPS = ['127.0.0.1', '10.0.2.2', ]
+INTERNAL_IPS = ['127.0.0.1', '10.0.2.2', "129.97.125.3"]
+
 
 
 import socket

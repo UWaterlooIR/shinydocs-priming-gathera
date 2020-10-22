@@ -31,7 +31,7 @@
         <small class="gray-text mx-auto mb-2">query id is {{ queryID }}</small>
         <small class="gray-text mx-auto mb-2">serp id is {{ serpID }}</small>
         <div class="card-header py-2 text-secondary">
-          Filter
+         Filter
         </div>
         <div class="card-body">
           <span></span>
@@ -51,7 +51,7 @@
              data-rank="{{ hit.rank }}"
              data-doc-id="{{ hit.docno }}"
              data-title="{{ hit.title|escape }}"
-             data-snippet="{{ hit.snippet }}"
+             data-snippet="{{ hit.snippet|escape }}"
              data-toggle="modal" data-target="#documentModal"
              style="min-height: 5rem;cursor: pointer; cursor: hand; transition: border-color 0.3s ease-in"
             >
@@ -68,7 +68,7 @@
             <a class="btn btn-sm center-text hoverOpacity btn-outline-secondary docViewDocRelButton rounded-0 mx-1 mx-md-0 my-0 my-md-1" data-doc-id="{{ hit.docno }}" data-is-serp-judging="true">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
             <a class="btn btn-sm center-text hoverOpacity btn-outline-secondary docViewDocNonRelButton rounded-0" data-doc-id="{{ hit.docno }}" data-is-serp-judging="true">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
           </div>
-        </div>
+       </div>
       </div>
 
       {% endfor %}

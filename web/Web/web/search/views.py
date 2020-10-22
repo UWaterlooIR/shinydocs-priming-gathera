@@ -22,6 +22,8 @@ from web.search.models import SearchResult
 from web.search.models import SERPClick
 from web.search import helpers
 
+from interfaces.DocumentSnippetEngine.functions import get_wet_content, parse_content
+
 SearchEngine: SearchInterface = import_string(SEARCH_ENGINE)
 logger = logging.getLogger(__name__)
 

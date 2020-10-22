@@ -18,7 +18,7 @@ python manage.py loaddata web/topic/fixtures/init_topics.json
 python manage.py collectstatic --no-input
 #echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@myproject.com', 'password')" | python manage.py shell
 python manage.py create_admin --username=admin --email=admin@example.com --password=password
-uwsgi --socket 0.0.0.0:8001 --module config.wsgi --master --process 2 --threads 4
+uwsgi --socket 0.0.0.0:8001 --module config.wsgi --master --process 6 --threads 4
 
 
 # python manage.py runserver 0.0.0.0:8000

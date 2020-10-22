@@ -22,11 +22,13 @@ def send_judgment(session, doc_id, rel, next_batch_size=5):
     """
     h = httplib2.Http()
     url = "http://{}:{}/CAL/judge"
-
+    if not doc_id.startswith("<urn:uuid"):
+        doc_id = "<urn:uuid:{}>".format(doc_id)
     body = {'session_id': str(session),
             'doc_id': doc_id,
             'rel': rel}
     body = urllib.parse.urlencode(body)
+    body = body.replace("%3C", "<").replace("%3A", ":").replace("%3E", ">")
     resp, content = h.request(url.format(CAL_SERVER_IP,
                                          CAL_SERVER_PORT),
                               body=body,
@@ -49,11 +51,14 @@ def check_docid_exists(session, doc_id):
     """
     h = httplib2.Http()
     url = "http://{}:{}/CAL/docid_exists?"
+    if not doc_id.startswith("<urn:uuid"):
+        doc_id = "<urn:uuid:{}>".format(doc_id)
 
     parameters = {
         'session_id': str(session),
         'doc_id': doc_id}
     parameters = urllib.parse.urlencode(parameters)
+    parameters = parameters.replace("%3C", "<").replace("%3A", ":").replace("%3E", ">")
     resp, content = h.request(url.format(CAL_SERVER_IP,
                                          CAL_SERVER_PORT) + parameters,
                               method="GET")

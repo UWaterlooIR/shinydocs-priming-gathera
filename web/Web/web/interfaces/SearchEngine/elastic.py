@@ -32,6 +32,7 @@ class Elastic(SearchInterface):
                 "size": size,
                 "from": offset,
                 "highlight": {
+                    "number_of_fragments": 3,
                     "fields": {
                         "contents": {}
                     }

@@ -42,7 +42,7 @@
   <div class="row">
     <div class="col-12 col-md-8">
 
-      <nav class="nav nav-pills">
+      <nav class="nav nav-pills d-none">
         <div class="d-flex px-3 py-2">
           <span class="pr-2 py-1 align-self-end small align-self-center text-muted border-right unselectable" unselectable="on">Document viewer settings</span>
           <a class="nav-link small ml-2 px-2 py-1 align-self-end active" href="#"><i class="fas fa-highlighter"></i></a>
@@ -80,7 +80,7 @@
           </ul>
           <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="extracted-text-tab-content" role="tabpanel">
-              <div class="document-body mt-2" id="docViewDocWrapper">
+              <div class="document-body" id="docViewDocWrapper">
                 <div class="card border-0 {% if not request.user.current_session.is_summary %}d-none{% endif %}">
                   <div class="card-body">
                     <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
