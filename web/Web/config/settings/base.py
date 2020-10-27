@@ -339,7 +339,7 @@ DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True,
 # ------------------------------------------------------------------------------
 CAL_SERVER_IP = 'nginx'
 CAL_SERVER_PORT = '9001'
-SEARCH_SERVER_PORT = evn.str("SEARCH_SERVER_PORT", default="80")
+SEARCH_SERVER_PORT = env.str("SEARCH_SERVER_PORT", default="80")
 SEARCH_SERVER_IP = env.str('SEARCH_SERVER_IP', default='search')
 INDEX_NAME = 'commoncrawl'
 SEARCH_API_KEY = env.str("SEARCH_API_KEY", default="")
