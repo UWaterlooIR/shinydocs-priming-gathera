@@ -42,16 +42,19 @@ class Elastic(SearchInterface):
 
         response.raise_for_status()
         response_json = response.json()
-        hits = [
-            {
+        hits = []
+        for i, hit in enumerate(response_json["hits"]["hits"]):
+            content = hit["_source"]["contents"]
+            title = content[:content[1:].index("\n")]
+
+            hits.append({
                 "rank": i,
-                "docno": hit["_id"],
+                "docno": hit["_id"].replace("<urn:uuid:", "").replace(">", ""),
                 "score": hit["_score"],
-                "title": hit["_source"]["contents"][:15],
-                "snippet": '... ' + ' ... '.join(hit["highlight"]["contents"]) + '... '
-            }
-            for i, hit in enumerate(response_json["hits"]["hits"])
-        ]
+                "title": title,
+                "snippet": '... '.join(hit["highlight"]["contents"]) + '... '
+            })
+        
         return {
             "query": query,
             "total_matches": len(response_json["hits"]["hits"]),
