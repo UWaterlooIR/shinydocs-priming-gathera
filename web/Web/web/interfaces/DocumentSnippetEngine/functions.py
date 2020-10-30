@@ -91,7 +91,11 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
     for idx, doc_id in enumerate(doc_ids):
         if not doc_id.startswith("<urn:uuid:"):
             doc_id = "<urn:uuid:{}>".format(doc_id)
-            
+    
+        title = ""
+        content = ""
+        url = ""
+
         if cache.get(doc_id):
             title, url, content = cache.get(doc_id)
         else:
@@ -103,7 +107,7 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
         if len(content) == 0:
             if len(title) == 0:
                 title = '<i class="text-warning">The document title is empty</i>'
-            content = '<i class="text-warning">The document content is empty</i>'
+            content = '<i class="text-warning">The document content is empty. Possibly could not fetch content</i>'
         else:
             if len(title) == 0:
                 title = content[:32]
