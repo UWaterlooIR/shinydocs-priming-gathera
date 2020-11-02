@@ -23,8 +23,6 @@ from django.views import generic
 from interfaces.DocumentSnippetEngine import functions as DocEngine
 
 import pytz
-from web.core.forms import SessionForm
-from web.core.forms import SessionPredefinedTopicForm
 from web.core.forms import ShareSessionForm
 from web.core.mixin import RetrievalMethodPermissionMixin
 from web.core.models import Session
@@ -180,6 +178,7 @@ class SessionDetailsAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
             try:
                 shared_session_obj = SharedSession.objects.get(uuid=session_id, shared_with=self.request.user)
                 session_obj = shared_session_obj.refers_to
+                session['uuid'] = session_obj.uuid
                 shared_with_queryset_values = []
                 session["owner"] = False
             except SharedSession.DoesNotExist:
@@ -206,6 +205,7 @@ class SessionDetailsAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
             except Session.DoesNotExist:
                 return JsonResponse({"message": "Ops! Session not found."}, status=404)
 
+        session['is_active_session'] = self.request.user.current_session == session_obj
         session['shared_with'] = shared_with_queryset_values
         session['topic_title'] = session_obj.topic.title
         session['topic_number'] = session_obj.topic.number
