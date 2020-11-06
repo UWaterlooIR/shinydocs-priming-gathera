@@ -166,6 +166,18 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                                                                      seed_query,
                                                                      top_terms)
                 context[u"next_docs"] = documents
+                judgements = Judgment.objects.filter(user=self.request.user,
+                                                     session=self.request.user.current_session).filter(
+                    relevance__isnull=False)
+                max_judged = self.request.user.current_session.max_number_of_judgments
+                if 'scal' in self.request.user.current_session.strategy:
+                    if len(judgements) < max_judged:
+                        self.request.user.current_session.stratum_docs_left = len(documents)
+                        self.request.user.current_session.save()
+                    else:
+                        self.request.user.current_session.stratum_docs_left -= 1
+                        self.request.user.current_session.save()
+
             except TimeoutError:
                 error_dict = {u"message": u"Timeout error. "
                                           u"Please check status of servers."}
@@ -228,7 +240,10 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                 relevance__isnull=False)
             max_judged = self.request.user.current_session.max_number_of_judgments
             # Exit task only if number of judgments reached max (and maxjudged is enabled)
-            if len(judgements) >= max_judged > 0:
+            if len(judgements) >= max_judged > 0 and (
+                'scal' not in self.request.user.current_session.strategy or
+                self.request.user.current_session.stratum_docs_left == 0
+            ):
                 self.request.user.current_session = None
                 self.request.user.save()
 
