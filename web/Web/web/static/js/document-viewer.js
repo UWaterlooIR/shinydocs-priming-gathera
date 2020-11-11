@@ -146,7 +146,7 @@ docView.prototype = {
       if ($(elm).data('is-serp-judging')){
         $(elm).on("click", function(){sendSERPJudgment($(elm).data("doc-id"), rel_val)});
       }else{
-        $(elm).on("click", function(){sendJudgment(rel_val, parent.viewStack.length, options.searchMode? null : refreshDocumentView)});
+        $(elm).on("click", function(){sendJudgment(rel_val, options.searchMode? null : refreshDocumentView)});
       }
     }
 
@@ -733,7 +733,8 @@ docView.prototype = {
 
     }
 
-    function sendJudgment(rel, len_docs, callback) {
+    function sendJudgment(rel, callback) {
+      var current_docview_stack_size = parent.viewStack.length;
       if (!(options.singleDocumentMode || options.searchMode)){
         window.scrollTo(0, 0);
       }
@@ -776,7 +777,7 @@ docView.prototype = {
           'ctrl_f_terms_input': $("#search_content").val(),
           'csrfmiddlewaretoken': options.csrfmiddlewaretoken,
           'page_title': document.title,
-          'len_docs': len_docs,
+          'current_docview_stack_size': current_docview_stack_size,
 
           // history item
           'historyItem': {
