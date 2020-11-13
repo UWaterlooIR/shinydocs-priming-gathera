@@ -339,20 +339,21 @@ DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True,
 # ------------------------------------------------------------------------------
 CAL_SERVER_IP = 'nginx'
 CAL_SERVER_PORT = '9001'
-DEV = os.environ.get("DEV") == "true"
-SEARCH_SERVER_PORT = '9201' if DEV else env.str("SEARCH_SERVER_PORT", default="80")
-SEARCH_SERVER_IP = 'http://search' if DEV else env.str('SEARCH_SERVER_IP', default='search')
-INDEX_NAME = 'athome4' if DEV else 'commoncrawl'
-SEARCH_API_KEY = "" if DEV else os.environ.get("SEARCH_API_KEY", "")
-
+SEARCH_ENGINE = os.environ.get("SEARCH_ENGINE", "elastic")
+SEARCH_SERVER_IP = env.str('SEARCH_SERVER_IP', default='search')
+SEARCH_SERVER_PORT = env.str("SEARCH_SERVER_PORT", default="80")
+INDEX_NAME = env.str("INDEX_NAME", default='commoncrawl')
+SEARCH_API_KEY = os.environ.get("SEARCH_API_KEY", "")
 DOCUMENTS_URL = 'http://nginx:9000/doc'
 PARA_URL = 'http://nginx:9000/para'
-DEFAULT_NUM_DISPLAY = 10
+
 
 # SEARCH INTERFACE
-# SEARCH_ENGINE = "web.interfaces.SearchEngine.anserini.Anserini"
-SEARCH_ENGINE = "web.interfaces.SearchEngine.elastic.Elastic"
-
+if SEARCH_ENGINE == 'anserini':
+    SEARCH_ENGINE_INTERFACE = "web.interfaces.SearchEngine.anserini.Anserini"
+elif SEARCH_ENGINE == 'elastic':
+    SEARCH_ENGINE_INTERFACE = "web.interfaces.SearchEngine.elastic.Elastic"
+DEFAULT_NUM_DISPLAY = 10
 
 
 
