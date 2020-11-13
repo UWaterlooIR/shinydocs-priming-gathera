@@ -243,6 +243,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                                      message)
                 context[u"is_max_judged_reached"] = True
 
+        print("stratum_info", CALFunctions.get_stratum_info(self.request.user.current_session.uuid))
         return self.render_json_response(context)
 
 

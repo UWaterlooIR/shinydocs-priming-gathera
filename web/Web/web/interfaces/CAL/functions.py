@@ -138,3 +138,24 @@ def get_documents(session, num_docs):
         return content['docs'], content['top-terms']
     else:
         raise CALServerError(resp['status'])
+
+
+def get_stratum_info(session):
+    """
+    :param session: current session
+    :return: return JSON object
+    """
+    h = httplib2.Http()
+    url = "http://{}:{}/CAL/get_stratum_info?"
+
+    parameters = {'session_id': str(session)}
+    parameters = urllib.parse.urlencode(parameters)
+    resp, content = h.request(url.format(CAL_SERVER_IP,
+                                         CAL_SERVER_PORT) + parameters,
+                              method="GET")
+    if resp and resp['status'] == '200':
+        content = json.loads(content.decode('utf-8'))
+
+        return content
+    else:
+        raise CALServerError(resp['status'])

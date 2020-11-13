@@ -6,6 +6,7 @@
 #include <set>
 #include <map>
 #include "dataset.h"
+#include <memory>
 
 class BMI{
     protected:
@@ -122,6 +123,15 @@ class BMI{
     struct State get_state(){
         return state;
     }
+
+    struct StratumInfo {
+        StratumInfo(size_t _stratum_number, size_t _stratum_size) 
+        : stratum_number(_stratum_number), stratum_size(_stratum_size) {}
+        size_t stratum_number;
+        size_t stratum_size;
+    };
+
+    virtual std::unique_ptr<StratumInfo> get_stratum_info();  
 };
 
 #endif // BMI_H
