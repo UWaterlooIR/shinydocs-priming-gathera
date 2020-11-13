@@ -339,13 +339,9 @@ DJANGO_NOTIFICATIONS_CONFIG = {'USE_JSONFIELD': True,
 # ------------------------------------------------------------------------------
 CAL_SERVER_IP = 'nginx'
 CAL_SERVER_PORT = '9001'
-
-SEARCH_SERVER_PORT = '9201'
-
-
-
 DEV = os.environ.get("DEV") == "true"
-SEARCH_SERVER_IP = 'http://search' if DEV else 'https://localhost'
+SEARCH_SERVER_PORT = '9201' if DEV else env.str("SEARCH_SERVER_PORT", default="80")
+SEARCH_SERVER_IP = 'http://search' if DEV else env.str('SEARCH_SERVER_IP', default='search')
 INDEX_NAME = 'athome4' if DEV else 'commoncrawl'
 SEARCH_API_KEY = "" if DEV else os.environ.get("SEARCH_API_KEY", "")
 
