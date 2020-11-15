@@ -140,7 +140,7 @@ def get_documents(session, num_docs):
         raise CALServerError(resp['status'])
 
 
-def get_stratum_info(session):
+def get_scal_info(session):
     """
     :param session: current session
     :return: return JSON object
@@ -155,7 +155,9 @@ def get_stratum_info(session):
                               method="GET")
     if resp and resp['status'] == '200':
         content = json.loads(content.decode('utf-8'))
-
-        return content
+        if not content:
+            return None
+        else:
+            return content['info']
     else:
         raise CALServerError(resp['status'])

@@ -3,7 +3,6 @@
 #include <string>
 #include <thread>
 #include <fcgio.h>
-#include <typeinfo>
 #include "utils/simple-cmd-line-helper.h"
 #include "bmi_para.h"
 #include "bmi_para_scal.h"
@@ -244,12 +243,12 @@ string get_docs(string session_id, int max_count, int num_top_terms = 10){
 string get_stratum_info(string session_id){
     auto &bmi = SESSIONS[session_id];
     auto stratum_info = bmi->get_stratum_info();
-    std::cout << "TYPE:" << typeid(bmi).name() << std::endl;
     if (stratum_info == nullptr){
         return "{}";
     }
     string stratum_info_string = "{\"stratum_number\": " + to_string(stratum_info->stratum_number) + 
-    ",\"stratum_size\": " + to_string(stratum_info->stratum_size) + "}";
+        ",\"sample_size\": " + to_string(stratum_info->sample_size) + 
+        ",\"stratum_size\": " + to_string(stratum_info->stratum_size) + "}";
     return "{\"session-id\": \"" + session_id + "\", \"info\": " + stratum_info_string + "}";
 }
 

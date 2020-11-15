@@ -155,6 +155,19 @@
     </div>
 
     <div class="col-2 d-none d-sm-block">
+      {% if "scal" in request.user.current_session.strategy %}
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">SCAL Info</h5>
+            <ul class="list-group list-group-flush" id="scal-info">
+              <li class="list-group-item">Stratum Number: <span style="float:right;"></span></li>
+              <li class="list-group-item">Stratum Size: <span style="float:right;"></span></li>
+              <li class="list-group-item">Next Sample Size: <span style="float:right;"></span></li>
+              <li class="list-group-item">Judgments Left: <span style="float:right;"></span></li>
+            </ul>
+        </div>
+      </div>
+      {% endif %}
       <div class="sticky-top card border-0 mr-2" style="top:75px; z-index: 0;">
         <div class="card-body p-0 mt-3">
           <div id="latest_judged">
@@ -204,6 +217,7 @@
           getDocumentsToJudgeURL: '{% url 'CAL:get_docs' %}',
           getPrevDocumentsJudgedURL: '{% url 'judgment:get_latest' number_of_docs_to_show=50 %}',
           getDocumentIDsToJudgeURL: '{% url 'CAL:get_docs_ids' %}',
+          getScalInfoURL: '{% url 'CAL:get_scal_info' %}',
           sendDocumentJudgmentURL: '{% url 'judgment:post_judgment' %}',
           getDocumentURL: '{% url 'core:get_single_doc' %}?docid=',
           fetchPreviouslyJudgedDocsOnInit: true,
