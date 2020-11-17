@@ -69,5 +69,5 @@ void BMI_doc_scal::record_judgment_batch(vector<pair<string, int>> _judgments){
 }
 
 unique_ptr<BMI::StratumInfo> BMI_doc_scal::get_stratum_info(){
-    return make_unique<StratumInfo>(stratums.size(), stratums.back().size(), ceil(B*N/(float)T), judgment_queue.size());
+    return make_unique<StratumInfo>(stratums.size(), stratums.back().size(), ceil(B*N/(float)T));
 }
