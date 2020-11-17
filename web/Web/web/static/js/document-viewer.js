@@ -571,7 +571,7 @@ docView.prototype = {
           success: function (result) {
             if (result) {
               let temp = [result['stratum_number'], result['stratum_size'], result['sample_size'], (parent.viewStack.length + 1).toString()]
-              Array.from(document.getElementById('scal-info').getElementsByTagName('span')).forEach((span, i) => {
+              Array.from(document.getElementById('scal-info').getElementsByTagName('small')).forEach((span, i) => {
                 span.innerHTML = temp[i]
               })
             }
