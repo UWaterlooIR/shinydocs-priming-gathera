@@ -17,6 +17,7 @@ var docView = function() {
     getDocumentIDsToJudgeURL: null, // required
     sendDocumentJudgmentURL: null, // required
     getDocumentURL: null, // required
+    getSCALInfoURL: null, // required for discovery page
 
     // options
     hideFullDocument: false,
@@ -199,6 +200,7 @@ docView.prototype = {
     }
 
 
+
     /**
      * Validate that a queryString is valid
      *
@@ -256,6 +258,10 @@ docView.prototype = {
       // Show document
       showDocument(docid);
       $(options.docViewSelector).trigger("updated");
+      if (options.getSCALInfoURL !== null){
+          getSCALInfo()
+      }
+
     }
 
     /**
@@ -412,6 +418,15 @@ docView.prototype = {
       updateStyles(elm, styles);
     }
 
+      function updateSCALInfo(result) {
+        if (result) {
+          let temp = [result['stratum_number'], result['stratum_size'], result['sample_size'], (parent.viewStack.length + 1).toString()]
+          Array.from(document.getElementById('scal-info').getElementsByTagName('small')).forEach((span, i) => {
+            span.innerHTML = temp[i]
+          })
+        }
+      }
+
     function updateMeta(content) {
       const elm = $(options.documentMetaSelector);
       elm.html(content);
@@ -562,6 +577,27 @@ docView.prototype = {
       });
     }
 
+      function getSCALInfo(callback) {
+        const url = options.getSCALInfoURL;
+        $.ajax({
+          url: url,
+          method: 'GET',
+          success: function (result) {
+            updateSCALInfo(result)
+            if (typeof callback === "function") {
+              callback();
+            }
+          },
+          error: function (_) {
+            updateSCALInfo({
+              "stratum_number": "NA",
+              "sample_size": "NA",
+              "stratum_size": "NA",
+            });
+          }
+        });
+      }
+
     function populatePrevReviewedDocuments(callback) {
       const url = options.getPrevDocumentsJudgedURL;
       $.ajax({
@@ -696,7 +732,7 @@ docView.prototype = {
           'doc_CAL_snippet': "",
           'doc_search_snippet': docSnippet,
           'relevance': rel,
-          'source': "SERP",
+          'source': "search_SERP",
           'client_time': now,
           'search_query': null,
           'ctrl_f_terms_input': $("#search_content").val(),
@@ -707,7 +743,7 @@ docView.prototype = {
           'historyItem': {
             "username": options.username,
             "timestamp": now,
-            "source": "SERP",
+            "source": "search_SERP",
             "queryID": options.queryID,
             "query": options.query,
             "judged": true,
