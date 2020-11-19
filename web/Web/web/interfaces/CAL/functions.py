@@ -20,7 +20,7 @@ def send_judgment(session, doc_id, rel, next_batch_size=5):
     :param next_batch_size:
     :return:
     """
-    h = httplib2.Http()
+    h = httplib2.Http(timeout=7)
     url = "http://{}:{}/CAL/judge"
     if not doc_id.startswith("<urn:uuid"):
         doc_id = "<urn:uuid:{}>".format(doc_id)

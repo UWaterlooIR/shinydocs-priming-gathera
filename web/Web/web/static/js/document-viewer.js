@@ -135,7 +135,7 @@ docView.prototype = {
     validateSelector(options.documentTabSelector, true, "documentTabSelector");
 
     // Don't touch these settings
-    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentJudge", "afterErrorShown"];
+    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentJudge", "afterErrorShown", "afterCALFailedToRecieveJudgment"];
 
     for (var k in s) {
       if (settings.hasOwnProperty(s[k])) {
@@ -760,6 +760,11 @@ docView.prototype = {
                   showMaxJudgmentReached();
                   return;
               }
+
+              if(result["CALFailedToRecieveJudgment"]){
+                parent.afterCALFailedToRecieveJudgment(docid, rel);
+              }
+
               parent.afterDocumentJudge(docid, rel);
           },
           error: function (result){
@@ -851,6 +856,10 @@ docView.prototype = {
                   showMaxJudgmentReached();
                   //disableJudgments();
                   return;
+              }
+
+              if(result["CALFailedToRecieveJudgment"]){
+                parent.afterCALFailedToRecieveJudgment(docid, rel);
               }
 
               if (parent.currentDocID === null){
@@ -1100,6 +1109,12 @@ docView.prototype = {
     "use strict";
     return this.triggerEvent("afterDocumentJudge", [docid, rel]);
   },
+
+  afterCALFailedToRecieveJudgment: function(docid, rel) {
+    "use strict";
+    return this.triggerEvent("afterCALFailedToRecieveJudgment", [docid, rel]);
+  },
+
 
   afterErrorShown: function () {
     "use strict";
