@@ -51,8 +51,8 @@
 {% include 'modals/document_modal.html' %}
 <!-- Judging criteria modal -->
 {% include 'modals/additional_judging_criteria_modal.html' %}
-<!-- Discovery failed to recieve judgment toast -->
-{% include 'toasts/discovery_failed_to_recieve_judgment.html' %}
+<!-- Discovery failed to receive judgment toast -->
+{% include 'toasts/discovery_failed_to_receive_judgment.html' %}
 
 
 {% endblock %}
@@ -110,16 +110,16 @@
             searchForKeyword();
           },
 
-          afterCALFailedToRecieveJudgment: function(docid, rel) {
-            $('#toast_CALFailedToRecieveJudgment').toast('dispose');
-            $(".CALFailedToRecieveJudgmentSpinner").removeClass("d-none");
-            $("#CALFailedToRecieveJudgment_toast_body").addClass("d-none");
-            $("#toast_CALFailedToRecieveJudgment_docid").html(docid);
+          afterCALFailedToReceiveJudgment: function(docid, rel) {
+            $('#toast_CALFailedToReceiveJudgment').toast('dispose');
+            $(".CALFailedToReceiveJudgmentSpinner").removeClass("d-none");
+            $("#CALFailedToReceiveJudgment_toast_body").addClass("d-none");
+            $("#toast_CALFailedToReceiveJudgment_docid").html(docid);
             setInterval(function(){
-              $("#CALFailedToRecieveJudgment_toast_body").removeClass("d-none");
-              $(".CALFailedToRecieveJudgmentSpinner").addClass("d-none");
+              $("#CALFailedToReceiveJudgment_toast_body").removeClass("d-none");
+              $(".CALFailedToReceiveJudgmentSpinner").addClass("d-none");
             },500);
-            $('#toast_CALFailedToRecieveJudgment').toast('show');
+            $('#toast_CALFailedToReceiveJudgment').toast('show');
           }
         });
 

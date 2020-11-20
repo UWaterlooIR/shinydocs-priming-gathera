@@ -74,6 +74,13 @@ var docView = function() {
 
     // others
     prevReviewedDocumentItemClass: "prev-reviewed-doc-item",
+
+    // event callbacks
+    beforeDocumentLoad: null,
+    afterDocumentLoad: null,
+    afterDocumentJudge: null,
+    afterErrorShown: null,
+    afterCALFailedToReceiveJudgment: null
   };
 
   /*************
@@ -135,7 +142,7 @@ docView.prototype = {
     validateSelector(options.documentTabSelector, true, "documentTabSelector");
 
     // Don't touch these settings
-    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentJudge", "afterErrorShown", "afterCALFailedToRecieveJudgment"];
+    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentJudge", "afterErrorShown", "afterCALFailedToReceiveJudgment"];
 
     for (var k in s) {
       if (settings.hasOwnProperty(s[k])) {
@@ -760,8 +767,8 @@ docView.prototype = {
                   return;
               }
 
-              if(result["CALFailedToRecieveJudgment"]){
-                parent.afterCALFailedToRecieveJudgment(docid, rel);
+              if(result["CALFailedToReceiveJudgment"]){
+                parent.afterCALFailedToReceiveJudgment(docid, rel);
               }
 
               parent.afterDocumentJudge(docid, rel);
@@ -856,8 +863,8 @@ docView.prototype = {
                   return;
               }
 
-              if(result["CALFailedToRecieveJudgment"]){
-                parent.afterCALFailedToRecieveJudgment(docid, rel);
+              if(result["CALFailedToReceiveJudgment"]){
+                parent.afterCALFailedToReceiveJudgment(docid, rel);
               }
 
               if (parent.currentDocID === null){
@@ -1107,9 +1114,9 @@ docView.prototype = {
     return this.triggerEvent("afterDocumentJudge", [docid, rel]);
   },
 
-  afterCALFailedToRecieveJudgment: function(docid, rel) {
+  afterCALFailedToReceiveJudgment: function(docid, rel) {
     "use strict";
-    return this.triggerEvent("afterCALFailedToRecieveJudgment", [docid, rel]);
+    return this.triggerEvent("afterCALFailedToReceiveJudgment", [docid, rel]);
   },
 
 
