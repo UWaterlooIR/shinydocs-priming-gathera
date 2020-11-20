@@ -385,6 +385,9 @@
                     $("#sharedWithTab").removeClass("d-none");
                     // Update shared with list
                     $("#sessionSharedWithList").html("");
+                    if (shared_with_obj.length === 0){
+                      $("#sharedWithTab").addClass("d-none");
+                    }
                     for (let i = 0; i < shared_with_obj.length; i++){
                       const shared_with_obj_i = shared_with_obj[i];
                       $("#sessionSharedWithList").append(templateSharedToUser(
