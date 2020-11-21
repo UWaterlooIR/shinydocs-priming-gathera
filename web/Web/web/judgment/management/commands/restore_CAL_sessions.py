@@ -22,10 +22,10 @@ class Command(BaseCommand):
 
             judgments[(session_id, seed_query, session_strategy)] = []
 
-        for row in Judgment.objects.all():
+        for row in Judgment.objects.filter(relevance__isnull=False):
             session_id = str(row.session.uuid)
             seed_query = str(row.session.topic.seed_query)
-            session_strategy = str(row.strategy)
+            session_strategy = str(row.session.strategy)
 
             judgments[(session_id, seed_query, session_strategy)].append((row.doc_id, -1 if row.relevance <= 0 else 1))
 
@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
         for session_id, seed_query, session_strategy in judgments:
             print("Restoring {}: '{}'...".format(session_id, seed_query))
-            seed_docs = ','.join([doc_id + ':' + str(rel) for doc_id, rel in judgments[(session_id, seed_query)]])
+            seed_docs = ','.join([doc_id + ':' + str(rel) for doc_id, rel in judgments[(session_id, seed_query, session_strategy)]])
 
             data = 'session_id={}&seed_query={}&seed_judgments={}&mode={}'.format(
                 session_id, seed_query, seed_docs, session_strategy)
