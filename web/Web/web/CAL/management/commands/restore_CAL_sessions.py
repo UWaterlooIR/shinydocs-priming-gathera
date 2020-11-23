@@ -26,8 +26,8 @@ class Command(BaseCommand):
             session_id = str(row.session.uuid)
             seed_query = str(row.session.topic.seed_query)
             session_strategy = str(row.session.strategy)
-
-            judgments[(session_id, seed_query, session_strategy)].append((row.doc_id, -1 if row.relevance <= 0 else 1))
+            doc_id = "<urn:uuid:{}>".format(row.doc_id) if not row.doc_id.startswith("<urn") else row.doc_id
+            judgments[(session_id, seed_query, session_strategy)].append((doc_id, -1 if row.relevance <= 0 else 1))
 
         max_tries = 2
         for _ in range(max_tries):
