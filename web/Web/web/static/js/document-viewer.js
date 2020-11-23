@@ -18,6 +18,7 @@ var docView = function() {
     sendDocumentJudgmentURL: null, // required
     getDocumentURL: null, // required
     getSCALInfoURL: null, // required for discovery page
+    logDSInfoURL: null, // required for discovery page
 
     // options
     hideFullDocument: false,
@@ -267,7 +268,6 @@ docView.prototype = {
       if (options.getSCALInfoURL !== null){
           getSCALInfo()
       }
-
     }
 
     /**
@@ -430,6 +430,7 @@ docView.prototype = {
           Array.from(document.getElementById('scal-info').getElementsByTagName('small')).forEach((span, i) => {
             span.innerHTML = temp[i]
           })
+          logDSInfo(result['stratum_number'])
         }
       }
 
@@ -891,6 +892,28 @@ docView.prototype = {
           }
       });
 
+    }
+
+    function logDSInfo(stratum_number) {
+      if (options.logDSInfoURL !== null) {
+        return;
+      }
+      const docid = parent.currentDocID;
+      if (docid === null){
+        return;
+      }
+
+      var data = {
+        'doc_id': docid,
+        // 'doc_topic': doc_topic,
+        'stratum_num': stratum_number,
+      };
+
+      $.ajax({
+          url: options.sendDocumentJudgmentURL,
+          method: 'POST',
+          data: JSON.stringify(data)
+      });
     }
 
     /*************

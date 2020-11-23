@@ -233,6 +233,7 @@
           getPrevDocumentsJudgedURL: '{% url 'judgment:get_latest' number_of_docs_to_show=50 %}',
           getDocumentIDsToJudgeURL: '{% url 'CAL:get_docs_ids' %}',
           getSCALInfoURL: '{% url 'CAL:get_scal_info' %}',
+          logDSInfoURL: '{% url 'CAL:log_ds_info' %}',
           sendDocumentJudgmentURL: '{% url 'judgment:post_judgment' %}',
           getDocumentURL: '{% url 'core:get_single_doc' %}?docid=',
           fetchPreviouslyJudgedDocsOnInit: true,

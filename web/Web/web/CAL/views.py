@@ -149,6 +149,56 @@ class SCALInfoView(views.CsrfExemptMixin,
         except CALError as e:
             return JsonResponse({"message": "Oops! CALError."}, status=404)
 
+
+class DSInfoView(views.CsrfExemptMixin,
+                 RetrievalMethodPermissionMixin,
+                 views.LoginRequiredMixin,
+                 views.JsonRequestResponseMixin,
+                 views.AjaxResponseMixin, generic.View):
+    """
+    View to log information related to dynamic sampling
+    """
+    require_json = False
+
+    def render_timeout_request_response(self, error_dict=None):
+        if error_dict is None:
+            error_dict = self.error_response_dict
+        json_context = json.dumps(
+            error_dict,
+            cls=self.json_encoder_class,
+            **self.get_json_dumps_kwargs()
+        ).encode('utf-8')
+        return HttpResponse(
+            json_context, content_type=self.get_content_type(), status=502)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            doc_id = self.request_json[u"doc_id"]
+            # doc_topic = self.request_json[u"doc_topic"]
+            stratum_num = self.request_json[u"stratum_num"]
+        except KeyError:
+            error_dict = {u"message": u"POST input missing important fields"}
+        return self.render_bad_request_response(error_dict)
+
+        # Check if a judgment exists already, if so, update the db row.
+        exists = Judgment.objects.filter(user=self.request.user,
+                                         doc_id=doc_id,
+                                         session=self.request.user.current_session)
+        # A judgment should not exists already
+
+        if exists:
+            pass
+        else:
+            DS_logging.objects.create(
+                user=self.request.user,
+                session=self.request.user.current_session.uuid,
+                doc_id=doc_id,
+                stratum_num=stratum_num,
+            )
+
+        return self.render_json_response(context)
+
+
 class DocIDsAJAXView(views.CsrfExemptMixin,
                      RetrievalMethodPermissionMixin,
                      views.LoginRequiredMixin,
