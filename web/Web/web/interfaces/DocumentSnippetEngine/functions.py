@@ -52,7 +52,8 @@ def parse_content(content):
     # Get url
     start_url = content.index("WARC-Target-URI: ") + 17
     url = content[start_url:content.index("\n", start_url)]
-    
+    url = url.strip()
+
     # Get to the actual document content
     content = content[content.index("\n", content.index("Content-Length:")):]
     lines = content.splitlines()
