@@ -371,6 +371,7 @@ docView.prototype = {
       updateTitle("Loading...", {"font": options.secondaryTitleFont, "color": options.projectPrimaryColor});
       //updateMessage("");
       updateDocID(null);
+      updateMeta("");
       updateSnippet("Loading...", {"font": options.secondaryTitleFont, "color": options.secondaryColor});
       updateBody("Loading...", {"font": options.secondaryTitleFont, "color": options.secondaryColor});
       hideCloseButton();
@@ -381,6 +382,7 @@ docView.prototype = {
       updateDocumentIndicator("",options.otherColor);
       updateTitle("Please select a document to show", {"font": options.secondaryTitleFont, "color": options.projectPrimaryColor});
       updateMessage("No document has been selected. Please click on a document to view its content.");
+      updateMeta("");
       updateDocID(null);
       hideCloseButton();
       hideDocTab();
@@ -390,6 +392,7 @@ docView.prototype = {
       updateDocumentIndicator("",options.otherColor);
       updateTitle("Please wait..", {"font": options.secondaryTitleFont, "color": options.projectPrimaryColor});
       updateMessage("There are no more documents to judge. Please wait or try refreshing the page.");
+      updateMeta("");
       updateDocID(null);
       hideCloseButton();
       hideDocTab();
@@ -399,6 +402,7 @@ docView.prototype = {
       updateDocumentIndicator("",options.otherColor);
       updateTitle("Max number of judgments reached", {"font": options.secondaryTitleFont, "color": options.projectPrimaryColor});
       updateMessage("You have reached the max number of judgments for this session. You will be redirected to the home page shortly.");
+      updateMeta("");
       updateDocID(null);
       hideCloseButton();
       hideDocTab();
@@ -414,6 +418,7 @@ docView.prototype = {
       updateDocumentIndicator("",options.dangerColor);
       updateTitle("Error...", {"font": options.secondaryTitleFont, "color": options.dangerColor});
       updateMessage(err_msg, {"font": options.secondaryTitleFont, "color": options.dangerColor});
+      updateMeta("");
       updateDocID(null);
       hideCloseButton();
       hideDocTab();
