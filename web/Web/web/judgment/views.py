@@ -331,6 +331,36 @@ class GetLatestAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
                     "doc_CAL_snippet": judgment.doc_CAL_snippet,
                     "doc_content": "",
                     "relevance": judgment.relevance,
+                    "additional_judging_criteria": judgment.additional_judging_criteria,
+                    "source": judgment.source
+                }
+            )
+
+        return self.render_json_response(result)
+
+
+class GetAllAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
+                        views.JsonRequestResponseMixin,
+                        generic.View):
+    require_json = False
+
+    def get(self, request, *args, **kwargs):
+        latest = Judgment.objects.filter(
+            user=self.request.user,
+            session=self.request.user.current_session,
+        ).filter(
+            relevance__isnull=False
+        ).order_by('-relevance')
+        result = []
+        for judgment in latest:
+            result.append(
+                {
+                    "doc_id": judgment.doc_id,
+                    "doc_title": judgment.doc_title,
+                    "doc_date": "",
+                    "doc_CAL_snippet": judgment.doc_CAL_snippet,
+                    "doc_content": "",
+                    "relevance": judgment.relevance,
                     "additional_judging_criteria": judgment.additional_judging_criteria
                 }
             )
