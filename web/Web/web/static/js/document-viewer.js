@@ -30,6 +30,7 @@ var docView = function() {
     fetchPreviouslyJudgedDocsOnInit: false,
     singleDocumentMode: false,
     searchMode: false,
+    reviewMode: false,
     mainJudgingCriteriaName: "Relevant", // adjective of criteria
 
     // Specific to search
@@ -52,12 +53,15 @@ var docView = function() {
     documentJudgingCriteriaButtonGroupSelector: ".judging-criteria-btn-group",
     documentHRelButtonSelector: ".docViewDocHRelButton",
     documentRelButtonSelector: ".docViewDocRelButton",
+    docViewNextDocButtonSelector: ".docViewNextDocButton",
+    docViewPreviousDocButtonSelector: ".docViewPreviousDocButton",
     documentNonRelButtonSelector: ".docViewDocNonRelButton",
     documentAdditionalJudgingCriterionSelector: ".additionalJudgingCriterion",
     previouslyReviewedListSelector: ".previouslyReviewedList",
     previouslyReviewedListSpinnerSelector: ".previouslyReviewedListSpinner",
     searchItemSelector: ".searchItemSelector",
     documentModalSelector: "#documentModal",
+    sortReviewedDocumentsSelector: ".docViewSortReviewListByRelButton",
 
     // Colors
     highlyRelevantColor: "#84c273",
@@ -88,6 +92,7 @@ var docView = function() {
    * VARIABLES *
    *************/
   this.currentDocID = null;
+  this.currentDocIndex = -1;
   this.viewStack = [];
   this.previouslyJudgedDocs = {};
   this.previouslyJudgedDocsStack = [];
@@ -156,8 +161,20 @@ docView.prototype = {
       if ($(elm).data('is-serp-judging')){
         $(elm).on("click", function(){sendSERPJudgment($(elm).data("doc-id"), rel_val)});
       }else{
-        $(elm).on("click", function(){sendJudgment(rel_val, options.searchMode? null : refreshDocumentView)});
+        $(elm).on("click", function(){sendJudgment(rel_val, (options.searchMode || options.reviewMode)? null : refreshDocumentView)});
       }
+    }
+
+    function _linkNextDocButton(elm) {
+      $(elm).on("click", function () { gotoNextDocument() });
+    }
+
+    function _linkPreviousDocButton(elm) {
+      $(elm).on("click", function () { gotoPreviousDocument() });
+    }
+
+    function _linkSortByRelevanceButton(elm) {
+      $(elm).on("click", function () { getDocumentsToJudge(refreshDocumentView); populatePrevReviewedDocuments() });
     }
 
     // start linking selectors and collect info on configurable additional judging criteria
@@ -192,8 +209,10 @@ docView.prototype = {
         });
       });
 
-      $(options.documentCloseButtonSelector).on("click", function(){closePreviouslyReviewedDocument()});
-
+      $(options.documentCloseButtonSelector).on("click", function () { closePreviouslyReviewedDocument() });
+      _linkNextDocButton($(options.docViewNextDocButtonSelector));
+      _linkPreviousDocButton($(options.docViewPreviousDocButtonSelector));
+      _linkSortByRelevanceButton($(options.sortReviewedDocumentsSelector));
     });
 
     if (!options.singleDocumentMode && !options.searchMode){
@@ -247,10 +266,24 @@ docView.prototype = {
       fetchDocument(docid,  _showDocumentCallback);
     }
 
+    function gotoNextDocument() {
+      let currentDocIndex = parent.currentDocIndex;
+      if (currentDocIndex < parent.viewStack.length - 1) {
+        viewPreviouslyJudgedDocument(parent.viewStack[currentDocIndex + 1]);
+      }
+    }
+
+    function gotoPreviousDocument() {
+      let currentDocIndex = parent.currentDocIndex;
+      if (currentDocIndex > 0) {
+        viewPreviouslyJudgedDocument(parent.viewStack[currentDocIndex - 1]);
+      }
+    }
+
     /**
-     * Views top of the view stack document
+     * Views top of the view stack document. Or,if in review mode, view the doc at NextDocIndex
      */
-    function refreshDocumentView() {
+    function refreshDocumentView(nextDocIndex=0) {
       // Show loading
       showLoading();
       if (parent.viewStack.length === 0){
@@ -262,8 +295,12 @@ docView.prototype = {
         $(options.docViewSelector).trigger("updated");
         return;
       }
-      let docid = parent.viewStack[0];
-      parent.viewStack.shift(); // remove it from viewStack
+
+      parent.currentDocIndex = nextDocIndex
+      let docid = parent.viewStack[nextDocIndex];
+      if (!options.reviewMode) {
+        parent.viewStack.shift(); // remove it from viewStack
+      }
       // Show document
       showDocument(docid);
       $(options.docViewSelector).trigger("updated");
@@ -277,22 +314,24 @@ docView.prototype = {
      * Views a previously judged document
      * @param docid
      */
-    function viewPreviouslyJudgedDocument(docid){
-
+    function viewPreviouslyJudgedDocument(docid) {
       const currentDocid = parent.currentDocID;
       // If its the same document currently shown, don't do anything
       if (currentDocid === docid){
         return;
       }
       // If the current doc not already reviewed, add non-reviewed document back to stack
-      if ( currentDocid !== null && (!(currentDocid in parent.previouslyJudgedDocs) || parent.previouslyJudgedDocs[currentDocid]["relevance"]  === null) ) {
+      if ( !options.reviewMode && currentDocid !== null && (!(currentDocid in parent.previouslyJudgedDocs) || parent.previouslyJudgedDocs[currentDocid]["relevance"]  === null) ) {
         parent.viewStack.unshift(currentDocid);
       }
 
       // Add the prev reviewed document to the beginning of the stack
-      parent.viewStack.unshift(docid);
-
-      refreshDocumentView();
+      if (!options.reviewMode) {
+        parent.viewStack.unshift(docid);
+        refreshDocumentView();
+      } else {
+        refreshDocumentView(parent.viewStack.indexOf(docid));
+      }
     }
 
     function closePreviouslyReviewedDocument() {
@@ -310,7 +349,7 @@ docView.prototype = {
       let color = null;
       if (docid in parent.previouslyJudgedDocs){
         color = relToColor(parent.previouslyJudgedDocs[docid]["relevance"]);
-        if (!(options.singleDocumentMode || options.searchMode)){
+        if (!(options.singleDocumentMode || options.searchMode || options.reviewMode)){
           showCloseButton();
         }
         updateActiveJudgingButton(docid, parent.previouslyJudgedDocs[docid]["relevance"]);
@@ -486,8 +525,12 @@ docView.prototype = {
       updateStyles(elm, styles);
     }
 
-    function updateDocID(docid){
+    function updateDocID(docid) {
       parent.currentDocID = docid;
+      if (options.reviewMode) {  
+        parent.currentDocIndex = parent.viewStack.indexOf(docid);
+      }
+        
       const elm = $(options.documentIDSelector);
       if (docid){
         elm.html(docid);
@@ -542,11 +585,11 @@ docView.prototype = {
       $(options.documentCloseButtonSelector).removeClass("d-none");
     }
 
-    function updateOrCreatePreviouslyReviewedListItem(docid, title, rel){
+    function updateOrCreatePreviouslyReviewedListItem(docid, title, rel) {
       const div_elm = generate_prev_reviewed_doc_div_elm(docid, title, rel);
       // Check if docid is already in prev reviewed docs stack, if so, pop it
       const stack_index = parent.previouslyJudgedDocsStack.indexOf(docid);
-      if (stack_index !== -1){
+      if (stack_index !== -1 && !options.reviewMode){
         parent.previouslyJudgedDocsStack.splice(stack_index, 1);
         // remove the div associated with the docid
         $("."+options.prevReviewedDocumentItemClass).each(function() {
@@ -556,13 +599,17 @@ docView.prototype = {
         });
       }
       // link on click
-      div_elm.on("click", function(){viewPreviouslyJudgedDocument($(this).data("doc-id").toString())});
+      div_elm.on("click", function () {viewPreviouslyJudgedDocument($(this).data("doc-id").toString())});
 
-      // add to top of the list view/stack
-      $(options.previouslyReviewedListSelector).prepend(div_elm);
-      parent.previouslyJudgedDocsStack.push(docid);
-
-
+      if (!options.reviewMode || stack_index === -1) {
+        // add to top of the list view/stack
+        $(options.previouslyReviewedListSelector).prepend(div_elm);
+        parent.previouslyJudgedDocsStack.push(docid);
+      } else {
+        // update indicator
+        const current = $("." + options.prevReviewedDocumentItemClass + `[data-doc-id='${docid}']`);
+        current.children().eq(0).css('border-color', relToColor(rel));
+      }
     }
 
     function highlightTerm(term, score) {
@@ -639,8 +686,10 @@ docView.prototype = {
           url: url,
           method: 'GET',
           success: function (result) {
-            $(options.previouslyReviewedListSpinnerSelector).addClass("d-none");
+            $(options.previouslyReviewedListSelector).empty();
             parent.previouslyJudgedDocsStack = [];
+            parent.previouslyJudgedDocs = {};
+            $(options.previouslyReviewedListSpinnerSelector).addClass("d-none");
             for (let i = 0; i < result.length; i++){
               let item = result[result.length - 1 - i];
               parent.previouslyJudgedDocs[item["doc_id"]] = {
@@ -836,9 +885,9 @@ docView.prototype = {
       const currentSnippet = getCurrentDocSnippet();
       updateOrCreatePreviouslyReviewedListItem(docid, currentTitle, rel);
 
-      if (!options.singleDocumentMode && !options.searchMode){
+      if (!options.singleDocumentMode && !options.searchMode && !options.reviewMode){
         clearDocumentView();
-      }else{
+      } else {
         updateDocumentIndicator(relToTitle(rel), relToColor(rel));
       }
       // add document to previously judged map
@@ -885,8 +934,7 @@ docView.prototype = {
           method: 'POST',
           data: JSON.stringify(data),
           success: function (result) {
-	      console.log(result)
-              if (!options.singleDocumentMode && !options.searchMode){
+              if (!options.singleDocumentMode && !options.searchMode && !options.reviewMode) { 
                 updateViewStack(result["next_docs"]);
               }else{
                 updateActiveJudgingButton(docid, rel);
@@ -960,6 +1008,16 @@ docView.prototype = {
         }
       }
 
+      // unbold the previous document
+      const previous = $("." + options.prevReviewedDocumentItemClass + `[data-is-current='true']`);
+      previous.removeClass("bold");
+      previous.attr("data-is-current", "false");
+
+      //bold the current document
+      const current = $("." + options.prevReviewedDocumentItemClass + `[data-doc-id='${docid}']`);
+      current.addClass("bold");
+      current.attr("data-is-current", "true");
+
       if (data.rel !== undefined && typeof data.rel === "number"){
         const color = relToColor(data.rel);
         checkIfDocumentPreviouslyJudged(docid);
@@ -1009,7 +1067,7 @@ docView.prototype = {
           parent.documentCacheStore.set(doc.doc_id, doc);
         }
         // make sure stack doesn't include previously judged documents or current doc
-        if ( (!(doc.doc_id in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[doc.doc_id]["relevance"]  === null)) &&  doc.doc_id !== parent.currentDocID ){
+        if (((!(doc.doc_id in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[doc.doc_id]["relevance"]  === null)) &&  doc.doc_id !== parent.currentDocID) || options.reviewMode){
           docids.push(doc.doc_id);
        }
       }
@@ -1020,7 +1078,7 @@ docView.prototype = {
     function generate_prev_reviewed_doc_div_elm(docid, title, rel) {
       const rel_color = relToColor(rel);
       return $(`
-        <a href="#" class="d-flex mb-1 text-muted ${options.prevReviewedDocumentItemClass}" style="min-height: 1rem;" data-doc-id="${docid}">
+        <a href="#" class="d-flex mb-1 text-muted ${options.prevReviewedDocumentItemClass}" style="min-height: 1rem;" data-doc-id="${docid}" data-is-current="false">
             <div class="align-self-center align-self-stretch p-1" style="border-width: 0.15rem!important; border-style: none none none solid; border-color: ${rel_color};"></div>
             <div class="align-self-center text-truncate">
                 <div class="docView-default-font-family text-truncate">${title}</div>

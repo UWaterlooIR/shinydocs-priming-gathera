@@ -17,5 +17,6 @@ urlpatterns = [
     re_path(r'^get_latest/(?P<number_of_docs_to_show>\d+)/$',
             views.GetLatestAJAXView.as_view(),
             name='get_latest'),
-
+    path(r'^get_all/', views.GetAllAJAXView.as_view(),
+          name='get_all'),
 ]
