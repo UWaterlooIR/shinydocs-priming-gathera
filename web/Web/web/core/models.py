@@ -42,16 +42,17 @@ class Session(models.Model):
                                       editable=False)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            try:
-                CALFunctions.add_session(str(self.uuid),
-                                         self.topic.seed_query,
-                                         self.strategy)
-            except (CALError, ConnectionRefusedError, Exception) as e:
-                # TODO: log error
-                pass
-        super(Session, self).save(*args, **kwargs)
+    def begin_session_in_cal(self):
+        try:
+            judgments = self.judgment_set.all()
+            judgments_list = [(j.doc_id, j.relevance) for j in judgments]
+            CALFunctions.add_session(str(self.uuid),
+                                     self.topic.seed_query,
+                                     self.strategy,
+                                     judgments_list)
+        except (CALError, ConnectionRefusedError, Exception) as e:
+            # TODO: log error
+            pass
 
     def is_summary(self):
         return "para" in self.strategy

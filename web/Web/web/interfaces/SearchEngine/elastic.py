@@ -1,6 +1,7 @@
 import json
 
 import requests
+
 from config.settings.base import DEFAULT_NUM_DISPLAY
 from config.settings.base import INDEX_NAME
 from config.settings.base import SEARCH_SERVER_IP

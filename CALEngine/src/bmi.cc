@@ -115,8 +115,13 @@ void BMI::add_to_training_cache(int id, int judgment){
 
 void BMI::record_judgment_batch(vector<pair<string, int>> _judgments){
     for(const auto &judgment: _judgments){
-        size_t id = documents->get_index(judgment.first);
-        add_to_training_cache(id, judgment.second);
+        auto doc_index = documents->get_index(judgment.first);
+        if (doc_index != documents->NPOS) {
+            size_t id = documents->get_index(judgment.first);
+            add_to_training_cache(id, judgment.second);
+        } else {
+            cerr << "Document with ID " << judgment.first << " not found" << endl;
+        }
     }
 
     if(!async_mode){

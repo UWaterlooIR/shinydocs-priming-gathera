@@ -1,7 +1,8 @@
+import httplib2
+import requests
+
 from config.settings.base import DOCUMENTS_URL
 from config.settings.base import PARA_URL
-
-import httplib2
 
 try:
     # For c speedups
@@ -61,6 +62,38 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
 
     return result
 
+
+
+def get_document_or_none(doc_id):
+    """
+    :param doc_id: the id of document to return
+    :return: documents content
+    """
+
+    url = f"{DOCUMENTS_URL}/{doc_id}"
+    resp = requests.get(url)
+    if not resp.ok:
+        return None
+
+    content = resp.content.decode('utf-8', 'ignore')
+    date = get_date(content)
+    title = get_subject(content)
+    if len(content) == 0:
+        if len(title) == 0:
+            title = '<i class="text-warning">The document title is empty</i>'
+        content = '<i class="text-warning">The document content is empty</i>'
+    else:
+        if len(title) == 0:
+            title = content[:32]
+
+    document = {
+        'doc_id': doc_id,
+        'title': title,
+        'content': content.replace("\n", "<br/>"),
+        'date': date,
+    }
+
+    return document
 
 def get_documents_with_snippet(doc_ids, query=None, top_terms=None):
     h = httplib2.Http()
