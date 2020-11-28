@@ -1,4 +1,5 @@
 import requests
+
 from config.settings.base import DEFAULT_NUM_DISPLAY
 from config.settings.base import SEARCH_SERVER_IP
 from config.settings.base import SEARCH_SERVER_PORT
