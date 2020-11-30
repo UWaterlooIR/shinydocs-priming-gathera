@@ -426,8 +426,8 @@ class JudgmentsView(views.LoginRequiredMixin, generic.TemplateView):
 
             # check if judged
             judged = Judgment.objects.filter(user=self.request.user,
-                                              doc_id=docno,
-                                              session=self.request.user.current_session)
+                                             doc_id=docno,
+                                             session=self.request.user.current_session)
             if train_model:
                 try:
                     CALFunctions.send_judgment(self.request.user.current_session.uuid,
@@ -437,13 +437,19 @@ class JudgmentsView(views.LoginRequiredMixin, generic.TemplateView):
                     failed += 1
                     continue
 
+            history = {
+                "source": "upload",
+                "judged": "true",
+                "relevance": rel,
+            }
             if judged.exists():
                 if update_existing:
                     judged = judged.first()
                     judged_rel = judged.relevance
                     if judged_rel != rel:
                         judged.relevance = rel
-                        judged.source = "uploaded"
+                        judged.source = "upload"
+                        judged.historyVerbose.append(history)
                         judged.save()
                         updated += 1
             else:
@@ -452,7 +458,8 @@ class JudgmentsView(views.LoginRequiredMixin, generic.TemplateView):
                     doc_id=docno,
                     session=self.request.user.current_session,
                     relevance=rel,
-                    source="uploaded",
+                    source="upload",
+                    historyVerbose=[history],
                 )
                 new += 1
 
