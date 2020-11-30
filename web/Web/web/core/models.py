@@ -27,7 +27,7 @@ class Session(models.Model):
     STRATEGY_CHOICES = (
         ('doc', 'Document (CAL)'),
         #('para', 'Paragraph (CAL)'),
-        ('doc_scal', 'Document (S-CAL)'),
+        ('doc_scal', 'Document (DS)'),
         #('para_scal', 'Paragraph (S-CAL)'),
     )
 
