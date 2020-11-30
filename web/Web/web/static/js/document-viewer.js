@@ -496,6 +496,11 @@ docView.prototype = {
     function updateSnippet(content, styles) {
       const elm = $(options.documentSnippetSelector);
       elm.html(content).removeClass();
+      if (content !== ""){
+        elm.parent().parent().removeClass("d-none");
+      }else{
+        elm.parent().parent().addClass("d-none");
+      }
       updateStyles(elm, styles);
     }
 
@@ -527,10 +532,10 @@ docView.prototype = {
 
     function updateDocID(docid) {
       parent.currentDocID = docid;
-      if (options.reviewMode) {  
+      if (options.reviewMode) {
         parent.currentDocIndex = parent.viewStack.indexOf(docid);
       }
-        
+
       const elm = $(options.documentIDSelector);
       if (docid){
         elm.html(docid);
