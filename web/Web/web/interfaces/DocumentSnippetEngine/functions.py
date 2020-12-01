@@ -7,34 +7,12 @@ import subprocess
 
 import httplib2
 
-try:
-    # For c speedups
-    from simplejson import loads
-except ImportError:
-    from json import loads
-
-
-def get_date(content):
-    for line in content.split('\n'):
-        if line.strip()[:4] == "Sent":
-            try:
-                return line.split(':', 1)[1].strip()
-            except:
-                pass
-    return ""
-
-
-def get_subject(content):
-    for line in content.split('\n'):
-        if line.strip()[:7] == "Subject":
-            return line.split(':', 1)[1].strip()
-    return ""
-
 
 def get_wet_content(record_id):
     try:
         row = CCNewsRecord.objects.get(record_id="{}".format(record_id))
     except:
+        print(f'{record_id} not found in CCNewsRecord database.')
         return ""
 
     if row:
@@ -108,7 +86,7 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
         if len(content) == 0:
             if len(title) == 0:
                 title = '<i class="text-warning">The document title is empty</i>'
-            content = '<i class="text-warning">The document content is empty. Possibly could not fetch content</i>'
+            content = '<i class="text-warning">The document content is empty. Possibly could not fetch content.</i>'
         else:
             if len(title) == 0:
                 title = content[:32]
