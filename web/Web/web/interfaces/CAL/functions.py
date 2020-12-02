@@ -5,8 +5,10 @@ import logging
 import urllib.parse
 
 import httplib2
+import requests
 
 from web.CAL.exceptions import CALServerError
+from web.CAL.exceptions import CALServerSessionNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -136,8 +138,27 @@ def get_documents(session, num_docs):
         content = json.loads(content.decode('utf-8'))
 
         return content['docs'], content['top-terms']
+    elif resp and resp['status'] == '404':
+        raise CALServerSessionNotFoundError(resp['status'])
     else:
         raise CALServerError(resp['status'])
+
+
+def restore_session(session_id, seed_query, seed_documents, session_strategy):
+    """
+    :param session_id:
+    :param seed_query:
+    :param seed_documents: Must be a queryset of the the model Judgment
+    :param session_strategy:
+    :return: request response
+    """
+    url = f"http://{CAL_SERVER_IP}:{CAL_SERVER_PORT}/CAL/begin"
+    seed_docs = ','.join([d.doc_id + ':' + str(d.relevance) for d in seed_documents])
+
+    data = 'session_id={}&seed_query={}&seed_judgments={}&mode={}'.format(
+        session_id, seed_query, seed_docs, session_strategy)
+
+    return requests.post(url, data=data)
 
 
 def get_scal_info(session):

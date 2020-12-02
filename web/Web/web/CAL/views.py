@@ -10,8 +10,10 @@ from django.views import generic
 from interfaces.DocumentSnippetEngine import functions as DocEngine
 
 from web.CAL.exceptions import CALError
+from web.CAL.exceptions import CALServerSessionNotFoundError
 from web.core.mixin import RetrievalMethodPermissionMixin
 from web.interfaces.CAL import functions as CALFunctions
+from web.judgment.models import Judgment
 
 logger = logging.getLogger(__name__)
 
@@ -78,10 +80,10 @@ class DocAJAXView(views.CsrfExemptMixin,
             json_context, content_type=self.get_content_type(), status=502)
 
     def get_ajax(self, request, *args, **kwargs):
-        session = self.request.user.current_session.uuid
+        session = self.request.user.current_session
         seed_query = self.request.user.current_session.topic.seed_query
         try:
-            docids_to_judge, top_terms = CALFunctions.get_documents(str(session), 10)
+            docids_to_judge, top_terms = CALFunctions.get_documents(str(session.uuid), 10)
             if not docids_to_judge:
                 return self.render_json_response([])
 
@@ -112,6 +114,19 @@ class DocAJAXView(views.CsrfExemptMixin,
         except TimeoutError:
             error_dict = {u"message": u"Timeout error. Please check status of servers."}
             return self.render_timeout_request_response(error_dict)
+        except CALServerSessionNotFoundError:
+            message = "Ops! Session is not found in CAL. "
+            if "scal" not in self.request.user.current_session.strategy:
+                seed_judgments = Judgment.objects.filter(user=self.request.user,
+                                                         session=session
+                                                         ).filter(relevance__isnull=False)
+                strategy = self.request.user.current_session.strategy
+                CALFunctions.restore_session(session.uuid,
+                                             seed_query,
+                                             seed_judgments,
+                                             strategy)
+                message += "Restoring.. Please try in few minutes."
+            return JsonResponse({"message": message}, status=404)
         except CALError as e:
             return JsonResponse({"message": "Ops! CALError."}, status=404)
 
@@ -148,6 +163,7 @@ class SCALInfoView(views.CsrfExemptMixin,
             return self.render_timeout_request_response(error_dict)
         except CALError as e:
             return JsonResponse({"message": "Oops! CALError."}, status=404)
+
 
 class DocIDsAJAXView(views.CsrfExemptMixin,
                      RetrievalMethodPermissionMixin,
