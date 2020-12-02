@@ -480,7 +480,7 @@ docView.prototype = {
 
     function updateMeta(content) {
       if (isURL(content) === true){
-        content = content.link(content)
+        content = `<a href="${content}" target="_blank">${content}</a>`;
       }
       const elm = $(options.documentMetaSelector);
       elm.html(content);
@@ -1164,7 +1164,6 @@ docView.prototype = {
         '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
       return !!pattern.test(str);
     }
-
 
     return this._init();
   },
