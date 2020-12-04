@@ -31,6 +31,7 @@ var docView = function() {
     singleDocumentMode: false,
     searchMode: false,
     reviewMode: false,
+    embedTweet: false, // only for tweet data. Needs twitter's widget.js to be loaded (https://platform.twitter.com/widgets.js).
     mainJudgingCriteriaName: "Relevant", // adjective of criteria
 
     // Specific to search
@@ -496,6 +497,26 @@ docView.prototype = {
       const elm = $(options.documentSnippetSelector);
       elm.html(content).removeClass();
       updateStyles(elm, styles);
+    }
+
+    function embedTweet(tweetid) {
+      const parent = $(options.documentBodySelector);
+      const elm = generate_embedded_tweet_elm();
+      parent.append(elm);
+      // needs twitter's widgets.js to be loaded
+      try {
+        twttr.widgets.createTweet(
+          tweetid,
+          elm.find("#embedded_tweet")[0],
+          {}).then(function (el) {
+            elm.find(".embeddedTweetSpinner").remove();
+          }
+        );
+      } catch (e) {
+        elm.find(".embeddedTweetSpinner").remove();
+        elm.find("#embedded_tweet").html(e).addClass('text-danger');
+        console.error(e);
+      }
     }
 
     function updateActiveJudgingButton(docid, rel) {
@@ -990,6 +1011,9 @@ docView.prototype = {
       }
       if (typeof data.content === "string"){
         updateBody(data.content, {"color": options.primaryColor});
+        if (options.embedTweet){
+          embedTweet(docid); // docid is the tweet id.
+        }
       }
       if (typeof data.date === "string"){
         updateMeta(data.date);
@@ -1082,6 +1106,22 @@ docView.prototype = {
                 <div class="docView-default-font-family text-truncate">${title}</div>
             </div>
         </a>
+      `);
+    }
+
+    function generate_embedded_tweet_elm() {
+      return $(`
+      <div class="card border-0">
+        <div class="card-body py-4 px-0">
+          <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
+            <small class="highlight-exclude">Embedded tweet</small>
+          </div>
+          <div class="mx-auto embeddedTweetSpinner mt-2 pl-4">
+            <div class="la-ball-circus text-secondary"><div></div><div></div><div></div><div></div><div></div></div>
+          </div>
+          <div id="embedded_tweet"></div>
+        </div>
+      </div>
       `);
     }
 
