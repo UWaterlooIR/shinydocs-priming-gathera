@@ -526,17 +526,17 @@ docView.prototype = {
 
     function updateDocID(docid) {
       parent.currentDocID = docid;
-      if (options.reviewMode) {  
+      if (options.reviewMode) {
         parent.currentDocIndex = parent.viewStack.indexOf(docid);
       }
-        
+
       const elm = $(options.documentIDSelector);
       if (docid){
         elm.html(docid);
-        $(options.docViewSelector).data('doc-id', docid);
+        $(options.docViewSelector).data('doc-id', docid).attr("data-doc-id", docid);
       }else{
         elm.html("");
-        $(options.docViewSelector).data('doc-id', '');
+        $(options.docViewSelector).data('doc-id', '').attr("data-doc-id", '');
       }
       updateButtonGroupDocidAssociation(docid);
     }
@@ -933,7 +933,7 @@ docView.prototype = {
           method: 'POST',
           data: JSON.stringify(data),
           success: function (result) {
-              if (!options.singleDocumentMode && !options.searchMode && !options.reviewMode) { 
+              if (!options.singleDocumentMode && !options.searchMode && !options.reviewMode) {
                 updateViewStack(result["next_docs"]);
               }else{
                 updateActiveJudgingButton(docid, rel);
