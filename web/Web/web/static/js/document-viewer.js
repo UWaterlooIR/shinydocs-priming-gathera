@@ -31,6 +31,7 @@ var docView = function() {
     singleDocumentMode: false,
     searchMode: false,
     reviewMode: false,
+    embedTweet: false, // only for tweet data. Needs twitter's widget.js to be loaded (https://platform.twitter.com/widgets.js).
     mainJudgingCriteriaName: "Relevant", // adjective of criteria
 
     // Specific to search
@@ -481,7 +482,7 @@ docView.prototype = {
 
     function updateMeta(content) {
       if (isURL(content) === true){
-        content = content.link(content)
+        content = `<a href="${content}" target="_blank">${content}</a>`;
       }
       const elm = $(options.documentMetaSelector);
       elm.html(content);
@@ -497,6 +498,26 @@ docView.prototype = {
       const elm = $(options.documentSnippetSelector);
       elm.html(content).removeClass();
       updateStyles(elm, styles);
+    }
+
+    function embedTweet(tweetid) {
+      const parent = $(options.documentBodySelector);
+      const elm = generate_embedded_tweet_elm();
+      parent.append(elm);
+      // needs twitter's widgets.js to be loaded
+      try {
+        twttr.widgets.createTweet(
+          tweetid,
+          elm.find("#embedded_tweet")[0],
+          {}).then(function (el) {
+            elm.find(".embeddedTweetSpinner").remove();
+          }
+        );
+      } catch (e) {
+        elm.find(".embeddedTweetSpinner").remove();
+        elm.find("#embedded_tweet").html(e).addClass('text-danger');
+        console.error(e);
+      }
     }
 
     function updateActiveJudgingButton(docid, rel) {
@@ -527,17 +548,17 @@ docView.prototype = {
 
     function updateDocID(docid) {
       parent.currentDocID = docid;
-      if (options.reviewMode) {  
+      if (options.reviewMode) {
         parent.currentDocIndex = parent.viewStack.indexOf(docid);
       }
-        
+
       const elm = $(options.documentIDSelector);
       if (docid){
         elm.html(docid);
-        $(options.docViewSelector).data('doc-id', docid);
+        $(options.docViewSelector).data('doc-id', docid).attr("data-doc-id", docid);
       }else{
         elm.html("");
-        $(options.docViewSelector).data('doc-id', '');
+        $(options.docViewSelector).data('doc-id', '').attr("data-doc-id", '');
       }
       updateButtonGroupDocidAssociation(docid);
     }
@@ -934,7 +955,7 @@ docView.prototype = {
           method: 'POST',
           data: JSON.stringify(data),
           success: function (result) {
-              if (!options.singleDocumentMode && !options.searchMode && !options.reviewMode) { 
+              if (!options.singleDocumentMode && !options.searchMode && !options.reviewMode) {
                 updateViewStack(result["next_docs"]);
               }else{
                 updateActiveJudgingButton(docid, rel);
@@ -991,6 +1012,9 @@ docView.prototype = {
       }
       if (typeof data.content === "string"){
         updateBody(data.content, {"color": options.primaryColor});
+        if (options.embedTweet){
+          embedTweet(docid); // docid is the tweet id.
+        }
       }
       if (typeof data.date === "string"){
         updateMeta(data.date);
@@ -1087,6 +1111,22 @@ docView.prototype = {
       `);
     }
 
+    function generate_embedded_tweet_elm() {
+      return $(`
+      <div class="card border-0">
+        <div class="card-body py-4 px-0">
+          <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
+            <small class="highlight-exclude">Embedded tweet</small>
+          </div>
+          <div class="mx-auto embeddedTweetSpinner mt-2 pl-4">
+            <div class="la-ball-circus text-secondary"><div></div><div></div><div></div><div></div><div></div></div>
+          </div>
+          <div id="embedded_tweet"></div>
+        </div>
+      </div>
+      `);
+    }
+
     function getCurrentDocTitle() {
       if (parent.currentDocID !== null){
         return $(options.documentTitleSelector).text()
@@ -1166,7 +1206,6 @@ docView.prototype = {
         '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
       return !!pattern.test(str);
     }
-
 
     return this._init();
   },
