@@ -26,6 +26,10 @@ def get_subject(content):
             return line.split(':', 1)[1].strip()
     return ""
 
+from django.utils.module_loading import import_string
+from config.settings.base import SEARCH_ENGINE
+from web.interfaces.SearchEngine.base import SearchInterface
+SearchEngine: SearchInterface = import_string(SEARCH_ENGINE)
 
 def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
     """
@@ -36,25 +40,27 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
     result = []
     h = httplib2.Http()
     for idx, doc_id in enumerate(doc_ids):
-        url = '{}/{}'.format(DOCUMENTS_URL, doc_id)
-        resp, content = h.request(url,
-                                  method="GET")
-        content = content.decode('utf-8', 'ignore')
-        date = get_date(content)
-        title = get_subject(content)
-        if len(content) == 0:
-            if len(title) == 0:
-                title = '<i class="text-warning">The document title is empty</i>'
-            content = '<i class="text-warning">The document content is empty</i>'
-        else:
-            if len(title) == 0:
-                title = content[:32]
+        content = SearchEngine.get_content(doc_id)
+        content = content["content"]
+        #url = '{}/{}'.format(DOCUMENTS_URL, doc_id)
+        #resp, content = h.request(url,
+         #                         method="GET")
+        #content = content.decode('utf-8', 'ignore')
+        #date = get_date(content)
+        #title = get_subject(content)
+        #if len(content) == 0:
+        #    if len(title) == 0:
+        #        title = '<i class="text-warning">The document title is empty</i>'
+        #    content = '<i class="text-warning">The document content is empty</i>'
+        #else:
+        #    if len(title) == 0:
+        #        title = content[:32]
 
         document = {
             'doc_id': doc_id,
-            'title': title,
+            'title': content.split(" ")[-1],
             'content': content.replace("\n", "<br/>"),
-            'date': date,
+            'date': doc_id,
             'top_terms': top_terms.get(doc_id if orig_para_id is None else "{}.{}".format(doc_id, orig_para_id[idx]), None) if top_terms else None
         }
         result.append(document)

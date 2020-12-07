@@ -65,7 +65,7 @@
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     <script src="{% static 'js/document-viewer.js' %}"></script>
     <script src="{% static 'js/highlight.js' %}"></script>
-
+    <script src="https://platform.twitter.com/widgets.js"></script>
     <script>
 
         var context = {
@@ -89,7 +89,8 @@
           getDocumentURL: '{% url 'core:get_single_doc' %}?docid=',
           fetchPreviouslyJudgedDocsOnInit: false,
           mainJudgingCriteriaName: '{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}',
-          csrfmiddlewaretoken: "{{ csrf_token }}",
+          embedTweet: true,
+	  csrfmiddlewaretoken: "{{ csrf_token }}",
 
           afterDocumentJudge: function(docid, rel) {
             // update document indicator in SERP

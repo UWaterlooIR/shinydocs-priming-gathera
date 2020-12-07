@@ -6,7 +6,7 @@ set -o nounset
 set -o xtrace
 
 
-python manage.py makemigrations && python manage.py migrate
+# python manage.py makemigrations && python manage.py migrate
 
 # You can import topics by
 # importing via django fixtures
@@ -16,7 +16,7 @@ python manage.py loaddata web/topic/fixtures/init_topics.json
 #python manage.py import_topics
 
 # Restore sessions
-python manage.py restore_CAL_sessions
+# python manage.py restore_CAL_sessions
 
 python manage.py collectstatic --no-input
 #echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@myproject.com', 'password')" | python manage.py shell

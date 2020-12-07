@@ -33,7 +33,7 @@ services:
   search:
     build: ./search/
     environment:
-      - ANSERINI_INDEXI_PATH=/data/lucene-index.athome.pos+docvectors+raw+content/
+      - ANSERINI_INDEXI_PATH=/data/lucene-index.tweetscovid.oct.partial.pos+docvectors+content/
     volumes:
       - ./search/app:/app
       - ./data:/data
@@ -61,7 +61,7 @@ services:
     image: nginx:latest
     container_name: nginx
     ports:
-      - "9000:9000"
+      - "80:9000"
       - "9001:9001"
     expose:
       - "9001"
