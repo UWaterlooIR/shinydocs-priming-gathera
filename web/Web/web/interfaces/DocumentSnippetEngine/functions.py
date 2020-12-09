@@ -104,27 +104,4 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
 
 
 def get_documents_with_snippet(doc_ids, query=None, top_terms=None):
-    h = httplib2.Http()
-    url = "{}/{}"
-    doc_ids_unique = []
-    doc_ids_set = set()
-    for doc_id in doc_ids:
-        if doc_id['doc_id'] not in doc_ids_set:
-            doc_ids_set.add(doc_id['doc_id'])
-            doc_ids_unique.append(doc_id)
-
-    doc_ids = doc_ids_unique
-
-    result = get_documents([doc['doc_id'] for doc in doc_ids], query, top_terms, [doc['para_id'] for doc in doc_ids if 'para_id' in doc])
-    for doc_para_id, doc in zip(doc_ids, result):
-        if 'para_id' not in doc_para_id:
-            doc['snippet'] = u''
-            continue
-        try:
-            para_id = doc_para_id['doc_id'] + '.' + doc_para_id['para_id']
-            resp, content = h.request(url.format(PARA_URL, para_id),
-                                      method="GET")
-            doc['snippet'] = content.decode('utf-8', 'ignore').replace("\n", "<br />")
-        except:
-            doc['snippet'] = u''
-    return result
+    raise NotImplementedError 
