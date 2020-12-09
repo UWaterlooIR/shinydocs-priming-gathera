@@ -102,7 +102,7 @@ bool parse_seed_judgments(const string &str, vector<pair<string, int>> &seed_jud
             return false;
         }
         try{
-            auto sep = doc_judgment_pair.find(':');
+            auto sep = doc_judgment_pair.rfind(':');
             seed_judgments.push_back(
                     {doc_judgment_pair.substr(0, sep), stoi(doc_judgment_pair.substr(sep+1))}
             );
