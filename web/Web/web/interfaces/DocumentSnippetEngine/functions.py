@@ -11,9 +11,8 @@ import httplib2
 def get_wet_content(record_id):
     try:
         row = CCNewsRecord.objects.get(record_id="{}".format(record_id))
-    except:
-        print(f'{record_id} not found in CCNewsRecord database.')
-        return ""
+    except CCNewsRecord.DoesNotExist:
+        raise CCNewsRecord.DoesNotExist(f'{record_id} not found in CCNewsRecord database.')
 
     if row:
         wet_path = "/cc/wet/{}/{}/{}".format(row.year, row.month, row.filename)
@@ -78,10 +77,18 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
         if cache.get(doc_id):
             title, url, content = cache.get(doc_id)
         else:
-            content = get_wet_content(doc_id)
-            if content:
-                title, url, content = parse_content(content)
-                cache.set(doc_id, [title, url, content], 60*30)
+            try:
+                content = get_wet_content(doc_id)
+            except CCNewsRecord.DoesNotExist:
+                title = '<i class="text-danger">The document is not found in the database record.</i>'
+                content = '<i class="text-danger">The document is not found in the database record. Could not fetch it\'s content.</i>'
+            except Exception:
+                title = '<i class="text-danger">Error occured while fetching document.</i>'
+                content = '<i class="text-danger">An error occured while fetching document content.</i>'
+            else:
+                if content:
+                    title, url, content = parse_content(content)
+                    cache.set(doc_id, [title, url, content], 60*30)
 
         if len(content) == 0:
             if len(title) == 0:
