@@ -158,7 +158,7 @@ def restore_session(session_id, seed_query, seed_documents, session_strategy):
     :return: request response
     """
     url = f"http://{CAL_SERVER_IP}:{CAL_SERVER_PORT}/CAL/begin"
-    seed_docs = ','.join(["<urn:uuid:{}>".format(d.doc_id) if not d.doc_id.startswith("<urn:uuid:") else d.doc_id + ':' + str(d.relevance) for d in seed_documents])
+    seed_docs = ','.join([("<urn:uuid:{}>".format(d.doc_id) if not d.doc_id.startswith("<urn:uuid:") else d.doc_id) + ':' + str(d.relevance) for d in seed_documents])
 
     data = 'session_id={}&seed_query={}&seed_judgments={}&mode={}'.format(
         session_id, seed_query, seed_docs, session_strategy)
