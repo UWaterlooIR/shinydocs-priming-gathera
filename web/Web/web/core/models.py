@@ -59,7 +59,7 @@ class Session(models.Model):
     def begin_session_in_cal(self):
         try:
             judgments = self.judgment_set.all()
-            judgments_list = [(j.doc_id, j.relevance) for j in judgments]
+            judgments_list = [( ("<urn:uuid:{}>".format(j.doc_id) if not j.doc_id.startswith("<urn:uuid:") else j.doc_id), j.relevance) for j in judgments]
             CALFunctions.add_session(str(self.uuid),
                                      self.topic.seed_query,
                                      self.strategy,
