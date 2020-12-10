@@ -108,7 +108,7 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
             'title': title,
             'content': content.replace("\n", "<br/>"),
             'date': url,
-            'top_terms': {}
+            'top_terms': {},
             'ok': found == True
         }
         result.append(document)
