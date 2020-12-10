@@ -1,5 +1,3 @@
-from config.settings.base import CAL_SERVER_IP
-from config.settings.base import CAL_SERVER_PORT
 import json
 import logging
 import urllib.parse
@@ -7,6 +5,8 @@ import urllib.parse
 import httplib2
 import requests
 
+from config.settings.base import CAL_SERVER_IP
+from config.settings.base import CAL_SERVER_PORT
 from web.CAL.exceptions import CALServerError
 from web.CAL.exceptions import CALServerSessionNotFoundError
 
@@ -72,32 +72,35 @@ def check_docid_exists(session, doc_id):
         raise CALServerError(resp['status'])
 
 
-def add_session(session, seed_query, mode):
+def add_session(session, seed_query, mode, seed_judgments = []):
     """
     Adds session to CAL backend server
     :param session:
     :param seed_query
     :param mode
     """
-    h = httplib2.Http()
-    url = "http://{}:{}/CAL/begin"
+    url = f"http://{CAL_SERVER_IP}:{CAL_SERVER_PORT}/CAL/begin"
 
     body = {'session_id': str(session),
             'seed_query': seed_query,
             'judgments_per_iteration': 1,
             'async': True,
-            'mode': mode}
-    post_body = '&'.join('%s=%s' % (k, v) for k, v in body.items())
+            'mode': mode,
+            }
 
-    resp, content = h.request(url.format(CAL_SERVER_IP,
-                                         CAL_SERVER_PORT),
-                              body=post_body,
-                              headers={'Content-Type': 'application/json; charset=UTF-8'},
-                              method="POST")
-    if resp and resp['status'] != '200':
-        return False
+    if seed_judgments:
+        body['seed_judgments']=','.join([j[0] + ':' + str(j[1]) for j in seed_judgments])
+
+    post_body = '&'.join('%s=%s' % (k, v) for k, v in body.items())
+    resp, content = response = requests.post(url,
+                                  data=post_body,
+                                  headers={'Content-Type': 'application/json; charset=UTF-8'},
+                                )
+
+    if resp.ok:
+        return True
     else:
-        raise CALServerError(resp['status'])
+        raise CALServerError(resp.status_code)
 
 
 def delete_session(session):

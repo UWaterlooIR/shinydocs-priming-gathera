@@ -1,3 +1,6 @@
+import httplib2
+import requests
+
 from config.settings.base import DOCUMENTS_URL
 from config.settings.base import PARA_URL
 from django.core.cache import cache
@@ -6,7 +9,6 @@ import os
 import subprocess
 
 import httplib2
-
 
 def get_wet_content(record_id):
     try:
@@ -73,6 +75,7 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
         title = ""
         content = ""
         url = ""
+        found = True
 
         if cache.get(doc_id):
             title, url, content = cache.get(doc_id)
@@ -82,9 +85,11 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
             except CCNewsRecord.DoesNotExist:
                 title = '<i class="text-danger">The document is not found in the database record.</i>'
                 content = '<i class="text-danger">The document is not found in the database record. Could not fetch it\'s content.</i>'
+                found = False
             except Exception:
                 title = '<i class="text-danger">Error occured while fetching document.</i>'
                 content = '<i class="text-danger">An error occured while fetching document content.</i>'
+                found = False
             else:
                 if content:
                     title, url, content = parse_content(content)
@@ -104,10 +109,12 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
             'content': content.replace("\n", "<br/>"),
             'date': url,
             'top_terms': {}
+            'ok': found == True
         }
         result.append(document)
 
     return result
+
 
 
 def get_documents_with_snippet(doc_ids, query=None, top_terms=None):
