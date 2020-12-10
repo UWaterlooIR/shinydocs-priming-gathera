@@ -56,44 +56,14 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
             'title': title,
             'content': content.replace("\n", "<br/>"),
             'date': date,
-            'top_terms': top_terms.get(doc_id if orig_para_id is None else "{}.{}".format(doc_id, orig_para_id[idx]), None) if top_terms else None
+            'top_terms': top_terms.get(doc_id if orig_para_id is None else "{}.{}".format(doc_id, orig_para_id[idx]), None) if top_terms else None,
+            'ok': resp.status == 200
         }
         result.append(document)
 
     return result
 
 
-
-def get_document_or_none(doc_id):
-    """
-    :param doc_id: the id of document to return
-    :return: documents content
-    """
-
-    url = f"{DOCUMENTS_URL}/{doc_id}"
-    resp = requests.get(url)
-    if not resp.ok:
-        return None
-
-    content = resp.content.decode('utf-8', 'ignore')
-    date = get_date(content)
-    title = get_subject(content)
-    if len(content) == 0:
-        if len(title) == 0:
-            title = '<i class="text-warning">The document title is empty</i>'
-        content = '<i class="text-warning">The document content is empty</i>'
-    else:
-        if len(title) == 0:
-            title = content[:32]
-
-    document = {
-        'doc_id': doc_id,
-        'title': title,
-        'content': content.replace("\n", "<br/>"),
-        'date': date,
-    }
-
-    return document
 
 def get_documents_with_snippet(doc_ids, query=None, top_terms=None):
     h = httplib2.Http()

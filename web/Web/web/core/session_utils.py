@@ -104,8 +104,8 @@ def handle_judgments_file(file):
 
         judgments_dict = dict()
         for j in judgments:
-            doc = DocEngine.get_document_or_none(j[0])
-            if doc:
+            doc = DocEngine.get_documents([j[0]])[0]
+            if doc['ok']:
                 try:
                     doc_title = doc['title']
                     judgments_dict[j[0]] = (doc_title, Judgment.JudgingChoices(int(j[1])))
