@@ -14,6 +14,7 @@ from web.CAL.exceptions import CALServerSessionNotFoundError
 from web.core.mixin import RetrievalMethodPermissionMixin
 from web.interfaces.CAL import functions as CALFunctions
 from web.judgment.models import Judgment
+from web.CAL.models import DS_logging
 
 logger = logging.getLogger(__name__)
 
@@ -197,3 +198,57 @@ class DocIDsAJAXView(views.CsrfExemptMixin,
         except CALError as e:
             # TODO: add proper http response for CAL errors
             return JsonResponse({"message": "Ops! CALError."}, status=404)
+
+
+class DSLoggingView(views.CsrfExemptMixin,
+                    views.LoginRequiredMixin,
+                    RetrievalMethodPermissionMixin,
+                    views.JsonRequestResponseMixin,
+                    generic.View):
+    """
+    View to log info of Dynamic Sampling
+    """
+    require_json = False
+
+    def post(self, request, *args, **kwargs):
+        session = self.request.user.current_session.uuid
+
+        try:
+            stratum_num = self.request_json.get(u"stratum_number")
+            stratum_size = self.request_json.get(u"stratum_size")
+            next_sample_size = self.request_json.get(u"sample_size")
+            T = self.request_json.get(u"T")
+            N = self.request_json.get(u"N")
+            R = self.request_json.get(u"R")
+            current_sample_size = self.request_json.get(u"n")
+
+            # Get ranked list for this statum
+            docs, _ = CALFunctions.get_documents(str(session), -1)
+
+        except KeyError:
+            error_dict = {u"message": u"Errors when getting DS info."}
+            return self.render_bad_request_response(error_dict)
+
+        if not docs:
+            return self.render_bad_request_response({u"message": u"Empty ranked list for stratum {}".format(stratum_num)})
+
+        ranked_list = {}
+        for docid_score_pair in docs:
+            doc_id, score = docid_score_pair.rsplit(':', 1)
+            ranked_list[doc_id] = float(score)
+
+        exists = DS_logging.objects.filter(user=self.request.user,
+                                           stratum_num=stratum_num,
+                                           session=self.request.user.current_session)
+
+        if exists:
+            return self.render_bad_request_response({u"message": u"Duplicate record for stratum {}".format(stratum_num)})
+        else:
+            record = {'user': self.request.user, 'session': self.request.user.current_session,
+                      'stratum_size': int(stratum_size), 'stratum_num': int(stratum_num),
+                      'sample_size': int(current_sample_size), 'next_sample_size': int(next_sample_size),
+                      'T': int(T), 'N': int(N), 'R': int(R), 'ranked_list': json.dumps(ranked_list)}
+            DS_logging.objects.create(**record)
+
+        context = {u"message": u"Information of stratum '{}' has been logged.".format(stratum_num)}
+        return self.render_json_response(context)

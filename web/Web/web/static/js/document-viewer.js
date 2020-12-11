@@ -18,6 +18,7 @@ var docView = function() {
     sendDocumentJudgmentURL: null, // required
     getDocumentURL: null, // required
     getSCALInfoURL: null, // required for discovery page
+    logDSInfoURL: null, // required for discovery page
 
     // options
     hideFullDocument: false,
@@ -488,6 +489,22 @@ docView.prototype = {
           Array.from(document.getElementById('scal-info').getElementsByTagName('small')).forEach((span, i) => {
             span.innerHTML = temp[i]
           })
+
+          if (options.logDSInfoURL !== null) {
+            if (result['stratum_size'] === parent.viewStack.length + 1) {
+              $.ajax({
+                url: options.logDSInfoURL,
+                method: 'POST',
+                data: JSON.stringify(result),
+                success: function (result) {
+                  console.log(result);
+                },
+                error: function (result) {
+                  console.error("DS_logging went wrong.");
+                }
+              });
+            }
+          }
         }
       }
 

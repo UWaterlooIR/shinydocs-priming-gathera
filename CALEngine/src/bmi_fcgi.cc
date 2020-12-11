@@ -248,7 +248,11 @@ string get_stratum_info(string session_id){
     }
     string stratum_info_string = "{\"stratum_number\": " + to_string(stratum_info->stratum_number) + 
         ",\"sample_size\": " + to_string(stratum_info->sample_size) + 
-        ",\"stratum_size\": " + to_string(stratum_info->stratum_size) + "}";
+        ",\"stratum_size\": " + to_string(stratum_info->stratum_size) +
+        ",\"T\": " + to_string(stratum_info->T) +
+        ",\"N\": " + to_string(stratum_info->N) +
+        ",\"R\": " + to_string(stratum_info->R) +
+        ",\"n\": " + to_string(stratum_info->n) + "}";
     return "{\"session-id\": \"" + session_id + "\", \"info\": " + stratum_info_string + "}";
 }
 

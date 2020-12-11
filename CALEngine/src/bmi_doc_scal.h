@@ -8,6 +8,7 @@ using namespace std;
     int B = 1;
     int T, N;
     int R;
+    int n;
     vector<vector<pair<int, float>>> stratums;
     public:
     BMI_doc_scal(Seed seed,

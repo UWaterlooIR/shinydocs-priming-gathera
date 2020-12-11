@@ -64,7 +64,7 @@ void BMI_doc_scal::record_judgment_batch(vector<pair<string, int>> _judgments){
             stratums.back().push_back(doc_id_score);
         }
 
-        int n = ceil(B*N/(float)T);
+        n = ceil(B*N/(float)T);
         cerr<<"Sampling "<<n<<" documents"<<endl;
         vector<int> selector(batch.size());
         for(int i = 0; i < selector.size(); i++)
@@ -79,5 +79,5 @@ void BMI_doc_scal::record_judgment_batch(vector<pair<string, int>> _judgments){
 }
 
 unique_ptr<BMI::StratumInfo> BMI_doc_scal::get_stratum_info(){
-    return make_unique<StratumInfo>(stratums.size(), stratums.back().size(), ceil(B*N/(float)T));
+    return make_unique<StratumInfo>(stratums.size(), stratums.back().size(), ceil(B*N/(float)T), T, N, R, n);
 }
