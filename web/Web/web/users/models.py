@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from web.core.models import Session
+from web.evaluate.models import Qrel
 
 
 class User(AbstractUser):
@@ -12,6 +13,7 @@ class User(AbstractUser):
     # around the globe.
     name = models.CharField(_('Name of User'), blank=True, max_length=255)
     current_session = models.ForeignKey(Session, blank=True, null=True, on_delete=models.SET_NULL)
+    current_qrel = models.ForeignKey(Qrel, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.username

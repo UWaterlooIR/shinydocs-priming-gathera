@@ -28,6 +28,7 @@ urlpatterns = [
     path('topic/', include('web.topic.urls', namespace='topic')),
     path('judgment/', include('web.judgment.urls', namespace='judgment')),
     path('review/', include('web.review.urls', namespace='review')),
+    path('evaluate/', include('web.evaluate.urls', namespace='evaluate')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
