@@ -7,5 +7,5 @@ def qrel_forms_processor(request):
         return {}
     # FORMS
     context = {'form_qrel_upload': QrelUploadForm(),
-               'form_qrel_activate': QrelActivateForm(user=request.user)}
+               'form_qrel_activate': QrelActivateForm(request.user)}
     return context

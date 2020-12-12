@@ -26,17 +26,14 @@ def upload_qrel_submit_form(request):
 def activate_qrel_submit_form(request):
     success_message = "Qrel file {} is now being used."
 
-    form = QrelActivateForm(request.POST)
+    form = QrelActivateForm(request.user, request.POST)
+
     if form.is_valid():
-        f = form.save(commit=False)
-        f.username = request.user
-        f.save()
-        print(form)
-        # request.user.current_qrel = form.instance
-        # request.user.save()
+        selected_qrel_file = form.cleaned_data['qrels']
+        request.user.current_qrel = selected_qrel_file
+        request.user.save()
         messages.add_message(request,
                              messages.SUCCESS,
-                             success_message)
+                             success_message.format(selected_qrel_file.qrel_file.name))
     else:
         messages.add_message(request, messages.ERROR, f'Ops! {form.errors}')
-    form.instance.begin_session_in_cal()
