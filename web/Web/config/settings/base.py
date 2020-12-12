@@ -190,6 +190,7 @@ TEMPLATES = [
                 # Core
                 'web.core.context_processor.create_form_processor',
                 'web.core.context_processor.shared_session_processor',
+                'web.evaluate.context_processor.qrel_forms_processor',
                 'web.core.context_processor.get_current_year_to_context',
                 # Judgments
                 'web.judgment.context_processor.judging_criteria_processor',
