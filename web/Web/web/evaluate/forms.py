@@ -49,7 +49,6 @@ class QrelActivateForm(forms.Form):
 
     def __init__(self, user, *args, **kwargs):
         super(QrelActivateForm, self).__init__(*args, **kwargs)
-        # TODO: Filter to show the user uploaded qrels only
         self.fields['qrels'].queryset = Qrel.objects.filter(username=user)
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
