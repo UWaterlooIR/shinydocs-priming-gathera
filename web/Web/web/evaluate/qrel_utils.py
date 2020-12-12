@@ -8,11 +8,12 @@ def upload_qrel_submit_form(request):
     success_message = "Qrel file uploaded successfully."
 
     form = QrelUploadForm(request.POST, request.FILES)
-    print(print(form))
     if form.is_valid():
-        print(form)
         f = form.save(commit=False)
         f.username = request.user
+
+        # TODO: Validate qrel format
+
         f.save()
         request.user.current_qrel = form.instance
         request.user.save()
