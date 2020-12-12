@@ -14,13 +14,9 @@ class DS_logging(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
 
-    doc_id = models.CharField(null=False, blank=False, max_length=512)
-    # doc_topic = models.CharField(null=False, blank=False, max_length=64)
-
     stratum_size = models.IntegerField(default=-1)
     stratum_num = models.IntegerField(default=-1)
     sample_size = models.IntegerField(default=-1)
-    next_sample_size = models.IntegerField(default=-1)
 
     T = models.IntegerField(default=-1)
     N = models.IntegerField(default=-1)

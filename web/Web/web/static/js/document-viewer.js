@@ -101,6 +101,7 @@ var docView = function() {
   this.previouslyJudgedDocsStack = [];
   this.documentCacheStore = null;
   this.additionalJudgingCriteriaList = [];
+  this.stratum_number = 0
 
 
   this._init = function() {
@@ -491,7 +492,8 @@ docView.prototype = {
           })
 
           if (options.logDSInfoURL !== null) {
-            if (result['stratum_size'] === parent.viewStack.length + 1) {
+            if (parseInt(result['stratum_number']) > parent.stratum_number) {
+              parent.stratum_number = parseInt(result['stratum_number']);
               $.ajax({
                 url: options.logDSInfoURL,
                 method: 'POST',
