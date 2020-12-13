@@ -54,7 +54,7 @@ class QrelUploadForm(forms.ModelForm):
             reader = csv.reader(io_string, delimiter=" ")
             try:
                 for r in reader:
-                    topic, docid, rel = r[0], r[2], r[3]
+                    topic, docid, rel = r[0], r[2], int(r[3])
                     self.qrel[topic][docid] = rel
 
             except IndexError:

@@ -8,17 +8,22 @@ from django.views import generic
 from web.evaluate.qrel_utils import activate_qrel_submit_form
 from web.evaluate.qrel_utils import upload_qrel_submit_form
 
+from web.evaluate.mixin import QrelSetRequiredMixin
+from web.evaluate.mixin import TopicNumberSetRequiredMixin
+
 logger = logging.getLogger(__name__)
 
 
-class EvaluateHomePageView(views.LoginRequiredMixin,
-                           generic.TemplateView):
+class EvaluateMainView(views.LoginRequiredMixin,
+                       QrelSetRequiredMixin,
+                       TopicNumberSetRequiredMixin,
+                       generic.TemplateView):
     template_name = 'evaluate/evaluate.html'
 
     def get(self, request, *args, **kwargs):
         if not self.request.user.current_session:
             return HttpResponseRedirect(reverse_lazy('core:home'))
-        return super(EvaluateHomePageView, self).get(self, request, *args, **kwargs)
+        return super(EvaluateMainView, self).get(self, request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if "upload-qrel-form" in request.POST:

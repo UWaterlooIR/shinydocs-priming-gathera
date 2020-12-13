@@ -7,11 +7,14 @@ from django.views import generic
 
 from web.evaluate import data
 
+from web.evaluate.mixin import QrelSetRequiredMixin
+
 logger = logging.getLogger(__name__)
 
 
 class DataAJAXView(views.CsrfExemptMixin,
                    views.LoginRequiredMixin,
+                   QrelSetRequiredMixin,
                    views.JsonRequestResponseMixin,
                    views.JSONResponseMixin, generic.View):
     """
@@ -33,10 +36,11 @@ class DataAJAXView(views.CsrfExemptMixin,
 
         try:
             session = self.request.user.current_session
-            qrel = self.request.user.current_qrel
-            if not qrel:
-                self.render_json_response({u"error": u"No qrel is set."}, status=500)
-            return self.render_json_response(data.user_reported_rel__user_found_rel(session, qrel))
+            qrel_instance = self.request.user.current_qrel
+            if not qrel_instance:
+                return self.render_json_response({u"error": u"No qrel is set."})
+
+            return self.render_json_response(data.user_reported_rel__user_found_rel(session, qrel_instance.qrel))
 
         except TimeoutError:
             error_dict = {u"error": u"Timeout error. Please check status of servers."}

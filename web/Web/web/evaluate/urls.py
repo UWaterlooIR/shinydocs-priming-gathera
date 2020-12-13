@@ -6,10 +6,8 @@ from web.evaluate import views
 app_name = "evaluate"
 
 urlpatterns = [
-    path('', views.EvaluateHomePageView.as_view(),
+    path('', views.EvaluateMainView.as_view(),
          name='main'),
 
-
     path('data/', include('web.evaluate.data_urls', namespace='data')),
-
 ]
