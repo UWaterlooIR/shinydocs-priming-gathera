@@ -32,7 +32,7 @@
 
         <div class="text-muted">
             {% if request.user.current_qrel %}
-              You are currently using <span class="text-secondary text-monospace">{{ request.user.current_qrel.qrel_file.name }}</span> as your qrel file.
+              You are currently using <span class="text-secondary text-monospace">{{ request.user.current_qrel.qrel_name }}</span> as your qrel file.
             {% else %}
             No Qrel file set. Please select or upload qrel file.
             {% endif %}
