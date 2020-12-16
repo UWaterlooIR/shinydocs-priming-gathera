@@ -22,7 +22,8 @@ class DS_logging(models.Model):
     N = models.IntegerField(default=-1)
     R = models.IntegerField(default=-1)
 
-    ranked_list = JSONField(null=True, blank=True, default=list)
+    sampled_docs = JSONField(null=True, blank=True, default=list)
+    stratum_docs = JSONField(null=True, blank=True, default=list)
 
     # Todo: Add more fields
     # created_at = models.DateTimeField(auto_now_add=True, editable=False)

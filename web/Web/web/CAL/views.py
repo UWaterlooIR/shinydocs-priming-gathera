@@ -221,23 +221,33 @@ class DSLoggingView(views.CsrfExemptMixin,
             R = self.request_json.get(u"R")
             current_sample_size = self.request_json.get(u"n")
 
-            # Get ranked list for this statum
+            # Get docs in current stratum
             docs = CALFunctions.get_stratum_documents(str(session))
+            # Get sampled docs
+            sampled_docs, _ = CALFunctions.get_documents(str(session), -1)
 
         except KeyError:
             error_dict = {u"message": u"Errors when getting DS info."}
             return self.render_bad_request_response(error_dict)
 
         if not docs:
-            return self.render_bad_request_response({u"message": u"Empty ranked list for stratum {}".format(stratum_num)})
+            return self.render_bad_request_response({u"message": u"Empty set for stratum {}".format(stratum_num)})
+
+        if not sampled_docs:
+            return self.render_bad_request_response({u"message": u"Empty sample for stratum {}".format(stratum_num)})
 
         if int(stratum_num) == 1:
             current_sample_size = 1
 
-        ranked_list = {}
+        docs_list = {}
         for docid_score_pair in docs:
             doc_id, score = docid_score_pair.rsplit(':', 1)
-            ranked_list[doc_id] = float(score)
+            docs_list[doc_id] = float(score)
+
+        sampled_docs_list = []
+        for docid_score_pair in sampled_docs:
+            doc_id, score = docid_score_pair.rsplit(':', 1)
+            sampled_docs_list.append(doc_id)
 
         exists = DS_logging.objects.filter(user=self.request.user,
                                            stratum_num=stratum_num,
@@ -249,7 +259,8 @@ class DSLoggingView(views.CsrfExemptMixin,
             record = {'user': self.request.user, 'session': self.request.user.current_session,
                       'stratum_size': int(stratum_size), 'stratum_num': int(stratum_num),
                       'sample_size': int(current_sample_size),
-                      'T': int(T), 'N': int(N), 'R': int(R), 'ranked_list': json.dumps(ranked_list)}
+                      'T': int(T), 'N': int(N), 'R': int(R), 'stratum_docs': json.dumps(docs_list),
+                      'sampled_docs': json.dumps(sampled_docs_list)}
             DS_logging.objects.create(**record)
 
         context = {u"message": u"Information of stratum '{}' has been logged.".format(stratum_num)}
