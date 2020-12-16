@@ -81,3 +81,11 @@ void BMI_doc_scal::record_judgment_batch(vector<pair<string, int>> _judgments){
 unique_ptr<BMI::StratumInfo> BMI_doc_scal::get_stratum_info(){
     return make_unique<StratumInfo>(stratums.size(), stratums.back().size(), ceil(B*N/(float)T), T, N, R, n);
 }
+
+vector<pair<string, float>> BMI_doc_scal::get_stratum_docs() {
+    vector<std::pair<string, float>> ret_results;
+    for (auto doc_id_score: stratums.back()) {
+        ret_results.push_back({documents->get_id(doc_id_score.first), doc_id_score.second});
+    }
+    return ret_results;
+}

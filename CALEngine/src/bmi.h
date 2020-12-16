@@ -136,7 +136,8 @@ class BMI{
         int n;
     };
 
-    virtual std::unique_ptr<StratumInfo> get_stratum_info();  
+    virtual std::unique_ptr<StratumInfo> get_stratum_info();
+    virtual std::vector<std::pair<std::string, float>> get_stratum_docs();
 };
 
 #endif // BMI_H

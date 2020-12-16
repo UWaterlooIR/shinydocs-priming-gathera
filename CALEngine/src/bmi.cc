@@ -209,3 +209,7 @@ vector<pair<uint32_t, float>> BMI::get_top_terms(string doc_id, int num_top_term
 unique_ptr<BMI::StratumInfo> BMI::get_stratum_info(){
     return nullptr;
 } 
+
+std::vector<std::pair<std::string, float>> BMI::get_stratum_docs() {
+    return std::vector<std::pair<std::string, float>>();
+}

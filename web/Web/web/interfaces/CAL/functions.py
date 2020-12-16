@@ -187,6 +187,30 @@ def get_scal_info(session):
         raise CALServerError(resp['status'])
 
 
+def get_stratum_documents(session):
+    """
+    :param session: current session
+    :return: return JSON list of documents_ids to judge
+    """
+    h = httplib2.Http()
+    url = "http://{}:{}/CAL/get_stratum_docs?"
+
+    parameters = {'session_id': str(session)}
+    parameters = urllib.parse.urlencode(parameters)
+    resp, content = h.request(url.format(CAL_SERVER_IP,
+                                         CAL_SERVER_PORT) + parameters,
+                              method="GET")
+
+    if resp and resp['status'] == '200':
+        content = json.loads(content.decode('utf-8'))
+
+        return content['docs']
+    elif resp and resp['status'] == '404':
+        raise CALServerSessionNotFoundError(resp['status'])
+    else:
+        raise CALServerError(resp['status'])
+
+
 def ds_logging(session):
     """
     :param session: current session

@@ -42,5 +42,6 @@ using namespace std;
     }
 
     virtual unique_ptr<StratumInfo> get_stratum_info() override;
+    virtual vector<pair<std::string, float>> get_stratum_docs() override;
 };
 #endif // BMI_DOC_SCAL_H

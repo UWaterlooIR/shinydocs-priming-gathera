@@ -222,7 +222,7 @@ class DSLoggingView(views.CsrfExemptMixin,
             current_sample_size = self.request_json.get(u"n")
 
             # Get ranked list for this statum
-            docs, _ = CALFunctions.get_documents(str(session), -1)
+            docs = CALFunctions.get_stratum_documents(str(session))
 
         except KeyError:
             error_dict = {u"message": u"Errors when getting DS info."}
