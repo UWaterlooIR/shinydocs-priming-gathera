@@ -240,9 +240,9 @@ string get_docs(string session_id, int max_count, int num_top_terms = 10){
     return "{\"session-id\": \"" + session_id + "\", \"docs\": " + doc_json + ",\"top-terms\": " + top_terms_json + "}";
 }
 
-string get_stratum_docs(string session_id){
+string get_stratum_docs(string session_id, int stratum_number, int include_sampled){
     auto &bmi = SESSIONS[session_id];
-    vector<pair<string, float>> doc_ids = bmi->get_stratum_docs();
+    vector<pair<string, float>> doc_ids = bmi->get_stratum_docs(stratum_number);
     if (doc_ids.empty()) {
         return "{}";
     }
@@ -254,7 +254,26 @@ string get_stratum_docs(string session_id){
     }
     doc_json.push_back(']');
 
-    return "{\"session-id\": \"" + session_id + "\", \"docs\": " + doc_json + "}";
+    string sampled_doc_json = "[]";
+    if (include_sampled == 1) {
+        auto stratum_info = bmi->get_stratum_info();
+        if (stratum_info == nullptr){
+            return "{}";
+        }
+        vector<pair<string, float>> sampled_doc_ids = bmi->get_doc_to_judge(stratum_info->sample_size);
+        if (sampled_doc_ids.empty()) {
+            return "{}";
+        }
+        sampled_doc_json = "[";
+        for (auto doc_id: sampled_doc_ids) {
+            if (sampled_doc_json.length() > 1)
+                sampled_doc_json.push_back(',');
+            sampled_doc_json += "\"" + doc_id.first + ":" + to_string(doc_id.second) + "\"";
+        }
+        sampled_doc_json.push_back(']');
+    }
+
+    return "{\"session-id\": \"" + session_id + "\", \"docs\": " + doc_json + ", \"sampled_docs\": " + sampled_doc_json + "}";
 }
 
 string get_stratum_info(string session_id){
@@ -322,10 +341,18 @@ void get_docs_view(const FCGX_Request & request, const vector<pair<string, strin
 // Handler for /get_stratum_docs
 void get_stratum_docs_view(const FCGX_Request & request, const vector<pair<string, string>> &params){
     string session_id;
+    int stratum_number;
+    int include_sampled;
 
     for(auto kv: params){
         if(kv.first == "session_id"){
             session_id = kv.second;
+        }
+        else if (kv.first == "stratum_number") {
+            stratum_number = stoi(kv.second);
+        }
+        else if (kv.first == "include_sampled") {
+            include_sampled = stoi(kv.second);
         }
     }
 
@@ -339,7 +366,7 @@ void get_stratum_docs_view(const FCGX_Request & request, const vector<pair<strin
         return;
     }
 
-    write_response(request, 200, "application/json", get_stratum_docs(session_id));
+    write_response(request, 200, "application/json", get_stratum_docs(session_id, stratum_number, include_sampled));
 }
 
 // Handler for /get_stratum_info

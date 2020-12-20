@@ -14,7 +14,7 @@ from web.CAL.exceptions import CALServerSessionNotFoundError
 from web.core.mixin import RetrievalMethodPermissionMixin
 from web.interfaces.CAL import functions as CALFunctions
 from web.judgment.models import Judgment
-from web.CAL.models import DS_logging
+from web.CAL.models import Stratum
 
 logger = logging.getLogger(__name__)
 
@@ -206,7 +206,7 @@ class DSLoggingView(views.CsrfExemptMixin,
                     views.JsonRequestResponseMixin,
                     generic.View):
     """
-    View to log info of Dynamic Sampling
+    View to log stratum information in the dynamic sampling method
     """
     require_json = False
 
@@ -222,9 +222,7 @@ class DSLoggingView(views.CsrfExemptMixin,
             current_sample_size = self.request_json.get(u"n")
 
             # Get docs in current stratum
-            docs = CALFunctions.get_stratum_documents(str(session))
-            # Get sampled docs
-            sampled_docs, _ = CALFunctions.get_documents(str(session), -1)
+            docs, sampled_docs = CALFunctions.get_stratum_documents(str(session), stratum_num, include_sampled=1)
 
         except KeyError:
             error_dict = {u"message": u"Errors when getting DS info."}
@@ -249,19 +247,24 @@ class DSLoggingView(views.CsrfExemptMixin,
             doc_id, score = docid_score_pair.rsplit(':', 1)
             sampled_docs_list.append(doc_id)
 
-        exists = DS_logging.objects.filter(user=self.request.user,
-                                           stratum_num=stratum_num,
-                                           session=self.request.user.current_session)
+        exists = Stratum.objects.filter(user=self.request.user,
+                                        stratum_num=stratum_num,
+                                        session=self.request.user.current_session)
 
         if exists:
-            return self.render_bad_request_response({u"message": u"Duplicate record for stratum {}".format(stratum_num)})
+            return self.render_bad_request_response(
+                {u"message": u"Duplicate record for stratum {}".format(stratum_num)})
         else:
-            record = {'user': self.request.user, 'session': self.request.user.current_session,
-                      'stratum_size': int(stratum_size), 'stratum_num': int(stratum_num),
-                      'sample_size': int(current_sample_size),
-                      'T': int(T), 'N': int(N), 'R': int(R), 'stratum_docs': json.dumps(docs_list),
-                      'sampled_docs': json.dumps(sampled_docs_list)}
-            DS_logging.objects.create(**record)
+            Stratum.objects.create(user=self.request.user,
+                                   session=self.request.user.current_session,
+                                   stratum_size=int(stratum_size),
+                                   stratum_num=int(stratum_num),
+                                   sample_size=int(current_sample_size),
+                                   T=int(T),
+                                   N=int(N),
+                                   R=int(R),
+                                   stratum_docs=docs_list,
+                                   sampled_docs=sampled_docs_list)
 
         context = {u"message": u"Information of stratum '{}' has been logged.".format(stratum_num)}
         return self.render_json_response(context)

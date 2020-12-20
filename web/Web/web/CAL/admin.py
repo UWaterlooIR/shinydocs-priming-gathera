@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from web.CAL.models import DS_logging
+from web.CAL.models import Stratum
 
 
 class NoAddNoDeleteAdmin(admin.ModelAdmin):
@@ -11,4 +11,4 @@ class NoAddNoDeleteAdmin(admin.ModelAdmin):
         return False
 
 
-admin.site.register(DS_logging, NoAddNoDeleteAdmin)
+admin.site.register(Stratum, NoAddNoDeleteAdmin)

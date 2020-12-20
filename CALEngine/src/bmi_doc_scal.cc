@@ -82,9 +82,12 @@ unique_ptr<BMI::StratumInfo> BMI_doc_scal::get_stratum_info(){
     return make_unique<StratumInfo>(stratums.size(), stratums.back().size(), ceil(B*N/(float)T), T, N, R, n);
 }
 
-vector<pair<string, float>> BMI_doc_scal::get_stratum_docs() {
+vector<pair<string, float>> BMI_doc_scal::get_stratum_docs(int stratum_number) {
     vector<std::pair<string, float>> ret_results;
-    for (auto doc_id_score: stratums.back()) {
+    if (0 < stratum_number < ret_results.size()) {
+        return ret_results;
+    }
+    for (auto doc_id_score: stratums[stratum_number-1]) {
         ret_results.push_back({documents->get_id(doc_id_score.first), doc_id_score.second});
     }
     return ret_results;

@@ -210,6 +210,6 @@ unique_ptr<BMI::StratumInfo> BMI::get_stratum_info(){
     return nullptr;
 } 
 
-std::vector<std::pair<std::string, float>> BMI::get_stratum_docs() {
+std::vector<std::pair<std::string, float>> BMI::get_stratum_docs(int stratum_number) {
     return std::vector<std::pair<std::string, float>>();
 }
