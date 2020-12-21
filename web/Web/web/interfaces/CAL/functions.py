@@ -192,23 +192,15 @@ def get_stratum_documents(session, stratum_number, include_sampled):
     :param session: current session
     :return: return JSON list of documents_ids to judge
     """
-    h = httplib2.Http()
-    url = "http://{}:{}/CAL/get_stratum_docs?"
+    url = f"http://{CAL_SERVER_IP}:{CAL_SERVER_PORT}/CAL/get_stratum_docs"
+    params = {'session_id': str(session), 'stratum_number': stratum_number, 'include_sampled': int(include_sampled)}
 
-    parameters = {'session_id': str(session), 'stratum_number': stratum_number, 'include_sampled': int(include_sampled)}
-    parameters = urllib.parse.urlencode(parameters)
-    resp, content = h.request(url.format(CAL_SERVER_IP,
-                                         CAL_SERVER_PORT) + parameters,
-                              method="GET")
+    response = requests.get(url, params=params)
 
-    if resp and resp['status'] == '200':
-        content = json.loads(content.decode('utf-8'))
-
-        return content['docs'], content['sampled_docs']
-    elif resp and resp['status'] == '404':
-        raise CALServerSessionNotFoundError(resp['status'])
+    if response.status_code == 200:
+        return response.json()['docs'], response.json()['sampled_docs']
     else:
-        raise CALServerError(resp['status'])
+        raise CALServerError(response.status_code)
 
 
 def ds_logging(session):
@@ -216,19 +208,12 @@ def ds_logging(session):
     :param session: current session
     :return: return JSON object
     """
-    h = httplib2.Http()
-    url = "http://{}:{}/CAL/ds_logging?"
+    url = f"http://{CAL_SERVER_IP}:{CAL_SERVER_PORT}/CAL/ds_logging"
+    params = {'session_id': str(session)}
 
-    parameters = {'session_id': str(session)}
-    parameters = urllib.parse.urlencode(parameters)
-    resp, content = h.request(url.format(CAL_SERVER_IP,
-                                         CAL_SERVER_PORT) + parameters,
-                              method="GET")
-    if resp and resp['status'] == '200':
-        content = json.loads(content.decode('utf-8'))
-        if not content:
-            return None
-        else:
-            return content['info']
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        return response.json()['info']
     else:
-        raise CALServerError(resp['status'])
+        raise CALServerError(response.status_code)
