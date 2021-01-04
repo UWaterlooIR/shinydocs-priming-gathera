@@ -63,6 +63,7 @@
     <script src="https://unpkg.com/runtime-memcache@2.0.0"></script>
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="{% static 'js/logger.js' %}"></script>
     <script src="{% static 'js/document-viewer.js' %}"></script>
     <script src="{% static 'js/highlight.js' %}"></script>
 
@@ -103,11 +104,32 @@
                 newColor = "#84c273"; break;
             }
             $(`#doc_${docid}_SERP_indicator`).attr('style', `border-color:${newColor}`);
+            sendLog(LOG_EVENT.JUDGMENT_END, {
+              docId: docid,
+              rel: rel
+            })
           },
 
-          afterDocumentLoad: function (docid) {
+          beforeDocumentLoad: function (docid) {
+            sendLog(LOG_EVENT.SERP_SELECT, {
+              docId: docid
+            })
+          },
+
+          afterDocumentLoad: function (docid, rel) {
+            sendLog(LOG_EVENT.JUDGMENT_START, {
+              docId: docid,
+              rel: rel
+            })
             // Perform keyword search if necessary
             searchForKeyword();
+          },
+
+          afterDocumentClose: function (docid) {
+            sendLog(LOG_EVENT.JUDGMENT_END, {
+              docId: docid,
+              rel: null
+            })
           },
 
           afterCALFailedToReceiveJudgment: function(docid, rel) {
@@ -146,7 +168,9 @@
             document.activeElement.blur();
             $("#search_result").addClass("d-none");
             $("#search-result-spinner").removeClass("d-none");
-            //logQuerySubmit(); # TODO
+            sendLog(LOG_EVENT.SEARCH_ATTEMPT, {
+              query: $("#search_input").val()
+            })
             $(this).submit();
         });
 

@@ -84,6 +84,7 @@ var docView = function() {
     // event callbacks
     beforeDocumentLoad: null,
     afterDocumentLoad: null,
+    afterDocumentClose: null,
     afterDocumentJudge: null,
     afterErrorShown: null,
     afterCALFailedToReceiveJudgment: null
@@ -150,7 +151,14 @@ docView.prototype = {
     validateSelector(options.documentTabSelector, true, "documentTabSelector");
 
     // Don't touch these settings
-    var s = ["beforeDocumentLoad", "afterDocumentLoad", "afterDocumentJudge", "afterErrorShown", "afterCALFailedToReceiveJudgment"];
+    var s = [
+      "beforeDocumentLoad",
+      "afterDocumentLoad",
+      "afterDocumentClose",
+      "afterDocumentJudge",
+      "afterErrorShown",
+      "afterCALFailedToReceiveJudgment"
+    ];
 
     for (var k in s) {
       if (settings.hasOwnProperty(s[k])) {
@@ -214,6 +222,10 @@ docView.prototype = {
       _linkNextDocButton($(options.docViewNextDocButtonSelector));
       _linkPreviousDocButton($(options.docViewPreviousDocButtonSelector));
       _linkSortByRelevanceButton($(options.sortReviewedDocumentsSelector));
+
+      $(options.documentModalSelector).on('hidden.bs.modal', function () {
+        parent.afterDocumentClose(parent.currentDocID)
+      });
     });
 
     if (!options.singleDocumentMode && !options.searchMode){
@@ -1246,7 +1258,15 @@ docView.prototype = {
 
   afterDocumentLoad: function(docid) {
     "use strict";
-    return this.triggerEvent("afterDocumentLoad", [docid]);
+    return this.triggerEvent("afterDocumentLoad", [
+      docid,
+      this.previouslyJudgedDocs[docid] ? this.previouslyJudgedDocs[docid]["relevance"] : null
+    ]);
+  },
+
+  afterDocumentClose: function (docid) {
+    "use strict";
+    return this.triggerEvent("afterDocumentClose", [docid]);
   },
 
   afterDocumentJudge: function(docid, rel) {

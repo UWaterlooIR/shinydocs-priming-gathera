@@ -8,6 +8,8 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 import notifications.urls
 
+from config.logger import LoggerView
+
 urlpatterns = [
     path('', include('web.core.urls', namespace='core')),
     path('about/', TemplateView.as_view(template_name='pages/about.html'), name='about'),
@@ -28,6 +30,10 @@ urlpatterns = [
     path('topic/', include('web.topic.urls', namespace='topic')),
     path('judgment/', include('web.judgment.urls', namespace='judgment')),
     path('review/', include('web.review.urls', namespace='review')),
+
+    # Logger
+    path(r'logger/', LoggerView.as_view(), name='logger'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
