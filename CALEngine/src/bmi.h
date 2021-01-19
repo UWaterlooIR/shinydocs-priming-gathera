@@ -124,14 +124,20 @@ class BMI{
     }
 
     struct StratumInfo {
-        StratumInfo(size_t _stratum_number, size_t _stratum_size, int _sample_size) 
-        : stratum_number(_stratum_number), stratum_size(_stratum_size), sample_size(_sample_size) {}
+        StratumInfo(size_t _stratum_number, size_t _stratum_size, int _sample_size, int _T, int _N, int _R, int _n)
+        : stratum_number(_stratum_number), stratum_size(_stratum_size), sample_size(_sample_size), T(_T), N(_N), R(_R),
+        n(_n) {}
         size_t stratum_number;
         size_t stratum_size;
         int sample_size;
+        int T;
+        int N;
+        int R;
+        int n;
     };
 
-    virtual std::unique_ptr<StratumInfo> get_stratum_info();  
+    virtual std::unique_ptr<StratumInfo> get_stratum_info();
+    virtual std::vector<std::pair<std::string, float>> get_stratum_docs(int stratum_number);
 };
 
 #endif // BMI_H

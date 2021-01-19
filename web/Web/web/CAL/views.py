@@ -14,6 +14,7 @@ from web.CAL.exceptions import CALServerSessionNotFoundError
 from web.core.mixin import RetrievalMethodPermissionMixin
 from web.interfaces.CAL import functions as CALFunctions
 from web.judgment.models import Judgment
+from web.CAL.models import Stratum
 
 logger = logging.getLogger(__name__)
 
@@ -197,3 +198,73 @@ class DocIDsAJAXView(views.CsrfExemptMixin,
         except CALError as e:
             # TODO: add proper http response for CAL errors
             return JsonResponse({"message": "Ops! CALError."}, status=404)
+
+
+class DSLoggingView(views.CsrfExemptMixin,
+                    views.LoginRequiredMixin,
+                    RetrievalMethodPermissionMixin,
+                    views.JsonRequestResponseMixin,
+                    generic.View):
+    """
+    View to log stratum information in the dynamic sampling method
+    """
+    require_json = False
+
+    def post(self, request, *args, **kwargs):
+        session = self.request.user.current_session.uuid
+
+        try:
+            stratum_num = self.request_json.get(u"stratum_number")
+            stratum_size = self.request_json.get(u"stratum_size")
+            T = self.request_json.get(u"T")
+            N = self.request_json.get(u"N")
+            R = self.request_json.get(u"R")
+            current_sample_size = self.request_json.get(u"n")
+
+            # Get docs in current stratum
+            docs, sampled_docs = CALFunctions.get_stratum_documents(str(session), stratum_num, include_sampled=1)
+
+        except KeyError:
+            error_dict = {u"message": u"Errors when getting DS info."}
+            return self.render_bad_request_response(error_dict)
+
+        if not docs:
+            return self.render_bad_request_response({u"message": u"Empty set for stratum {}".format(stratum_num)})
+
+        if not sampled_docs:
+            return self.render_bad_request_response({u"message": u"Empty sample for stratum {}".format(stratum_num)})
+
+        if int(stratum_num) == 1:
+            current_sample_size = 1
+
+        docs_list = {}
+        for docid_score_pair in docs:
+            doc_id, score = docid_score_pair.rsplit(':', 1)
+            docs_list[doc_id] = float(score)
+
+        sampled_docs_list = []
+        for docid_score_pair in sampled_docs:
+            doc_id, score = docid_score_pair.rsplit(':', 1)
+            sampled_docs_list.append(doc_id)
+
+        exists = Stratum.objects.filter(user=self.request.user,
+                                        stratum_num=stratum_num,
+                                        session=self.request.user.current_session)
+
+        if exists:
+            return self.render_bad_request_response(
+                {u"message": u"Duplicate record for stratum {}".format(stratum_num)})
+        else:
+            Stratum.objects.create(user=self.request.user,
+                                   session=self.request.user.current_session,
+                                   stratum_size=int(stratum_size),
+                                   stratum_num=int(stratum_num),
+                                   sample_size=int(current_sample_size),
+                                   T=int(T),
+                                   N=int(N),
+                                   R=int(R),
+                                   stratum_docs=docs_list,
+                                   sampled_docs=sampled_docs_list)
+
+        context = {u"message": u"Information of stratum '{}' has been logged.".format(stratum_num)}
+        return self.render_json_response(context)

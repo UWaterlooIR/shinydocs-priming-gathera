@@ -185,3 +185,35 @@ def get_scal_info(session):
             return content['info']
     else:
         raise CALServerError(resp['status'])
+
+
+def get_stratum_documents(session, stratum_number, include_sampled):
+    """
+    :param session: current session
+    :return: return JSON list of documents_ids to judge
+    """
+    url = f"http://{CAL_SERVER_IP}:{CAL_SERVER_PORT}/CAL/get_stratum_docs"
+    params = {'session_id': str(session), 'stratum_number': stratum_number, 'include_sampled': int(include_sampled)}
+
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        return response.json()['docs'], response.json()['sampled_docs']
+    else:
+        raise CALServerError(response.status_code)
+
+
+def ds_logging(session):
+    """
+    :param session: current session
+    :return: return JSON object
+    """
+    url = f"http://{CAL_SERVER_IP}:{CAL_SERVER_PORT}/CAL/ds_logging"
+    params = {'session_id': str(session)}
+
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        return response.json()['info']
+    else:
+        raise CALServerError(response.status_code)

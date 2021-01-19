@@ -8,6 +8,7 @@ using namespace std;
     int B = 1;
     int T, N;
     int R;
+    int n;
     vector<vector<pair<int, float>>> stratums;
     public:
     BMI_doc_scal(Seed seed,
@@ -41,5 +42,6 @@ using namespace std;
     }
 
     virtual unique_ptr<StratumInfo> get_stratum_info() override;
+    virtual vector<pair<std::string, float>> get_stratum_docs(int stratum_number) override;
 };
 #endif // BMI_DOC_SCAL_H

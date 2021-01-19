@@ -17,4 +17,6 @@ urlpatterns = [
          name='get_docs_ids'),
     path('get_scal_info/', views.SCALInfoView.as_view(),
          name='get_scal_info'),
+    path('ds_logging/', views.DSLoggingView.as_view(),
+         name='ds_logging'),
 ]
