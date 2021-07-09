@@ -31,6 +31,13 @@ public:
     bool filter(const std::string &token) override;
 };
 
+class MaxLengthFilter:public Filter {
+    size_t max_length;
+public:
+    MaxLengthFilter(size_t _max_length):max_length(_max_length){};
+    bool filter(const std::string &token) override;
+};
+
 
 // Transformer declarations start here
 class Transform {
@@ -49,6 +56,11 @@ public:
 };
 
 
+class CleanSentence:public Transform {
+public:
+    std::string transform(const std::string &token) override;
+};
+
 // Tokenizer declarations start here
 class Tokenizer {
 public:
@@ -57,7 +69,9 @@ public:
 
 class BMITokenizer:public Tokenizer {
     AlphaFilter alpha_filter = AlphaFilter();
+    CleanSentence clean_sentences = CleanSentence();
     MinLengthFilter min_length_filter = MinLengthFilter(2);
+    MaxLengthFilter max_length_filter = MaxLengthFilter(10);
     PorterTransform porter_transform = PorterTransform();
     LowerTransform lower_transform = LowerTransform();
 public:

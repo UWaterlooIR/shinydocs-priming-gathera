@@ -18,6 +18,10 @@ bool MinLengthFilter::filter(const string &token) {
     return token.length() >= min_length;
 }
 
+bool MaxLengthFilter::filter(const string &token) {
+    return token.length() <= max_length;
+}
+
 std::string PorterTransform::transform(const std::string &token) {
     char temp_str[token.length()+1];
     strcpy(temp_str, token.c_str());
@@ -30,6 +34,42 @@ std::string LowerTransform::transform(const std::string &token) {
     string transformed_token = token;
     std::transform(transformed_token.begin(), transformed_token.end(), transformed_token.begin(), ::tolower);
     return transformed_token;
+}
+
+std::string CleanSentence::transform(const std::string &text) {
+    vector<string> sentences;
+    int st = 0;
+    while (st < (int)text.length()){
+        int end = 0;
+        int num_words = 0;
+        int prev_space = 1;
+
+        while(text[st+end] != '\n' && text[st+end] != '\0'){
+            if (!prev_space && text[st+end] == ' '){
+                num_words++;
+                prev_space = 1;
+            }
+            if (text[st+end] != ' ')
+                prev_space = 0;
+            end++;
+        }
+        if (st+end-2 > 0 && text[st+end-2] == ' ')
+            num_words -= 1;
+
+        if (num_words >= 3) // min sentence length
+            sentences.push_back(text.substr(st, end-2));
+
+        st += end + 1;
+    }
+
+    string clean_string;
+    for (auto p = sentences.begin(); p != sentences.end(); ++p) {
+      clean_string += *p;
+      if (p != sentences.end() - 1)
+        clean_string += ' ';
+   }
+
+    return clean_string;
 }
 
 std::vector<std::string> BMITokenizer::tokenize(const std::string &text) {

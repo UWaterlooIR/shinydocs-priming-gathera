@@ -80,6 +80,7 @@ int main(int argc, char **argv){
 
     cerr<<"Beginning Pass 1"<<endl;
     BMITokenizer tokenizer = BMITokenizer();
+    CleanSentence cleaner = CleanSentence();
     // Pass 1: get corpus stat and compute term frequencies
     {
         unique_ptr<FeatureWriter> fw_1;
@@ -102,7 +103,7 @@ int main(int argc, char **argv){
             if(doc_name.find_last_of('/') != doc_name.npos){
                 doc_name = doc_name.substr(doc_name.find_last_of('/') + 1);
             }
-            string content = read_content(a);
+            string content = cleaner.transform(read_content(a));
             num_docs++;
             vector<string> tokens = tokenizer.tokenize(content);
 
@@ -203,8 +204,8 @@ int main(int argc, char **argv){
 
     // Write the token ID to actual token map
     ofstream id_map_file;
-    id_map_file.open("/data/id_token_map.txt");
-    cerr << "Writing " << id_tokens.size() << " tokens" << endl;
+    id_map_file.open(out_filename + ".id_token_map");
+    cerr << "Writing " << id_tokens.size() << " tokens to " << out_filename + ".id_token_map" << endl;
     for (auto it : id_tokens) {
         id_map_file << it.first << " " << it.second << endl;
     }
