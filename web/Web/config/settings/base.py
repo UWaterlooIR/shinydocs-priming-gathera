@@ -352,6 +352,8 @@ DEFAULT_NUM_DISPLAY = 10
 SEARCH_ENGINE = "web.interfaces.SearchEngine.anserini.Anserini"
 # SEARCH_ENGINE = "web.interfaces.SearchEngine.elastic.Elastic"
 
+# ANSERINI
+ANSERINI_INDEX_PATH = ""
 
 
 

@@ -1,48 +1,32 @@
+from config.settings.base import ANSERINI_INDEX_PATH
 from config.settings.base import DOCUMENTS_URL
 from config.settings.base import PARA_URL
+import json
 
 import httplib2
-import requests
+from pyserini import index
 
-try:
-    # For c speedups
-    from simplejson import loads
-except ImportError:
-    from json import loads
-
-
-def get_date(content):
-    for line in content.split('\n'):
-        if line.strip()[:4] == "Sent":
-            try:
-                return line.split(':', 1)[1].strip()
-            except:
-                pass
-    return ""
-
-
-def get_subject(content):
-    for line in content.split('\n'):
-        if line.strip()[:7] == "Subject":
-            return line.split(':', 1)[1].strip()
-    return ""
+index_reader = index.IndexReader(ANSERINI_INDEX_PATH)
 
 
 def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
     """
+    :param orig_para_id:
+    :param top_terms:
     :param query:
     :param doc_ids: the ids of documents to return
     :return: documents content
     """
     result = []
-    h = httplib2.Http()
     for idx, doc_id in enumerate(doc_ids):
-        url = '{}/{}'.format(DOCUMENTS_URL, doc_id)
-        resp, content = h.request(url,
-                                  method="GET")
-        content = content.decode('utf-8', 'ignore')
-        date = get_date(content)
-        title = get_subject(content)
+
+        raw = index_reader.doc(doc_id).raw()
+        content = json.loads(raw)
+        url = content["url"]
+        content = content["text"].split("\n")
+        title = content[0]
+        content = "\n".join(content[1:])
+
         if len(content) == 0:
             if len(title) == 0:
                 title = '<i class="text-warning">The document title is empty</i>'
@@ -55,9 +39,9 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
             'doc_id': doc_id,
             'title': title,
             'content': content.replace("\n", "<br/>"),
-            'date': date,
+            'date': url,
             'top_terms': top_terms.get(doc_id if orig_para_id is None else "{}.{}".format(doc_id, orig_para_id[idx]), None) if top_terms else None,
-            'ok': resp.status == 200
+            'ok': True if content else False
         }
         result.append(document)
 
