@@ -13,7 +13,15 @@ class FeatureParser{
         FILE *fp;
         std::unordered_map<std::string, TermInfo> dictionary;
     public:
-        FeatureParser(const string &fname){ fp = fopen(fname.c_str(), "rb"); setvbuf(fp, NULL, _IOFBF, 1 << 25); }
+        FeatureParser(const string &fname)
+        {
+          fp = fopen(fname.c_str(), "rb");
+          if ( fp == NULL )
+          {
+            throw std::runtime_error( std::string("unable to open file: " ) + fname.c_str() ) ;
+          }
+          setvbuf(fp, NULL, _IOFBF, 1 << 25);
+        }
         virtual std::unique_ptr<SfSparseVector> next() = 0;
         std::unordered_map<std::string, TermInfo> get_dictionary() { return dictionary; }
 
