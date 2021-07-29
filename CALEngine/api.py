@@ -2,6 +2,7 @@
 """
 
 import requests
+import json
 from json import JSONDecodeError
 
 class SessionExistsException(Exception):
@@ -89,7 +90,7 @@ def get_docs(session_id, max_count=1):
 
 
 def get_stratum_info(session_id):
-    """ Get 
+    """ Get
 
     Args:
         session_id (str): unique session id
@@ -163,13 +164,13 @@ def get_ranklist(session_id):
     except JSONDecodeError:
         pass
 
-    ret = []
-    for line in resp.text.split('\n'):
-        if len(line) == 0:
-            continue
-        doc_id, score = line.split(' ')
-        ret.append((doc_id, float(score)))
-    return ret
+    ranklist = []
+    ret = json.loads(resp.text)
+    for pair in ret["ranklist"].split(","):
+        doc_id, score = pair.split(" ")
+        ranklist.append((doc_id, float(score)))
+
+    return ranklist
 
 
 def delete_session(session_id):
