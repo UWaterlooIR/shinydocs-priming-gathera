@@ -219,6 +219,9 @@ int main(int argc, char **argv){
         archive_read_support_format_all(a);
         archive_read_support_filter_all(a);
 
+        if(is_concatenated)
+            archive_read_set_options(a, "read_concatenated_archives");
+        
         unique_ptr<FeatureWriter> para_fw;
         if(bin_out){
             para_fw = make_unique<BinFeatureWriter>(para_out_filename, dictionary);
