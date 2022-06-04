@@ -81,10 +81,10 @@
           <div class="modal-body">
               <p>Example of accepted CSV file:</p>
                     <pre class="small text-muted">
-                      docno, judgment
-                      mydocid1, 1,
-                      mydocid2, 0,
-                      mydocid3, 2</pre>
+                      docno,judgment
+                      mydocid1,1,
+                      mydocid2,0,
+                      mydocid3,2</pre>
 
               {% csrf_token %}
               {% crispy upload_form %}
@@ -119,10 +119,10 @@
           <div class="modal-body">
               <p>Example of exported CSV file:</p>
                 <pre class="small text-muted">
-                  docno, judgment, user
-                  mydocid1, 1, myusername
-                  mydocid2, 0, myusername
-                  mydocid3, 2, myusername</pre>
+                  docno,judgment,user
+                  mydocid1,1,myusername
+                  mydocid2,0,myusername
+                  mydocid3,2,myusername</pre>
           </div>
 
           <div class="modal-footer">
