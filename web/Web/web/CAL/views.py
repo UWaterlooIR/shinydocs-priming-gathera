@@ -13,7 +13,7 @@ from web.CAL.exceptions import CALError
 from web.CAL.exceptions import CALServerSessionNotFoundError
 from web.core.mixin import RetrievalMethodPermissionMixin
 from web.interfaces.CAL import functions as CALFunctions
-from web.judgment.models import Judgment
+from web.judgment.models import Judgment, DebuggingJudgment
 from web.CAL.models import Stratum
 
 logger = logging.getLogger(__name__)
@@ -84,7 +84,7 @@ class DocAJAXView(views.CsrfExemptMixin,
         session = self.request.user.current_session
         seed_query = self.request.user.current_session.topic.seed_query
         try:
-            docids_to_judge, top_terms = CALFunctions.get_documents(str(session.uuid), 10)
+            docids_to_judge, top_terms = CALFunctions.get_documents(str(session.uuid), 50)
             if not docids_to_judge:
                 return self.render_json_response([])
 
@@ -110,6 +110,18 @@ class DocAJAXView(views.CsrfExemptMixin,
                 documents = DocEngine.get_documents_with_snippet(doc_ids_hack,
                                                                  seed_query,
                                                                  top_terms)
+
+            # append debugging rel to documents
+            for doc in documents:
+                doc["debugging_rel"] = -1
+                djudged = DebuggingJudgment.objects.filter(user=self.request.user,
+                                                           doc_id=doc["doc_id"],
+                                                           session=self.request.user.current_session)
+                if djudged.exists():
+                    djudged = djudged.first()
+                    doc["debugging_rel"] = djudged.relevance
+                else:
+                    doc["debugging_rel"] = -1  # unjudged
 
             return self.render_json_response(documents)
         except TimeoutError:

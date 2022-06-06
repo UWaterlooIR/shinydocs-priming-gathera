@@ -210,6 +210,7 @@ class SessionDetailsAJAXView(views.CsrfExemptMixin, views.LoginRequiredMixin,
         session['strategy'] = session_obj.get_strategy_display()
         session['effort'] = session_obj.max_number_of_judgments
         session['show_full_document_content'] = session_obj.show_full_document_content
+        session['show_debugging_content'] = session_obj.show_debugging_content
         session['created_at'] = session_obj.created_at
 
         counters = Judgment.objects.filter(user=self.request.user,

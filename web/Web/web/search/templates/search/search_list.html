@@ -30,6 +30,7 @@
         <br/>
         <small class="gray-text mx-auto mb-2">query id is {{ queryID }}</small>
         <small class="gray-text mx-auto mb-2">serp id is {{ serpID }}</small>
+        {% comment %}
         <div class="card-header py-2 text-secondary">
           Filter
         </div>
@@ -39,6 +40,7 @@
         <div class="card-header py-2 text-secondary">
           Labels
         </div>
+        {% endcomment %}
       </div>
     </div>
 
@@ -75,6 +77,7 @@
     </div>
 
     <div class="col-3 d-none d-sm-block">
+      {% comment %}
       <div class="card border-0">
         <div class="card-header py-2 text-primary">
           Similar queries
@@ -83,6 +86,7 @@
           <span></span>
         </div>
       </div>
+      {% endcomment %}
     </div>
   </div>
 
