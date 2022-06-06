@@ -62,6 +62,8 @@ var docView = function () {
     documentAdditionalJudgingCriterionSelector: ".additionalJudgingCriterion",
     previouslyReviewedListSelector: ".previouslyReviewedList",
     previouslyReviewedListSpinnerSelector: ".previouslyReviewedListSpinner",
+    nextBatchListSelector: ".nextBatchList",
+    nextBatchListSpinnerSelector: ".nextBatchListSpinner",
     searchItemSelector: ".searchItemSelector",
     documentModalSelector: "#documentModal",
     sortReviewedDocumentsSelector: ".docViewSortReviewListByRelButton",
@@ -69,8 +71,8 @@ var docView = function () {
     // Colors
     highlyRelevantColor: "#84c273",
     relevantColor: "#c6fab8",
-    nonrelevantColor: "#a5a5a5",
-    otherColor: "#DEE2E6",
+    nonrelevantColor: "#686868",
+    otherColor: "#ebeeef",
     primaryColor: "#000",
     secondaryColor: "#5C7080",
     projectPrimaryColor: "#F7533D",
@@ -98,11 +100,12 @@ var docView = function () {
   this.currentDocID = null;
   this.currentDocIndex = -1;
   this.viewStack = [];
+  this.debuggingNextBatch = [];
   this.previouslyJudgedDocs = {};
   this.previouslyJudgedDocsStack = [];
   this.documentCacheStore = null;
   this.additionalJudgingCriteriaList = [];
-  this.stratum_number = 0
+  this.stratum_number = 0;
 
 
   this._init = function () {
@@ -143,6 +146,8 @@ docView.prototype = {
     validateSelector(options.documentWrapperSelector, false, "documentWrapperSelector");
     validateSelector(options.previouslyReviewedListSelector, true, "previouslyReviewedListSelector");
     validateSelector(options.previouslyReviewedListSpinnerSelector, true, "previouslyReviewedListSpinnerSelector");
+    validateSelector(options.nextBatchListSelector, true, "nextBatchListSelector");
+    validateSelector(options.nextBatchListSpinnerSelector, true, "nextBatchListSpinnerSelector");
     validateSelector(options.documentSnippetSelector, true, "documentSnippetSelector");
     validateSelector(options.documentShowFullDocumentButtonSelector, true, "documentShowFullDocumentButtonSelector");
     validateSelector(options.documentJudgingCriteriaButtonGroupSelector, true, "documentJudgingCriteriaButtonGroupSelector");
@@ -521,6 +526,29 @@ docView.prototype = {
       updateDocID(null);
       hideCloseButton();
       hideDocTab();
+      hideNextBatchListSpinner();
+      updateBatchListContent(err_msg, {
+        "font": options.secondaryTitleFont,
+        "color": options.dangerColor
+      });
+    }
+
+    function clearNextBatchList() {
+      $(options.nextBatchListSelector).empty();
+    }
+
+    function updateBatchListContent(content, styles){
+      clearNextBatchList();
+      const elm = $(`<small>${content}</small>`);
+      updateStyles(elm, styles);
+      $(options.nextBatchListSelector).append(elm);
+    }
+
+    function hideNextBatchListSpinner() {
+      $(options.nextBatchListSpinnerSelector).addClass("d-none");
+    }
+    function showNextBatchListSpinner() {
+      $(options.nextBatchListSpinnerSelector).removeClass("d-none");
     }
 
     function updateTitle(content, styles) {
@@ -696,7 +724,7 @@ docView.prototype = {
       }
       // link on click
       div_elm.on("click", function () {
-        viewPreviouslyJudgedDocument($(this).data("doc-id").toString())
+        viewPreviouslyJudgedDocument($(this).data("doc-id").toString());
       });
 
       if (!options.reviewMode || stack_index === -1) {
@@ -742,6 +770,7 @@ docView.prototype = {
      */
     function getDocumentsToJudge(callback) {
       const url = options.allowDocumentCaching ? options.getDocumentsToJudgeURL : options.getDocumentIDsToJudgeURL;
+      showNextBatchListSpinner();
       $.ajax({
         url: url,
         method: "GET",
@@ -985,6 +1014,8 @@ docView.prototype = {
 
       if (!options.singleDocumentMode && !options.searchMode && !options.reviewMode) {
         clearDocumentView();
+        clearNextBatchList();
+        showNextBatchListSpinner();
       } else {
         updateDocumentIndicator(relToTitle(rel), relToColor(rel));
       }
@@ -1165,6 +1196,8 @@ docView.prototype = {
      */
     function updateViewStack(result) {
       let docids = [];
+      let debuggingNextBatch = [];
+
       for (let i = 0; i < result.length; i++) {
         const doc = result[i];
         if (options.allowDocumentCaching) {
@@ -1174,8 +1207,45 @@ docView.prototype = {
         if (((!(doc.doc_id in parent.previouslyJudgedDocs) || (parent.previouslyJudgedDocs[doc.doc_id]["relevance"] === null)) && doc.doc_id !== parent.currentDocID) || options.reviewMode) {
           docids.push(doc.doc_id);
         }
+
+        debuggingNextBatch.push(
+            {
+              "doc_id": doc.doc_id,
+              "debugging_rel": doc.debugging_rel
+            }
+          );
       }
+      parent.debuggingNextBatch = debuggingNextBatch;
       parent.viewStack = docids;
+
+      updateDebuggingNextBatchView(parent.debuggingNextBatch);
+    }
+
+    function updateDebuggingNextBatchView(nextBatch) {
+      for (let i = 0; i < nextBatch.length; i++) {
+        const doc = nextBatch[i];
+        const elm = generate_next_batch_doc_div_elm(
+          doc.doc_id,
+          doc.debugging_rel
+        );
+        elm.removeClass(options.prevReviewedDocumentItemClass);
+        $(options.nextBatchListSelector).append(elm);
+      }
+
+      hideNextBatchListSpinner();
+    }
+
+
+    function generate_next_batch_doc_div_elm(docid, rel) {
+      const rel_color = relToColor(rel);
+      return $(`
+        <a href="#" class="d-flex mb-1 text-muted ${options.prevReviewedDocumentItemClass}" style="min-height: 1rem;" data-doc-id="${docid}" data-is-current="false">
+            <div class="align-self-center align-self-stretch p-1" style="border-width: 0.15rem!important; border-style: none none none solid; border-color: ${rel_color};"></div>
+            <div class="align-self-center text-truncate">
+                <div class="docView-default-font-family text-truncate">${docid} (${rel})</div>
+            </div>
+        </a>
+      `);
     }
 
     function generate_prev_reviewed_doc_div_elm(docid, title, rel) {
@@ -1252,7 +1322,7 @@ docView.prototype = {
      * Given a numerical value of the relevance, return the appropriate color.
      * */
     function relToColor(rel) {
-      if (rel === 2) {
+      if (rel >= 2) {
         return options.highlyRelevantColor;
       } else if (rel === 1) {
         return options.relevantColor;

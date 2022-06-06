@@ -62,3 +62,37 @@ class Judgment(models.Model):
 
     def __str__(self):
         return self.__unicode__()
+
+
+class DebuggingJudgment(models.Model):
+    class Meta:
+        unique_together = ['user', 'doc_id', 'session']
+        index_together = ['user', 'doc_id', 'session']
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE)
+
+    doc_id = models.CharField(null=False, blank=False, max_length=512)
+
+    # 2 indicates high level,
+    # 1 for medium/low,
+    # and 0 for not matching the judging criteria.
+    class JudgingChoices(models.IntegerChoices):
+        HIGHLY_RELEVANT = (2, 'Highly Relevant')
+        RELEVANT = (1, 'Relevant')
+        NON_RELEVANT = (0, 'Non-Relevant')
+
+    # A judgment can have null fields if its only been viewed but not judged.
+    # This field is the main judging criteria used to update the ML models
+    relevance = models.IntegerField(verbose_name='Relevance',
+                                    choices=JudgingChoices.choices,
+                                    null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return "{} on {}: {}".format(self.user, self.doc_id, self.relevance)
+
+    def __str__(self):
+        return self.__unicode__()

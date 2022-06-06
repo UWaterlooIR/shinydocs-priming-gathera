@@ -45,12 +45,14 @@ def submit_new_session_form(request):
         max_number_of_judgments = form.cleaned_data['max_number_of_judgments']
         strategy = form.cleaned_data['strategy']
         show_full_document_content = form.cleaned_data['show_full_document_content']
+        show_debugging_content = form.cleaned_data['show_debugging_content']
         session = Session.objects.create(
             username=request.user,
             topic=form.instance,
             max_number_of_judgments=max_number_of_judgments,
             strategy=strategy,
-            show_full_document_content=show_full_document_content
+            show_full_document_content=show_full_document_content,
+            show_debugging_content=show_debugging_content
         )
         messages.add_message(request,
                              messages.SUCCESS,

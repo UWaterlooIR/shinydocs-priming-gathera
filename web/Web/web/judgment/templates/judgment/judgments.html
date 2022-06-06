@@ -60,6 +60,11 @@
 
         <a id="import_csv" href="#" class="btn btn-outline-primary btn-sm mb-3 btn-block" data-toggle="modal" data-target="#importModal">Import judgments</a>
         <a id="export_csv" href="#" class="btn btn-outline-primary btn-sm mb-3 btn-block" data-toggle="modal" data-target="#exportModal">Export to csv</a>
+        {% if request.user.current_session.show_debugging_content %}
+        <hr>
+        <a id="debugging_csv" href="#" class="btn btn-outline-primary btn-sm mb-3 btn-block" data-toggle="modal" data-target="#debuggingModal">Import debugging judgments</a>
+        {% endif %}
+
       </div>
     </div>
   </div>
@@ -77,7 +82,8 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form method="POST" enctype="multipart/form-data" id="import_csv_form">
+        <form method="POST" enctype="multipart/form-data" id="import_csv_form" name="form_type" value="import_csv_form">
+          <input name="form_id" value="import_csv_form" type="hidden"/>
           <div class="modal-body">
               <p>Example of accepted CSV file:</p>
                     <pre class="small text-muted">
@@ -133,6 +139,48 @@
       </div>
     </div>
   </div>
+
+  {% if request.user.current_session.show_debugging_content %}
+  <!-- Debugging Modal -->
+  <div class="modal" id="debuggingModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="d-flex flex-column flex-grow-1 ">
+            <h5 class="modal-title text-primary">Debugging judgments</h5>
+            <h6 class="text-muted">Judgments will be shown while interactively judging (if the document is judged).</h6>
+            <h6 class="text-muted">Please reformat your CSV file to have columns, <code>docno</code>, and <code>judgment</code>.</h6>
+
+          </div>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form method="POST" enctype="multipart/form-data" id="import_debugging_judgements_csv_form" name="form_type" value="import_debugging_judgements_csv_form">
+          <input name="form_id" value="import_debugging_judgements_csv_form" type="hidden"/>
+
+          <div class="modal-body">
+              <p>Example of accepted CSV file:</p>
+                    <pre class="small text-muted">
+                      docno,judgment
+                      mydocid1,1,
+                      mydocid2,0,
+                      mydocid3,2</pre>
+
+              {% csrf_token %}
+              {% crispy upload_debug_form %}
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-outline-secondary" id="import_review_csv_button" type="submit">Upload</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Document modal -->
   {% include 'modals/document_modal.html' %}

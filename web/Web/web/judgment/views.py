@@ -16,8 +16,8 @@ from interfaces.DocumentSnippetEngine import functions as DocEngine
 
 from web.CAL.exceptions import CALError
 from web.interfaces.CAL import functions as CALFunctions
-from web.judgment.forms import UploadForm
-from web.judgment.models import Judgment
+from web.judgment.forms import UploadForm, UploadDebuggingJudgmentsForm
+from web.judgment.models import Judgment, DebuggingJudgment
 
 logger = logging.getLogger(__name__)
 
@@ -141,35 +141,48 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
             context[u"next_docs"] = []
 
             try:
-                next_patch, top_terms = CALFunctions.send_judgment(
+                next_batch, top_terms = CALFunctions.send_judgment(
                     current_session.uuid,
                     doc_id,
                     rel_CAL)
-                if not next_patch:
+                if not next_batch:
                     return self.render_json_response(context)
 
                 ret = {}
-                next_patch_ids = []
-                for docid_score_pair in next_patch:
+                next_batch_ids = []
+                for docid_score_pair in next_batch:
                     doc_id, doc_score = docid_score_pair.rsplit(':', 1)
                     ret[doc_id] = doc_score
-                    next_patch_ids.append(doc_id)
+                    next_batch_ids.append(doc_id)
 
                 doc_ids_hack = []
-                for doc_id in next_patch_ids:
+                for doc_id in next_batch_ids:
                     doc = {'doc_id': doc_id}
                     if '.' in doc_id:
                         doc['doc_id'], doc['para_id'] = doc_id.split('.')
                     doc_ids_hack.append(doc)
                 seed_query = current_session.topic.seed_query
                 if 'doc' in current_session.strategy:
-                    documents = DocEngine.get_documents(next_patch_ids,
+                    documents = DocEngine.get_documents(next_batch_ids,
                                                         seed_query,
                                                         top_terms)
                 else:
                     documents = DocEngine.get_documents_with_snippet(doc_ids_hack,
                                                                      seed_query,
                                                                      top_terms)
+
+                # append debugging rel to documents
+                for doc in documents:
+                    doc["debugging_rel"] = -1
+                    djudged = DebuggingJudgment.objects.filter(user=self.request.user,
+                                                               doc_id=doc["doc_id"],
+                                                               session=self.request.user.current_session)
+                    if djudged.exists():
+                        djudged = djudged.first()
+                        doc["debugging_rel"] = djudged.relevance
+                    else:
+                        doc["debugging_rel"] = -1  # unjudged
+
                 context[u"next_docs"] = documents
             except TimeoutError:
                 context["CALFailedToReceiveJudgment"] = True
@@ -388,9 +401,11 @@ class JudgmentsView(views.LoginRequiredMixin,
 
         context["judgments"] = judgments
         context['upload_form'] = UploadForm()
+        context['upload_debug_form'] = UploadDebuggingJudgmentsForm()
         return context
 
-    def post(self, request, *args, **kwargs):
+    def _process_import_csv_form(self, request):
+
         try:
             csv_file = request.FILES['csv_file']
             train_model = request.POST.get('train_model')
@@ -481,30 +496,277 @@ class JudgmentsView(views.LoginRequiredMixin,
 
         return HttpResponseRedirect(reverse_lazy('judgment:view'))
 
-    def get(self, request, *args, **kwargs):
+    def _process_import_debugging_judgments_csv_form(self, request):
+        print("in _process_import_debugging_judgments_csv_form()")
 
-        if request.GET.get("export_csv"):
-            class Echo:
-                """An object that implements just the write method of the file-like
-                interface.
-                """
+        try:
+            csv_file = request.FILES['debugging_csv_file']
+        except KeyError:
+            messages.error(request, 'Ops! Something wrong happened. '
+                                    'Could not upload review judgments.')
+            return HttpResponseRedirect(reverse_lazy('judgment:view'))
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'Please upload a file ending with .csv extension.')
+            return HttpResponseRedirect(reverse_lazy('judgment:view'))
 
-                def write(self, value):
-                    """Write the value by returning it, instead of storing in a buffer."""
-                    return value
+        try:
+            data = csv_file.read().decode('UTF-8')
+        except UnicodeEncodeError:
+            messages.error(request, 'Ops! Something wrong happened while encoding file.')
+            return HttpResponseRedirect(reverse_lazy('judgment:view'))
 
-            judgments = Judgment.objects.filter(user=self.request.user,
-                                                session=self.request.user.current_session,
-                                                relevance__isnull=False)
-            header = ["docno", "judgment", "user"]
-            rows = ([judgment.doc_id, judgment.relevance, judgment.user]
-                    for judgment in judgments)
-            data = itertools.chain([header], rows)
-            filename = "{}.csv".format(str(self.request.user.current_session.uuid))
-            pseudo_buffer = Echo()
-            writer = csv.writer(pseudo_buffer)
-            response = StreamingHttpResponse((writer.writerow(row) for row in data),
-                                             content_type="text/csv")
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-            return response
-        return super(JudgmentsView, self).get(self, request, *args, **kwargs)
+        try:
+            io_string = io.StringIO(data)
+            reader = csv.DictReader(io_string)
+        except csv.Error:
+            messages.error(request, 'Ops! Please make sure you upload a valid csv file.')
+            return HttpResponseRedirect(reverse_lazy('judgment:view'))
+
+        new, updated = 0, 0
+        for row in reader:
+            try:
+                docno, rel = row['docno'], int(row['judgment'])
+            except KeyError:
+                messages.error(request,
+                               'Ops! Please make sure you upload a valid csv file.')
+                return HttpResponseRedirect(reverse_lazy('judgment:view'))
+
+
+            # check if already uploaded
+            djudged = DebuggingJudgment.objects.filter(user=self.request.user,
+                                                       doc_id=docno,
+                                                       session=self.request.user.current_session)
+            if djudged.exists():
+                djudged = djudged.first()
+                djudged_rel = djudged.relevance
+                if djudged_rel != rel:
+                    djudged.relevance = rel
+                    djudged.save()
+                    updated += 1
+            else:
+                DebuggingJudgment.objects.create(
+                    user=self.request.user,
+                    doc_id=docno,
+                    session=self.request.user.current_session,
+                    relevance=rel,
+                )
+                new += 1
+
+        messages.success(request,
+                         ("Added {} new judgments. ".format(new) if new else "") +
+                         ("{} judgments were updated".format(
+                             updated) if updated else ""),
+                         )
+
+        return HttpResponseRedirect(reverse_lazy('judgment:view'))
+
+
+    def post(self, request, *args, **kwargs):
+
+        if request.POST.get("form_id") == 'import_csv_form':
+            return self._process_import_csv_form(request)
+        elif request.POST.get("form_id") == 'import_debugging_judgements_csv_form':
+            return self._process_import_debugging_judgments_csv_form(request)
+
+        # if not csv_file.name.endswith('.csv'):
+        #     messages.error(request, 'Please upload a file ending with .csv extension.')
+        #     return HttpResponseRedirect(reverse_lazy('judgment:view'))
+        #
+        # train_model = train_model == "on"
+        # update_existing = update_existing == "on"
+        # try:
+        #     data = csv_file.read().decode('UTF-8')
+        # except UnicodeEncodeError:
+        #     messages.error(request, 'Ops! Something wrong happened while encoding file.')
+        #     return HttpResponseRedirect(reverse_lazy('judgment:view'))
+        #
+        # try:
+        #     io_string = io.StringIO(data)
+        #     reader = csv.DictReader(io_string)
+        # except csv.Error:
+        #     messages.error(request, 'Ops! Please make sure you upload a valid csv file.')
+        #     return HttpResponseRedirect(reverse_lazy('judgment:view'))
+        #
+        # new, updated, failed = 0, 0, 0
+        # for row in reader:
+        #     try:
+        #         docno, rel = row['docno'], int(row['judgment'])
+        #     except KeyError:
+        #         messages.error(request, 'Ops! Please make sure you upload a valid csv file.')
+        #         return HttpResponseRedirect(reverse_lazy('judgment:view'))
+        #
+        #     # Check if docid is valid
+        #     if not CALFunctions.check_docid_exists(self.request.user.current_session.uuid,
+        #                                            docno):
+        #         failed += 1
+        #         continue
+        #
+        #     # check if judged
+        #     judged = Judgment.objects.filter(user=self.request.user,
+        #                                      doc_id=docno,
+        #                                      session=self.request.user.current_session)
+        #     if train_model:
+        #         try:
+        #             CALFunctions.send_judgment(self.request.user.current_session.uuid,
+        #                                        docno,
+        #                                        1 if rel > 0 else -1)
+        #         except (TimeoutError, CALError):
+        #             failed += 1
+        #             continue
+        #
+        #     history = {
+        #         "source": "upload",
+        #         "judged": "true",
+        #         "relevance": rel,
+        #     }
+        #     if judged.exists():
+        #         if update_existing:
+        #             judged = judged.first()
+        #             judged_rel = judged.relevance
+        #             if judged_rel != rel:
+        #                 judged.relevance = rel
+        #                 judged.source = "upload"
+        #                 judged.historyVerbose.append(history)
+        #                 judged.save()
+        #                 updated += 1
+        #     else:
+        #         Judgment.objects.create(
+        #             user=self.request.user,
+        #             doc_id=docno,
+        #             session=self.request.user.current_session,
+        #             relevance=rel,
+        #             source="upload",
+        #             historyVerbose=[history],
+        #         )
+        #         new += 1
+        #
+        # if failed:
+        #     messages.error(request, 'Ops! {} judgments were not recorded.'.format(failed))
+        #
+        # messages.success(request,
+        #                  ("Added {} new judgments. ".format(new) if new else "") +
+        #                  ("{} judgments were updated".format(updated) if updated else ""),
+        #                  )
+
+        return HttpResponseRedirect(reverse_lazy('judgment:view'))
+
+    # def post(self, request, *args, **kwargs):
+    #     print(request.POST)
+    #     try:
+    #         csv_file = request.FILES['csv_file']
+    #         train_model = request.POST.get('train_model')
+    #         update_existing = request.POST.get('update_existing')
+    #         print(train_model, update_existing)
+    #     except KeyError:
+    #         messages.error(request, 'Ops! Something wrong happened. '
+    #                                 'Could not upload judgments.')
+    #         return HttpResponseRedirect(reverse_lazy('judgment:view'))
+    #     if not csv_file.name.endswith('.csv'):
+    #         messages.error(request, 'Please upload a file ending with .csv extension.')
+    #         return HttpResponseRedirect(reverse_lazy('judgment:view'))
+    #
+    #     train_model = train_model == "on"
+    #     update_existing = update_existing == "on"
+    #     try:
+    #         data = csv_file.read().decode('UTF-8')
+    #     except UnicodeEncodeError:
+    #         messages.error(request, 'Ops! Something wrong happened while encoding file.')
+    #         return HttpResponseRedirect(reverse_lazy('judgment:view'))
+    #
+    #     try:
+    #         io_string = io.StringIO(data)
+    #         reader = csv.DictReader(io_string)
+    #     except csv.Error:
+    #         messages.error(request, 'Ops! Please make sure you upload a valid csv file.')
+    #         return HttpResponseRedirect(reverse_lazy('judgment:view'))
+    #
+    #     new, updated, failed = 0, 0, 0
+    #     for row in reader:
+    #         try:
+    #             docno, rel = row['docno'], int(row['judgment'])
+    #         except KeyError:
+    #             messages.error(request, 'Ops! Please make sure you upload a valid csv file.')
+    #             return HttpResponseRedirect(reverse_lazy('judgment:view'))
+    #
+    #         # Check if docid is valid
+    #         if not CALFunctions.check_docid_exists(self.request.user.current_session.uuid,
+    #                                                docno):
+    #             failed += 1
+    #             continue
+    #
+    #         # check if judged
+    #         judged = Judgment.objects.filter(user=self.request.user,
+    #                                          doc_id=docno,
+    #                                          session=self.request.user.current_session)
+    #         if train_model:
+    #             try:
+    #                 CALFunctions.send_judgment(self.request.user.current_session.uuid,
+    #                                            docno,
+    #                                            1 if rel > 0 else -1)
+    #             except (TimeoutError, CALError):
+    #                 failed += 1
+    #                 continue
+    #
+    #         history = {
+    #             "source": "upload",
+    #             "judged": "true",
+    #             "relevance": rel,
+    #         }
+    #         if judged.exists():
+    #             if update_existing:
+    #                 judged = judged.first()
+    #                 judged_rel = judged.relevance
+    #                 if judged_rel != rel:
+    #                     judged.relevance = rel
+    #                     judged.source = "upload"
+    #                     judged.historyVerbose.append(history)
+    #                     judged.save()
+    #                     updated += 1
+    #         else:
+    #             Judgment.objects.create(
+    #                 user=self.request.user,
+    #                 doc_id=docno,
+    #                 session=self.request.user.current_session,
+    #                 relevance=rel,
+    #                 source="upload",
+    #                 historyVerbose=[history],
+    #             )
+    #             new += 1
+    #
+    #     if failed:
+    #         messages.error(request, 'Ops! {} judgments were not recorded.'.format(failed))
+    #
+    #     messages.success(request,
+    #                      ("Added {} new judgments. ".format(new) if new else "") +
+    #                      ("{} judgments were updated".format(updated) if updated else ""),
+    #                      )
+    #
+    #     return HttpResponseRedirect(reverse_lazy('judgment:view'))
+    #
+    # def get(self, request, *args, **kwargs):
+    #
+    #     if request.GET.get("export_csv"):
+    #         class Echo:
+    #             """An object that implements just the write method of the file-like
+    #             interface.
+    #             """
+    #
+    #             def write(self, value):
+    #                 """Write the value by returning it, instead of storing in a buffer."""
+    #                 return value
+    #
+    #         judgments = Judgment.objects.filter(user=self.request.user,
+    #                                             session=self.request.user.current_session,
+    #                                             relevance__isnull=False)
+    #         header = ["docno", "judgment", "user"]
+    #         rows = ([judgment.doc_id, judgment.relevance, judgment.user]
+    #                 for judgment in judgments)
+    #         data = itertools.chain([header], rows)
+    #         filename = "{}.csv".format(str(self.request.user.current_session.uuid))
+    #         pseudo_buffer = Echo()
+    #         writer = csv.writer(pseudo_buffer)
+    #         response = StreamingHttpResponse((writer.writerow(row) for row in data),
+    #                                          content_type="text/csv")
+    #         response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    #         return response
+    #     return super(JudgmentsView, self).get(self, request, *args, **kwargs)

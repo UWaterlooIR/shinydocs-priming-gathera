@@ -35,3 +35,25 @@ class UploadForm(forms.Form):
             'update_existing',
         )
 
+
+class UploadDebuggingJudgmentsForm(forms.Form):
+    """
+    Form for uploading debugging judgments for current session
+
+    """
+    submit_name = 'upload-debugging-form'
+
+    debugging_csv_file = forms.FileField(required=True,
+                                         label="CSV File",
+                                         widget=forms.FileInput)
+
+    def __init__(self, *args, **kwargs):
+        super(UploadDebuggingJudgmentsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.use_custom_control = True
+        self.helper.help_text_inline = True
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            'debugging_csv_file',
+        )

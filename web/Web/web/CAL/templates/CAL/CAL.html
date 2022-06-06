@@ -157,6 +157,7 @@
           <nav class="nav nav-pills small flex-row flex-sm-row unselectable" unselectable="on">
             <a class="flex-sm-fill text-sm-center nav-link active" data-toggle="pill" href="#reviewed-documents-tab" role="tab">Reviewed Documents</a>
             {% if "scal" in request.user.current_session.strategy %}<a class="flex-sm-fill text-sm-center nav-link" data-toggle="pill" href="#information-tab" role="tab">Information</a>{% endif %}
+            {% if request.user.current_session.show_debugging_content %}<a class="flex-sm-fill text-sm-center nav-link" data-toggle="pill" href="#debugging-tab" role="tab">Debugging</a>{% endif %}
           </nav>
 
           <div class="tab-content">
@@ -195,6 +196,27 @@
               </ul>
             </div>
             {% endif %}
+
+            {% if request.user.current_session.show_debugging_content %}
+            <div class="tab-pane fade" id="debugging-tab" role="tabpanel">
+              <div class="mt-3" id="next_batch">
+                <div class="card border-0">
+                  <small class="text-muted pb-2">Next batch of documents and their judgments (if provided)</small>
+                  <div class="card-body px-0 py-2 d-flex" style="min-height: 18rem; max-height: 38rem;">
+                    <!-- loader -->
+                    <div class="mx-auto nextBatchListSpinner mt-5">
+                      <div class="la-ball-circus text-secondary"><div></div><div></div><div></div><div></div><div></div></div>
+                    </div>
+                    <!-- end loader -->
+                    <div id="nextBatchList" class="overflow-auto small nextBatchList" style="min-width: 0">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+
           </div>
 
         </div>

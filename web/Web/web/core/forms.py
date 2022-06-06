@@ -32,6 +32,9 @@ class SessionPredefinedTopicForm(forms.ModelForm):
                                                  label="Effort",
                                                  help_text=Meta.help_texts.get(
                                                      'max_number_of_judgments'))
+    show_debugging_content = forms.BooleanField(required=False,
+                                                label="Debugging mode",
+                                                )
 
     def __init__(self, *args, **kwargs):
         super(SessionPredefinedTopicForm, self).__init__(*args, **kwargs)
@@ -49,6 +52,10 @@ class SessionPredefinedTopicForm(forms.ModelForm):
                 Field('show_full_document_content'),
                 css_class='d-none',
                 css_id="predefined-show_full_document_content"
+            ),
+            Div(
+                Field('show_debugging_content'),
+                css_id="predefined-show_debugging_content"
             ),
             StrictButton(u'Create session',
                          name=self.submit_name,
@@ -83,6 +90,9 @@ class SessionForm(forms.ModelForm):
                                  required=True,
                                  help_text=SessionPredefinedTopicForm.Meta.help_texts.get('strategy'))
     show_full_document_content = forms.BooleanField(required=False)
+    show_debugging_content = forms.BooleanField(required=False,
+                                                label="Debugging mode",
+                                                )
     judgments_file = forms.FileField(required=False, label='Optional seed judgments (csv file)')
 
     def __init__(self, *args, **kwargs):
@@ -105,6 +115,10 @@ class SessionForm(forms.ModelForm):
                 Field('show_full_document_content'),
                 css_class='d-none',
                 css_id="topic-show_full_document_content"
+            ),
+            Div(
+                Field('show_debugging_content'),
+                css_id="predefined-show_debugging_content"
             ),
             'judgments_file',
             StrictButton(u'Create session',

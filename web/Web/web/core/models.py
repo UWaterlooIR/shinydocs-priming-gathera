@@ -33,6 +33,11 @@ class Session(models.Model):
     # For paragraphs strategies
     show_full_document_content = models.BooleanField(null=False,
                                                      blank=False)
+
+    # show debugging
+    show_debugging_content = models.BooleanField(null=False,
+                                                 blank=False)
+
     # whether this session is being shared with other people
     is_shared = models.BooleanField(null=True, blank=True, default=False)
     # current task active time (in seconds)
