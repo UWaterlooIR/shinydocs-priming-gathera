@@ -71,3 +71,71 @@ You should be able to access system's web interface.
 If you are still unable to view the web interface, 
 try replacing [http://localhost:9000/](http://localhost:9000/) with the ip address 
 of your docker machine (you can get the ip by running docker-machine ip)
+
+
+#### Working with LATIMES, from TREC Collection
+We will now work into adding LATIMES and making it work in GATHERA. First ensure that you have anserini installed and ready to work.
+If not, you can clone it from [UWaterloo answerini](https://github.com/UWaterlooIR/anserini).
+
+Once anserini is installed and ready go ahead and create index for latimes.
+
+Inorder to first create the index, we first have to create a new directory called 'latimes'. Inside this directory, we will place our latimes.gz file. Once its done, run the following command:
+
+```
+sh target/appassembler/bin/IndexCollection -collection TrecCollection -generator DefaultLuceneDocumentGenerator -threads 1 -input latimes -index indexes/latimes-lucene-index -storePositions -storeDocvectors -storeContents -storeRaw -optimize -compress.path compressed/latimes
+```
+
+This will create a directory containing compressed latimes and will also create an index. 
+
+```
+# Move compressed files and index to the data directory which will be mounted to the docker containers
+cp <compressed-latimes-file-generated> <data-directory-gathera>
+
+# e.g.
+
+cp compressed/latimes.tar.gz ../gathera/data
+
+# Move the generated index to the data directory
+
+cp -r <latimes-lucene-index-directory> <data-directory-gathera>
+
+e.g.
+cp -r indexes/latimes-lucene-index ../gathera/data
+```
+
+We will now move to gathera directory and set up a few other things before running.
+
+```
+# Build and access the shell from the cal container
+docker-compose run cal bash
+root@container-id:/# cd src && make corpus_parser
+# Generate features
+root@container-id:/# ./corpus_parser  --in /data/latimes.tar.gz --out /data/latimes.bin --para-in /data/latimes.tar.gz --para-out /data/latimes_para.bin
+# Exit the shell with Ctrl+D
+```
+
+We are almost done. Now we have to open docker-compose.yml file and point index to the right directory. To do this open the file and change ANSERINI_INDEXI_PATH environment of search to the path where generated index is stored.
+
+```
+ANSERINI_INDEXI_PATH=/data/latimes-lucene-index/
+```
+
+Now lets make the final changes and start-up gathera.
+
+```
+# Uncompress the index files:
+cd data
+cp latimes.tar.gz docs
+cd docs
+tar xvzf latimes.tar.gz
+cd ..
+
+cp latimes.tar.gz para
+cd para
+tar xvzf latimes.tar.gz
+cd ..
+
+# We are all set! Lets fire up the containers
+DOC_BIN=/data/latimes.bin PARA_BIN=/data/latimes_para.bin docker-compose up -d
+# Visit localhost:9000
+```
