@@ -3,6 +3,9 @@
 /data/*.svmlight
 /CALEngine/.idea/
 /web/.idea/
+/data
+/data-t45
+/data-corpgov
 
 .DS_STORE
 
