@@ -8,7 +8,7 @@ bool AlphaFilter::filter(const std::string &token) {
     if(token.length() < 2)
         return false;
     for(char c: token){
-        if(!isalpha(c))
+        if(!isalnum(c))
             return false;
     }
     return true;

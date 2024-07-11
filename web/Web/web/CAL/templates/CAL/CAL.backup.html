@@ -471,6 +471,7 @@
                 data: JSON.stringify(data),
                 success: function (result) {
                     $("#document_title").removeClass();
+                    
 
                     console.log(result['message'], " - Updating the queue after sending judgment of document: " + data["doc_id"]);
                     queue = new Queue();

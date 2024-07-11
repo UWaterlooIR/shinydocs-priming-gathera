@@ -50,7 +50,8 @@ def get_documents(doc_ids, query=None, top_terms=None, orig_para_id=None):
         else:
             if len(title) == 0:
                 title = content[:32]
-
+        if 'Users:' in content:
+            content = content[:content.index('Users:')]        
         document = {
             'doc_id': doc_id,
             'title': title,
