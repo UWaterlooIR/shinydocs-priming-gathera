@@ -12,7 +12,7 @@ class Judgment(models.Model):
         index_together = ['user', 'doc_id', 'session']
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    session = models.ForeignKey(Session, on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='judgments')
 
     doc_id = models.CharField(null=False, blank=False, max_length=512)
     doc_title = models.TextField(null=False, blank=False)
@@ -56,6 +56,11 @@ class Judgment(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.session.last_activity = self.updated_at
+        self.session.save()
+        super(Judgment, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return "{} on {}: {}".format(self.user, self.doc_id, self.relevance)

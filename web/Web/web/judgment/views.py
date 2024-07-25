@@ -115,7 +115,7 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
                 found_ctrl_f_terms_in_full_doc=found_ctrl_f_terms_in_full_doc
             )
 
-        total_positive_judgements_for_session = Judgment.objects.filter(
+        total_positive_judgments_for_session = Judgment.objects.filter(
             user=user,
             session=current_session,
             relevance__in=(1, 2),
@@ -123,8 +123,8 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
 
         context = {u"message": u"Your judgment on {} has been received!".format(doc_id),
                    u"is_max_judged_reached": False,
-                   u"positive_judgements": total_positive_judgements_for_session,
-                   u"is_positive_judgements_reached": False if total_positive_judgements_for_session < 5 else True, }
+                   u"positive_judgements": total_positive_judgments_for_session,
+                   u"is_positive_judgements_reached": False if total_positive_judgments_for_session < 5 else True, }
         error_message = None
 
         # This will take care of incomplete judgments (e.g. updating additional judging

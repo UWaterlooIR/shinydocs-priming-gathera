@@ -92,3 +92,24 @@ class SharedSession(models.Model):
 
     def __str__(self):
         return self.__unicode__()
+
+
+# class SessionTimer(models.Model):
+#     session = models.ForeignKey(Session, on_delete=models.CASCADE)
+#     start_time = models.DateTimeField(auto_now_add=True)
+#     end_time = models.DateTimeField(null=True, blank=True)
+#     time_spent = models.FloatField(null=True, blank=True)
+#
+#
+#     def save(self, *args, **kwargs):
+#         last_judgment = self.session.judgment_set.last()
+#
+#         if self.end_time:
+#             self.time_spent = (self.end_time - self.start_time).total_seconds()
+#         super().save(*args, **kwargs)
+#
+#     def __unicode__(self):
+#         return "<Session:{}>".format(self.session)
+#
+#     def __str__(self):
+#         return self.__unicode__()
