@@ -15,6 +15,7 @@ from django.views import generic
 from interfaces.DocumentSnippetEngine import functions as DocEngine
 
 from web.CAL.exceptions import CALError
+from web.core.models import LogEvent
 from web.interfaces.CAL import functions as CALFunctions
 from web.judgment.forms import UploadForm, UploadDebuggingJudgmentsForm
 from web.judgment.models import Judgment, DebuggingJudgment
@@ -70,9 +71,11 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
         exists = Judgment.objects.filter(user=user,
                                          doc_id=doc_id,
                                          session=current_session)
+        old_relevance = None
 
         if exists:
             exists = exists.first()
+            old_relevance = exists.relevance
             exists.query = query
             exists.doc_title = doc_title
             if doc_CAL_snippet != "":
@@ -114,8 +117,28 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
                 found_ctrl_f_terms_in_full_doc=found_ctrl_f_terms_in_full_doc
             )
 
+        LogEvent.objects.create(
+            user=self.request.user,
+            session=current_session,
+            action='JUDGMENT',
+            data={
+                'doc_id': doc_id,
+                'relevance': relevance,
+                'source': source,
+                'old_relevance': old_relevance,
+            }
+        )
+
+        total_positive_judgments_for_session = Judgment.objects.filter(
+            user=user,
+            session=current_session,
+            relevance__in=(1, 2),
+        ).count()
+
         context = {u"message": u"Your judgment on {} has been received!".format(doc_id),
-                   u"is_max_judged_reached": False}
+                   u"is_max_judged_reached": False,
+                   u"positive_judgements": total_positive_judgments_for_session,
+                   u"is_positive_judgements_reached": False if total_positive_judgments_for_session < 5 else True, }
         error_message = None
 
         # This will take care of incomplete judgments (e.g. updating additional judging
@@ -334,12 +357,12 @@ class GetLatestAJAXView(views.CsrfExemptMixin,
         except ValueError:
             return self.render_json_response([])
         latest = Judgment.objects.filter(
-                    user=self.request.user,
-                    session=self.request.user.current_session,
-                    source="CAL"
-                 ).filter(
-                    relevance__isnull=False
-                ).order_by('-updated_at')[:number_of_docs_to_show]
+            user=self.request.user,
+            session=self.request.user.current_session,
+            source="CAL"
+        ).filter(
+            relevance__isnull=False
+        ).order_by('-updated_at')[:number_of_docs_to_show]
         result = []
         for judgment in latest:
             result.append(
@@ -530,7 +553,6 @@ class JudgmentsView(views.LoginRequiredMixin,
                 messages.error(request,
                                'Ops! Please make sure you upload a valid csv file.')
                 return HttpResponseRedirect(reverse_lazy('judgment:view'))
-
 
             # check if already uploaded
             djudged = DebuggingJudgment.objects.filter(user=self.request.user,
