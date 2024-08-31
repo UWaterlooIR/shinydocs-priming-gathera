@@ -1,6 +1,8 @@
 from django.contrib import admin
 
+from web.core.models import Session, SharedSession, SessionTimer
 from web.core.models import Session, SharedSession, SessionTimer, LogEvent
+from web.core.models import Session, SharedSession, SessionTimer
 
 
 class NoAddNoDeleteAdmin(admin.ModelAdmin):
