@@ -991,9 +991,9 @@ docView.prototype = {
 
           console.log(result['positive_judgements']);
 
-          if (result['positive_judgements'].length == 5) {
-            parent.afterMaxSearchEffort(docid, rel);
+          if (result["is_positive_judgements_reached"]) {
             console.log("5 relevant docs found");
+            parent.afterMaxSearchEffort(docid, rel);
           }
 
           if (result["is_max_judged_reached"]) {
@@ -1102,6 +1102,11 @@ docView.prototype = {
 
           if (result["CALFailedToReceiveJudgment"]) {
             parent.afterCALFailedToReceiveJudgment(docid, rel);
+          }
+
+          if (result["is_positive_judgements_reached"]) {
+            console.log("5 relevant docs found");
+            parent.afterMaxSearchEffort(docid, rel);
           }
 
           if (parent.currentDocID === null) {
@@ -1447,8 +1452,8 @@ docView.prototype = {
 
 
   afterMaxSearchEffort: function (docid, rel) {
-    console.log("reached afterMaxSearchEffort");
     "use strict";
+    console.log("5 relevant docs found")
     return this.triggerEvent("afterMaxSearchEffort", [docid, rel]);
   },
 
