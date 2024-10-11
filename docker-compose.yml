@@ -33,7 +33,7 @@ services:
   search:
     build: ./search/
     environment:
-      - ANSERINI_INDEXI_PATH=/data/athome1-index/
+      - ANSERINI_INDEXI_PATH=/data/lucene-index.core17.pos+docvectors+raw/
     volumes:
       - ./search/app:/app
       - ./data:/data

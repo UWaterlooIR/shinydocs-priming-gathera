@@ -45,9 +45,12 @@ class Session(models.Model):
     # last activity timestamp
     last_activity = models.FloatField(default=None, null=True, blank=True)
 
+    last_activity_timestamp = models.DateTimeField(default=None, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True,
                                       editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+
 
     def begin_session_in_cal(self):
         try:
@@ -89,6 +92,29 @@ class SharedSession(models.Model):
 
     def __unicode__(self):
         return "<Shared by:{} to {}>".format(self.creator, self.shared_with)
+
+    def __str__(self):
+        return self.__unicode__()
+
+
+class SessionTimer(models.Model):
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='timers')
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    time_spent = models.FloatField(null=True, blank=True)
+
+
+    def save(self, *args, **kwargs):
+        old_time = self.time_spent if self.time_spent else 0
+        if self.end_time:
+            self.time_spent = (self.end_time - self.start_time).total_seconds()
+        time_delta = self.time_spent - old_time
+        self.session.timespent += time_delta
+        self.session.save()
+        super().save(*args, **kwargs)
+
+    def __unicode__(self):
+        return "<Session:{}>".format(self.session)
 
     def __str__(self):
         return self.__unicode__()

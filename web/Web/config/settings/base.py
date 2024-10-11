@@ -357,7 +357,7 @@ SEARCH_ENGINE = "web.interfaces.SearchEngine.anserini.Anserini"
 
 # JUDGING CRITERIA
 # ------------------------------------------------------------------------------
-MAIN_JUDGING_CRITERIA_NAME = "Useful"  # Adjective of criteria
+MAIN_JUDGING_CRITERIA_NAME = "Relevant"  # Adjective of criteria
 ADDITIONAL_JUDGING_CRITERIA = [
     {
         "name": "Credibility",
