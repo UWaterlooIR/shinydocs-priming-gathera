@@ -3,10 +3,13 @@
 #include <string>
 #include <thread>
 #include <fcgio.h>
+#include <stdio.h>
+#include <cstdlib>
 #include "utils/simple-cmd-line-helper.h"
 #include "bmi_para.h"
 #include "bmi_para_scal.h"
 #include "bmi_doc_scal.h"
+#include "corpus_processor.cc"
 #include "features.h"
 #include "utils/feature_parser.h"
 #include "utils/utils.h"
@@ -89,6 +92,20 @@ void write_response(const FCGX_Request & request, int status, string content_typ
     cerr<<"Wrote response: "<<content<<endl;
 }
 
+// split seed strng into vector of seed documents.
+bool split_documents(const string &str, const string& delimiter, vector<string>&seed_documents){
+    size_t last, next = 0;
+    string document;
+    if (str.find(delimiter, last) == std::string::npos)
+        return false;
+    while((next = str.find(delimiter, last)) != std::string::npos){
+        seed_documents.push_back(str.substr(last, next-last));
+        last = next + 1;
+    }
+    seed_documents.push_back(str.substr(last));
+    return true;
+}
+
 bool parse_seed_judgments(const string &str, vector<pair<string, int>> &seed_judgments){
     size_t cur_idx = 0;
     while(cur_idx < str.size()){
@@ -111,6 +128,39 @@ bool parse_seed_judgments(const string &str, vector<pair<string, int>> &seed_jud
         }
     }
     return true;
+}
+
+// Handler for API endpoint setup
+void setup_view(const FCGX_Request & request, const vector<pair<string, string>> &params){
+    vector<string> seed_documents;
+    string doc_features, para_features, delimiter;
+    for(auto kv: params){
+        if (kv.first == "doc_features"){
+            doc_features = kv.second;
+        } else if (kv.first == "para_features"){
+            para_features = kv.second;
+        } else if (kv.first == "delimiter") {
+            delimiter = kv.second;
+        } else if(kv.first == "seed_documents"){
+            if(!split_documents(kv.second, delimiter, seed_documents)){
+                write_response(request, 400, "application/json", "{\"error\": \"Invalid format for seed_documents\"}");
+                return;
+            }
+        }
+    }
+    // call corpus parser
+    parse_documents(seed_documents, doc_features, para_features);
+    
+    char command[100];
+    sprintf(command, "spawn-fcgi -p 8002 -n -- bmi_fcgi --doc-features %s --para-features %s", doc_features, para_features);
+
+    if (system(command)){
+        puts ("Building bmi_fcgi is successful");
+    } else {
+        exit(EXIT_FAILURE);
+    }
+
+    write_response(request, 200, "application/json", "{\"BMI Setup\": \"success\"}");
 }
 
 // Handler for API endpoint /begin
@@ -139,7 +189,7 @@ void begin_session_view(const FCGX_Request & request, const vector<pair<string, 
                 write_response(request, 400, "application/json", "{\"error\": \"Invalid judgments_per_iteration\"}");
                 return;
             }
-        }else if(kv.first == "async"){
+        }else if(kv.first == "async_mode"){
             if(kv.second == "true" || kv.second == "True"){
                 async_mode = true;
             }else if(kv.second == "false" || kv.second == "False"){
@@ -534,7 +584,11 @@ void process_request(const FCGX_Request & request) {
 
     log_request(request, params);
 
-    if(action == "begin"){
+    if (action == "setup"){
+        if(method == "POST"){
+            setup_view(request, params);
+        }
+    }else if(action == "begin"){
         if(method == "POST"){
             begin_session_view(request, params);
         }

@@ -2,6 +2,7 @@
 """
 
 import requests
+import os
 import json
 from json import JSONDecodeError
 
@@ -28,14 +29,56 @@ def set_url(url):
         url = url[:-1]
     URL = url
 
+def setup(seed_documents=[], delimiter='$$$', dataset_name='atome4'):
+    """
+        Setup CAL using a list of documents as input
 
-def begin_session(session_id, seed_query, async=False, mode="doc", seed_documents=[], judgments_per_iteration=1):
+        Args:
+            seed_documents([str]): List of document contents,
+            delimiter(str): used to parse document contents. The default is '$$$'
+            dataset_name(str): used to construct the paths of doc and para features. The default is 'athome4'
+        
+        Returns:
+            json response
+    """
+    doc_features = 'data/{}_sample.bin'.format(dataset_name)
+    para_features = 'data/{}_para_sample.bin'.format(dataset_name)
+
+    try:
+        os.makedirs(doc_features)
+    except FileExistsError:
+        # directory already exists
+        print(doc_features, " exits")
+        pass
+
+    try:
+        os.makedirs(para_features)
+    except FileExistsError:
+        # directory already exists
+        print(para_features, " exists")
+        pass
+
+    data = {
+        'doc_features': doc_features,
+        'para_features': para_features,
+        'delimiter': delimiter,
+    }
+    if len(seed_documents) > 0:
+        data['seed_documents'] = delimiter.join(seed_documents)
+
+    data = '&'.join(['%s=%s' % (k,v) for k,v in data.items()])
+    r = requests.post(URL+'/setup', data=data).json()
+    resp = r.json()
+    return resp
+
+
+def begin_session(session_id, seed_query, async_mode=False, mode="doc", seed_documents=[], judgments_per_iteration=1):
     """ Creates a bmi session
 
     Args:
         session_id (str): unique session id
         seed_query (str): seed query string
-        async (bool): If set to True, the server retrains in background whenever possible
+        async_mode (bool): If set to True, the server retrains in background whenever possible
         mode (str): For example, "para" or "doc"
         seed_documents ([(str, int), ]): List of tuples containing document_id (str) and its relevance (int)
         judgments_per_iteration (int): Batch size; -1 for default bmi
@@ -50,7 +93,7 @@ def begin_session(session_id, seed_query, async=False, mode="doc", seed_document
     data = {
         'session_id': str(session_id),
         'seed_query': seed_query,
-        'async': str(async).lower(),
+        'async_mode': str(async_mode).lower(),
         'mode': mode,
         'judgments_per_iteration': str(judgments_per_iteration)
     }
