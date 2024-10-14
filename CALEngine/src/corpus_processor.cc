@@ -211,7 +211,6 @@ void parse_documents(const vector<string>& documents, const string &out_filename
  
     for (auto it=paragraphs.begin(); it != paragraphs.end(); it++) {
         string para_name = it->first, paragraph = it->second;
-        // cout << para_name<<": "<<paragraph.size()<<":"<<paragraph<<endl;
         num_docs++;
         vector<string> tokens = tokenizer.tokenize(paragraph);
  

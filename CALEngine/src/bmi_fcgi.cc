@@ -92,13 +92,13 @@ void write_response(const FCGX_Request & request, int status, string content_typ
     cerr<<"Wrote response: "<<content<<endl;
 }
 
-// split seed strng into vector of seed documents.
+// split seed string into vector of seed documents.
 bool split_documents(const string &str, const string& delimiter, vector<string>&seed_documents){
     size_t last, next = 0;
     string document;
-    if (str.find(delimiter, last) == std::string::npos)
+    if (str.find(delimiter, last) == string::npos)
         return false;
-    while((next = str.find(delimiter, last)) != std::string::npos){
+    while((next = str.find(delimiter, last)) != string::npos){
         seed_documents.push_back(str.substr(last, next-last));
         last = next + 1;
     }
