@@ -14,9 +14,9 @@ def shared_session_processor(request):
         return {}
     context = {"current_session_owner": False}
     current_session_obj = request.user.current_session
-    judgments_for_session = current_session_obj.judgments
-    positive_judgments = judgments_for_session.filter(relevance__in=[1,2]).count()
     if current_session_obj:
+        judgments_for_session = current_session_obj.judgments
+        positive_judgments = judgments_for_session.filter(relevance__in=[1,2]).count()
         if current_session_obj.username != request.user:
             try:
                 shared_session_obj = SharedSession.objects.get(
