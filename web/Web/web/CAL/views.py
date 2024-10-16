@@ -25,9 +25,9 @@ class CALHomePageView(views.LoginRequiredMixin,
     template_name = 'CAL/CAL.html'
 
     def get(self, request, *args, **kwargs):
-        if not self.request.user.current_session:
-            return HttpResponseRedirect(reverse_lazy('core:home'))
-        return super(CALHomePageView, self).get(self, request, *args, **kwargs)
+        # if not self.request.user.current_session:
+        return HttpResponseRedirect(reverse_lazy('core:home'))
+        # return super(CALHomePageView, self).get(self, request, *args, **kwargs)
 
 
 class CALMessageAJAXView(views.CsrfExemptMixin,

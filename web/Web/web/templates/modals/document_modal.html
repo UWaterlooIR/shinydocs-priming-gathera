@@ -65,10 +65,7 @@
                     <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
                   </div>
 
-                  {% if additional_judging_criteria %}
-                  <h5 class="card-title text-secondary mt-4 mb-1 unselectable" unselectable="on">Additional Criteria <a class="badge badge-secondary float-right shadow-none small" data-toggle="modal" data-target="#additionalJudgingCriteriaModal" href="#"><i class="fas fa-info-circle"></i> Learn more</a></h5>
-                  {% include 'cards/configurable_criteria_card.html' %}
-                  {% endif %}
+                  
                 </div>
 
                 <div id="highlighted_words">

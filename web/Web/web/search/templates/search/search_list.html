@@ -45,7 +45,9 @@
     </div>
 
     <div class="col-sm-12 col-md-7">
-
+      <div class="d-flex flex-column flex-md-row align-items-center" >
+        {% include "search/search_cal.html" %}
+      </div>
       {% for hit in SERP.hits %}
       <div class="d-flex flex-column flex-md-row align-items-center">
         <div class="document d-flex flex-grow-1 searchItemSelector col-sm-12 col-md-8"
