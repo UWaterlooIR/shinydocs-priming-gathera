@@ -41,21 +41,15 @@ def setup(seed_documents=[], delimiter='$$$', dataset_name='atome4'):
         Returns:
             json response
     """
-    doc_features = 'data/{}_sample.bin'.format(dataset_name)
-    para_features = 'data/{}_para_sample.bin'.format(dataset_name)
+    data_dir = 'data/'
+    doc_features = '{}{}_sample.bin'.format(data_dir, dataset_name)
+    para_features = '{}{}_para_sample.bin'.format(data_dir, dataset_name)
 
     try:
-        os.makedirs(doc_features)
+        os.makedirs(data_dir)
     except FileExistsError:
         # directory already exists
-        print(doc_features, " exits")
-        pass
-
-    try:
-        os.makedirs(para_features)
-    except FileExistsError:
-        # directory already exists
-        print(para_features, " exists")
+        print(data_dir, " directory exits")
         pass
 
     data = {
