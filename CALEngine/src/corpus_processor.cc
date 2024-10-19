@@ -84,25 +84,25 @@ vector<string> get_paragraphs(const string& document) {
     return final_paragraphs;
 }
  
-unordered_map <string, string> process_documents(const vector<string> &documents){
+unordered_map <string, string> process_documents(const vector<pair<string, string>> &documents){
     unordered_map<string, string> paragraphs;
     for (auto i=0; i<documents.size(); i++){
-        vector<string> paragraphs_per_doc = get_paragraphs(documents[i]);
+        vector<string> paragraphs_per_doc = get_paragraphs(documents[i].second);
         // Save each paragraph title with the format (doc_id).(para_id)
         for(auto j=0; j< paragraphs_per_doc.size(); j++){
-            paragraphs[to_string(i)+"."+to_string(j)] = paragraphs_per_doc[j];
+            paragraphs[documents[i].first+"."+to_string(j)] = paragraphs_per_doc[j];
         }
     }
     return paragraphs;
 }
  
-void parse_documents(const vector<string>& documents, const string &out_filename, const string &para_out_filename){
+void parse_documents(const vector<pair<string, string>>& documents, const string &out_filename, const string &para_out_filename){
     string pass1_filename = get_tempfile();
     unordered_map<string, uint32_t> token_ids;
     vector<double> idf(1);
     vector<pair<string, uint32_t>> dictionary;
     size_t num_docs = 0;
-    size_t doc_id = 1;
+    string doc_id;
  
     BMITokenizer tokenizer = BMITokenizer();
     // Pass 1: get corpus stat and compute term frequencies
@@ -110,10 +110,10 @@ void parse_documents(const vector<string>& documents, const string &out_filename
         unique_ptr<FeatureWriter> fw_1;
         fw_1 = make_unique<BinFeatureWriter>(pass1_filename, vector<pair<string, uint32_t>>());
  
-        for (const string & document:documents){
+        for (const pair<string, string> & document:documents){
             num_docs++;
-            doc_id++;
-            vector<string> tokens = tokenizer.tokenize(document);
+            doc_id = document.first;
+            vector<string> tokens = tokenizer.tokenize(document.second);
  
             vector<FeatureValuePair> features;
             for (pair<string, int> token: features::get_tf(tokens)) {

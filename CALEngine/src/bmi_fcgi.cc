@@ -93,16 +93,32 @@ void write_response(const FCGX_Request & request, int status, string content_typ
 }
 
 // split seed string into vector of seed documents.
-bool split_documents(const string &str, const string& delimiter, vector<string>&seed_documents){
+bool split_documents(const string &str, const string& delimiter, vector<pair<string, string>>&seed_documents){
     size_t last, next = 0;
     string document;
     if (str.find(delimiter, last) == string::npos)
         return false;
     while((next = str.find(delimiter, last)) != string::npos){
-        seed_documents.push_back(str.substr(last, next-last));
+        string doc_pair = str.substr(last, next-last);
+        if(doc_pair.find(':') == string::npos){
+            return false;
+        }
+        try{
+            auto sep = doc_pair.find(':');
+            seed_documents.push_back(
+                    {doc_pair.substr(0, sep), doc_pair.substr(sep+1)}
+            );
+        } catch (const invalid_argument& ia){
+            return false;
+        }
         last = next + 1;
     }
-    seed_documents.push_back(str.substr(last));
+    string last_pair = str.substr(last);
+    if(last_pair.find(':') == string::npos){
+        return false;
+    }
+    auto sep = last_pair.find(':');
+    seed_documents.push_back({last_pair.substr(0, sep), last_pair.substr(sep+1)});
     return true;
 }
 
@@ -132,7 +148,7 @@ bool parse_seed_judgments(const string &str, vector<pair<string, int>> &seed_jud
 
 // Handler for API endpoint setup
 void setup_view(const FCGX_Request & request, const vector<pair<string, string>> &params){
-    vector<string> seed_documents;
+    vector<pair<string, string>> seed_documents;
     string doc_features, para_features, delimiter;
     for(auto kv: params){
         if (kv.first == "doc_features"){

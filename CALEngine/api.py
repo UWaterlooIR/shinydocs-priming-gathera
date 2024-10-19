@@ -34,7 +34,7 @@ def setup(seed_documents=[], delimiter='$$$', dataset_name='atome4'):
         Setup CAL using a list of documents as input
 
         Args:
-            seed_documents([str]): List of document contents,
+            seed_documents([(str, str), ]): List of tuples of document ids and their corresponding contents
             delimiter(str): used to parse document contents. The default is '$$$'
             dataset_name(str): used to construct the paths of doc and para features. The default is 'athome4'
         
@@ -58,11 +58,10 @@ def setup(seed_documents=[], delimiter='$$$', dataset_name='atome4'):
         'delimiter': delimiter,
     }
     if len(seed_documents) > 0:
-        data['seed_documents'] = delimiter.join(seed_documents)
+        data['seed_documents'] = delimiter.join(['%s:%s' % (doc_id, doc_content) for doc_id, doc_content in seed_documents])
 
     data = '&'.join(['%s=%s' % (k,v) for k,v in data.items()])
-    r = requests.post(URL+'/setup', data=data).json()
-    resp = r.json()
+    resp = requests.post(URL+'/setup', data=data).json()
     return resp
 
 
