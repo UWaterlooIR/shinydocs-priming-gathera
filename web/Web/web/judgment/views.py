@@ -20,6 +20,7 @@ from web.interfaces.CAL import functions as CALFunctions
 from web.judgment.forms import UploadForm, UploadDebuggingJudgmentsForm
 from web.judgment.models import Judgment, DebuggingJudgment
 
+
 logger = logging.getLogger(__name__)
 
 

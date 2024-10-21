@@ -3,7 +3,8 @@ from config.settings.base import AUTH_USER_MODEL as User
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
-from web.core.models import Session
+from web.core.models import Session, SessionTimer
+from django.utils import timezone
 
 
 class Judgment(models.Model):
