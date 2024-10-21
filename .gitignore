@@ -184,3 +184,15 @@ cython_debug/
 /data/
 /include/
 .idea
+/NYT/
+/athome1-data/
+/athome3-data/
+/data-athome2/
+/data-athome4/
+/data-corpgov/
+/data-t45/
+/opengov/
+/total-recall/
+/web/Web/staticfiles-olds/
+/web/Web/staticfiles2/
+/web/Web/staticfiles3/

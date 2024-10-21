@@ -1,7 +1,8 @@
 <div class="mb-4"  style="border: 1px solid black; border-radius: 10px; padding-right: 40px;
 padding-bottom: 20px;
 padding-left: 10px;
-align-content: center"  >
+align-content: center;
+min-width: 800px"  >
   <div class="row">
     <div class="col-12 col-md-10 CALModalSearch" data-toggle="modal"
              data-target="#documentModalCALModal">
@@ -39,33 +40,12 @@ align-content: center"  >
               <div class="document-body mt-2" id="docViewDocWrapperCALModal">
                 <div class="card border-0 {% if not request.user.current_session.is_summary %}d-none{% endif %}">
                   <div class="card-body">
-                    <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
+                    <!-- <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
                       <small class="highlight-exclude">Summary</small>
-                    </div>
+                    </div> -->
                     <div id="docViewDocSnippetCALModal"></div>
                   </div>
                 </div>
-
-                {% if request.user.current_session.show_full_document_content and request.user.current_session.strategy != 'doc' %}
-                  <div class="row mt-3">
-                    <div class="col-12">
-                      <a id="docViewDocShowFullDocumentButtonCALModal"
-                         class="btn btn-sm btn-block btn-outline-secondary font-sans highlight-exclude" href="#"
-                         onclick="return show_full_doc();">Show full document</a>
-                    </div>
-                  </div>
-                {% endif %}
-
-                <div class="card border-0">
-                  <div class="card-body py-0">
-                    <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
-                    </div>
-                    <div id="docViewDocBodyCALModal" style="overflow: hidden;text-overflow: ellipsis;
-                    display: -webkit-box;-webkit-line-clamp: 5;-webkit-box-orient: vertical;
-                    font-size: 14px"></div>
-                  </div>
-                </div>
-
               </div>
             </div>
 

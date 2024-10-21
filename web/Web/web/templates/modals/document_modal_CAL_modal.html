@@ -58,12 +58,12 @@
                 </ul>
                 <div class="tab-content" id="myTabContent">
                   <div class="tab-pane fade show active" id="extracted-text-tab-content" role="tabpanel">
-                    <div class="document-body mt-2" id="modalDocWrapper">
+                    <div class="document-body mt-2" >
                       <div class="card border-0 {% if not request.user.current_session.is_summary %}d-none{% endif %}">
                         <div class="card-body">
-                          <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
+                          <!-- <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
                             <small class="highlight-exclude">Summary</small>
-                          </div>
+                          </div> -->
                           <div id="modalDocSnippet"></div>
                         </div>
                       </div>
@@ -71,19 +71,19 @@
                       {% if request.user.current_session.show_full_document_content and request.user.current_session.strategy != 'doc' %}
                         <div class="row mt-3">
                           <div class="col-12">
-                            <a id="docViewDocShowFullDocumentButton"
+                            <a id="docViewDocShowFullDocumentButtonCALModal"
                                class="btn btn-sm btn-block btn-outline-secondary font-sans highlight-exclude" href="#"
                                onclick="return show_full_doc();">Show full document</a>
                           </div>
                         </div>
                       {% endif %}
 
-                      <div class="card border-0">
-                        <div class="card-body py-0">
+                      <div class="card border-0" style="padding-top: 50px;">
+                        <div class="card-body py-0" id="FullDocumentBody" style="display:none">
                           <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
                             <small class="highlight-exclude">Document content</small>
                           </div>
-                          <div id="modalDocBody"></div>
+                          <div id="docViewDocBodyCALModal"></div>
                         </div>
                       </div>
 
