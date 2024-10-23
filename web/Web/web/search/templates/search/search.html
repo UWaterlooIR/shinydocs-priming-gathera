@@ -55,6 +55,8 @@
 {% include 'modals/additional_judging_criteria_modal.html' %}
 <!-- Discovery failed to receive judgment toast -->
 {% include 'toasts/discovery_failed_to_receive_judgment.html' %}
+<!--max search effort toast -->
+{% include 'toasts/reached_x_search_judgments_goto_CAL.html' %}
 
 
 {% endblock %}
@@ -137,6 +139,20 @@
               rel: null,
               track_backend: true,
             })
+          },
+
+          afterMaxSearchEffort: function(docid, rel) {
+            $('#searchCALModal').show();
+            console.log("Max search effort reached for document " + docid);
+            $('#toast_reachedMaxSearchEffort').toast('dispose');
+            $(".reachedMaxSearchEffortSpinner").removeClass("d-none");
+            $("#reachedMaxSearchEffort_toast_body").addClass("d-none");
+            setInterval(function(){
+              $("#reachedMaxSearchEffort_toast_body").removeClass("d-none");
+              $(".reachedMaxSearchEffortSpinner").addClass("d-none");
+            },500);
+            $('#toast_reachedMaxSearchEffort').toast('show');
+            {#$('#searchCALModal').load(location.href + ' #searchCALModal');#}
           },
 
           afterCALFailedToReceiveJudgment: function(docid, rel) {
@@ -226,7 +242,7 @@
 
           show_full_doc_button_clicked = true;
 
-          
+
 
           sendLog(LOG_EVENT.OPEN_FULL_DOC, {
             action: 'trig_show_full_doc',
@@ -257,7 +273,7 @@
 
           show_full_doc_button_clicked = true;
 
-          
+
 
           sendLog(LOG_EVENT.OPEN_FULL_DOC, {
             action: 'trig_show_full_doc',
@@ -359,7 +375,7 @@
 
                 // Show the modal
                 // Assuming your modal has id 'fullDocModal'
-                
+
             });
         });
     </script>

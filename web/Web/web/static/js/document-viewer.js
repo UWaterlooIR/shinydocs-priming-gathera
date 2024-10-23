@@ -91,7 +91,8 @@ var docView = function () {
     afterDocumentClose: null,
     afterDocumentJudge: null,
     afterErrorShown: null,
-    afterCALFailedToReceiveJudgment: null
+    afterCALFailedToReceiveJudgment: null,
+    afterMaxSearchEffort: false,
   };
 
   /*************
@@ -165,7 +166,8 @@ docView.prototype = {
       "afterDocumentClose",
       "afterDocumentJudge",
       "afterErrorShown",
-      "afterCALFailedToReceiveJudgment"
+      "afterCALFailedToReceiveJudgment",
+      "afterMaxSearchEffort",
     ];
 
     for (var k in s) {
@@ -508,6 +510,24 @@ docView.prototype = {
       window.setTimeout(function () {
         window.location.replace(window.location.origin);
       }, 2000);
+
+    }
+
+    function showSearchPositiveJudgementsReached() {
+      updateDocumentIndicator("", options.otherColor);
+      updateTitle("7 relevant docs found", {
+        "font": options.secondaryTitleFont,
+        "color": options.projectPrimaryColor
+      });
+      updateMessage("You have found 7 relevant docs with search. please go to CAL to continue. Redirecting in 10 seconds.");
+      updateMeta("");
+      updateDocID(null);
+      hideCloseButton();
+      hideDocTab();
+
+      window.setTimeout(function () {
+        window.location.replace(window.location.origin+'/CAL');
+      }, 20000);
 
     }
 
@@ -969,6 +989,13 @@ docView.prototype = {
         success: function (result) {
           updateActiveJudgingButton(docid, rel);
 
+          console.log(result['positive_judgements']);
+
+          if (result["is_positive_judgements_reached"]) {
+            console.log("5 relevant docs found");
+            parent.afterMaxSearchEffort(docid, rel);
+          }
+
           if (result["is_max_judged_reached"]) {
             showMaxJudgmentReached();
             return;
@@ -1416,6 +1443,13 @@ docView.prototype = {
   afterCALFailedToReceiveJudgment: function (docid, rel) {
     "use strict";
     return this.triggerEvent("afterCALFailedToReceiveJudgment", [docid, rel]);
+  },
+
+
+  afterMaxSearchEffort: function (docid, rel) {
+    "use strict";
+    console.log("5 relevant docs found")
+    return this.triggerEvent("afterMaxSearchEffort", [docid, rel]);
   },
 
 
