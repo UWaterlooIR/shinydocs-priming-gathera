@@ -29,19 +29,19 @@ def set_url(url):
         url = url[:-1]
     URL = url
 
-def setup(seed_documents=[], delimiter='$$$', dataset_name='atome4'):
+def setup(seed_documents=[], dataset_name='atome4', delimiter='<|CAL_DOC_END|>'):
     """
         Setup CAL using a list of documents as input
 
         Args:
             seed_documents([(str, str), ]): List of tuples of document ids and their corresponding contents
-            delimiter(str): used to parse document contents. The default is '$$$'
+            delimiter(str): used to parse document contents. The default is '<|CAL_DOC_END|>'
             dataset_name(str): used to construct the paths of doc and para features. The default is 'athome4'
         
         Returns:
             json response
     """
-    data_dir = 'data/'
+    data_dir = 'data_corpus/'
     doc_features = '{}{}_sample.bin'.format(data_dir, dataset_name)
     para_features = '{}{}_para_sample.bin'.format(data_dir, dataset_name)
 
@@ -58,7 +58,7 @@ def setup(seed_documents=[], delimiter='$$$', dataset_name='atome4'):
         'delimiter': delimiter,
     }
     if len(seed_documents) > 0:
-        data['seed_documents'] = delimiter.join(['%s:%s' % (doc_id, doc_content) for doc_id, doc_content in seed_documents])
+        data['seed_documents'] = delimiter.join(['%s<|CAL_SEP|>%s' % (doc_id, doc_content) for doc_id, doc_content in seed_documents])
 
     data = '&'.join(['%s=%s' % (k,v) for k,v in data.items()])
     resp = requests.post(URL+'/setup', data=data).json()

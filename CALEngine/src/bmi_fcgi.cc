@@ -94,31 +94,35 @@ void write_response(const FCGX_Request & request, int status, string content_typ
 
 // split seed string into vector of seed documents.
 bool split_documents(const string &str, const string& delimiter, vector<pair<string, string>>&seed_documents){
-    size_t last, next = 0;
+    size_t last = 0, next = 0;
     string document;
-    if (str.find(delimiter, last) == string::npos)
-        return false;
-    while((next = str.find(delimiter, last)) != string::npos){
+
+    string id_doc_sep ("<|CAL_SEP|>");
+
+    while(last < str.size() && (next = str.find(delimiter, last)) != string::npos){
         string doc_pair = str.substr(last, next-last);
-        if(doc_pair.find(':') == string::npos){
+        if(doc_pair.find(id_doc_sep) == string::npos){
             return false;
         }
         try{
-            auto sep = doc_pair.find(':');
+            auto sep = doc_pair.find(id_doc_sep);
             seed_documents.push_back(
-                    {doc_pair.substr(0, sep), doc_pair.substr(sep+1)}
+                    {doc_pair.substr(0, sep), doc_pair.substr(sep+id_doc_sep.size())}
             );
         } catch (const invalid_argument& ia){
-            return false;
+            return true;
         }
-        last = next + 1;
+        last = next + delimiter.size();
     }
+    if (last >= str.size())
+        return true;
+    
     string last_pair = str.substr(last);
-    if(last_pair.find(':') == string::npos){
+    if(last_pair.find(id_doc_sep) == string::npos){
         return false;
     }
-    auto sep = last_pair.find(':');
-    seed_documents.push_back({last_pair.substr(0, sep), last_pair.substr(sep+1)});
+    auto sep = last_pair.find(id_doc_sep);
+    seed_documents.push_back({last_pair.substr(0, sep), last_pair.substr(sep+id_doc_sep.size())});
     return true;
 }
 
