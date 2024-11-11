@@ -99,7 +99,7 @@ def add_session(session, seed_query, mode, seed_judgments = []):
         raise CALServerError(resp.status_code)
 
 
-def setup(seed_documents, dataset_name, delimiter='<|CAL_DOC_END|>'):
+def setup(dataset_name, seed_documents = [], delimiter='<|CAL_DOC_END|>'):
     """
     Setup CAL backend server
     :param seed_documents:
@@ -108,7 +108,7 @@ def setup(seed_documents, dataset_name, delimiter='<|CAL_DOC_END|>'):
     """
     url = f"http://{CAL_SERVER_IP}:{CAL_SERVER_PORT}/CAL/setup"
 
-    data_dir = 'data/'
+    data_dir = '../../../../../../data/'
     doc_features = '{}{}_sample.bin'.format(data_dir, dataset_name)
     para_features = '{}{}_para_sample.bin'.format(data_dir, dataset_name)
 

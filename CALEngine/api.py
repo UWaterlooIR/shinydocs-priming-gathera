@@ -20,7 +20,6 @@ class InvalidJudgmentException(Exception):
 
 URL = 'http://scspc538.cs.uwaterloo.ca:9002/CAL'
 
-
 def set_url(url):
     """ Set API endpoint
     """
@@ -29,7 +28,7 @@ def set_url(url):
         url = url[:-1]
     URL = url
 
-def setup(seed_documents=[], dataset_name='atome4', delimiter='<|CAL_DOC_END|>'):
+def setup(dataset_name='atome4', seed_documents=[], delimiter='<|CAL_DOC_END|>'):
     """
         Setup CAL using a list of documents as input
 
@@ -41,7 +40,7 @@ def setup(seed_documents=[], dataset_name='atome4', delimiter='<|CAL_DOC_END|>')
         Returns:
             json response
     """
-    data_dir = 'data_corpus/'
+    data_dir = 'data/'
     doc_features = '{}{}_sample.bin'.format(data_dir, dataset_name)
     para_features = '{}{}_para_sample.bin'.format(data_dir, dataset_name)
 

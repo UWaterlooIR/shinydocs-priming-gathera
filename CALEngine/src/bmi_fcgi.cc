@@ -9,7 +9,7 @@
 #include "bmi_para.h"
 #include "bmi_para_scal.h"
 #include "bmi_doc_scal.h"
-#include "corpus_processor.cc"
+#include "corpus_processor.h"
 #include "features.h"
 #include "utils/feature_parser.h"
 #include "utils/utils.h"
@@ -162,17 +162,24 @@ void setup_view(const FCGX_Request & request, const vector<pair<string, string>>
         } else if (kv.first == "delimiter") {
             delimiter = kv.second;
         } else if(kv.first == "seed_documents"){
+            //seed_documents.emplace_back(make_pair("docid1", "lala"));
             if(!split_documents(kv.second, delimiter, seed_documents)){
                 write_response(request, 400, "application/json", "{\"error\": \"Invalid format for seed_documents\"}");
                 return;
             }
         }
     }
+
     // call corpus parser
-    parse_documents(seed_documents, doc_features, para_features);
+    try {
+        parse_documents(seed_documents, doc_features, para_features);
+    } catch (const invalid_argument& ia) {
+        write_response(request, 400, "application/json", "{\"error\": \"Invalid document parsing\"}");
+        return;
+    }    
     
     char command[100];
-    sprintf(command, "spawn-fcgi -p 8002 -n -- bmi_fcgi --doc-features %s --para-features %s", doc_features, para_features);
+    sprintf(command, "spawn-fcgi -p 8002 -n -- bmi_fcgi --doc-features %s --para-features %s", doc_features.data(), para_features.data());
 
     if (system(command)){
         puts ("Building bmi_fcgi is successful");

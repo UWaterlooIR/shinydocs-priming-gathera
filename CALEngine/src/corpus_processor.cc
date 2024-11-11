@@ -1,8 +1,8 @@
+#include "corpus_processor.h"
 #include <iostream>
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include <string>
 #include <sstream>
 #include <unordered_map>
 #include <bits/stdc++.h>
@@ -17,7 +17,6 @@
 #include "utils/feature_parser.h"
 #include "utils/simple-cmd-line-helper.h"
 
-using namespace std;
  
 string get_tempfile(){
     char file_template [] = "/tmp/CAL_XXXXXX";
@@ -128,7 +127,7 @@ void parse_documents(const vector<pair<string, string>>& documents, const string
             sort(features.begin(), features.end(),
                  [](const FeatureValuePair &a, const FeatureValuePair &b) -> bool { return a.id_ < b.id_; });
  
-            fw_1->write(SfSparseVector(to_string(num_docs), features));
+            fw_1->write(SfSparseVector(doc_id, features));
             cerr<<num_docs<<" documents processed\r";
         }
         fw_1->finish();
@@ -185,7 +184,6 @@ void parse_documents(const vector<pair<string, string>>& documents, const string
                 }
             }
         }
- 
         sum = sqrt(sum);
  
         for(auto &f: features){
@@ -194,7 +192,6 @@ void parse_documents(const vector<pair<string, string>>& documents, const string
  
         sort(features.begin(), features.end(),
              [](const FeatureValuePair &a, const FeatureValuePair &b) -> bool { return a.id_ < b.id_; });
- 
         fw_2->write(SfSparseVector(spv->doc_id, features));
         num_docs++;
         cerr<<num_docs<<" documents processed\r"<<endl;
@@ -241,4 +238,3 @@ void parse_documents(const vector<pair<string, string>>& documents, const string
     }
     para_fw->finish();
 }
- 
