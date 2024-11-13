@@ -101,7 +101,7 @@ class SimpleSearchView(views.LoginRequiredMixin,
 
             is_cal_allowed = self.request.user.current_session.integrated_cal and (
                 not self.request.user.current_session.nudge_to_cal or
-                positive_judgments > 5)
+                positive_judgments >= 5)
 
             context = {
                 "isQueryPage": True,

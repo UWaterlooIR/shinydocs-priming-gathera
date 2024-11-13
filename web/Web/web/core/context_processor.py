@@ -33,7 +33,7 @@ def shared_session_processor(request):
         # allowed: after nudge,
         # not allowed: integrated cal, no nudge, less than 5 judgments
         is_cal_allowed = not current_session_obj.integrated_cal and (
-            (current_session_obj.nudge_to_cal and positive_judgments > 5)
+            (current_session_obj.nudge_to_cal and positive_judgments >= 5)
             or not current_session_obj.nudge_to_cal)
 
 

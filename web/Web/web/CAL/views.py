@@ -32,7 +32,7 @@ class CALHomePageView(views.LoginRequiredMixin,
                                                      session=current_session_obj
                                                      ).filter(relevance__in=[1, 2]).count()
         is_cal_allowed = not current_session_obj.integrated_cal and (
-            (current_session_obj.nudge_to_cal and positive_judgments > 5)
+            (current_session_obj.nudge_to_cal and positive_judgments >= 5)
             or not current_session_obj.nudge_to_cal)
         if is_cal_allowed:
             return super(CALHomePageView, self).get(self, request, *args, **kwargs)
