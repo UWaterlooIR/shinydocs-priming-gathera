@@ -58,13 +58,22 @@ def submit_new_session_form(request):
         strategy = form.cleaned_data['strategy']
         show_full_document_content = form.cleaned_data['show_full_document_content']
         show_debugging_content = form.cleaned_data['show_debugging_content']
+        integrated_cal = form.cleaned_data['integrated_cal']
+        nudge_to_cal = form.cleaned_data['nudge_to_cal']
+        disable_search = form.cleaned_data['disable_search']
+        if disable_search:
+            nudge_to_cal = False
+            integrated_cal = False
         session = Session.objects.create(
             username=request.user,
             topic=form.instance,
             max_number_of_judgments=max_number_of_judgments,
             strategy=strategy,
             show_full_document_content=show_full_document_content,
-            show_debugging_content=show_debugging_content
+            show_debugging_content=show_debugging_content,
+            integrated_cal=integrated_cal,
+            nudge_to_cal=nudge_to_cal,
+            disable_search=disable_search
         )
         print(f"Session created: {session}")
         LogEvent.objects.create(
@@ -76,7 +85,9 @@ def submit_new_session_form(request):
                 'max_number_of_judgments': max_number_of_judgments,
                 'strategy': strategy,
                 'show_full_document_content': show_full_document_content,
-                'show_debugging_content': show_debugging_content
+                'show_debugging_content': show_debugging_content,
+                'integrated_cal': integrated_cal,
+                'nudge_to_cal': nudge_to_cal,
             }
         )
         messages.add_message(request,

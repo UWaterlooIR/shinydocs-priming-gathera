@@ -12,8 +12,18 @@
     </div>
     <!-- end loader -->
     <div id="reachedMaxSearchEffort_toast_body" class="d-none">
-      <p class="m-0">You have reached the required search judgements! You can now start using
-        CAL</p>
+      {% if request.user.current_session.integrated_cal %}
+        <p class="m-0 ">You have reached the required search judgements! You can now scroll up
+          and start using CAL.</p>
+        <div class="d-flex justify-content-end pt-3">
+          <a href="#cal-widget" class="btn btn-sm btn-success">Scroll to CAL</a>
+        </div>
+      {% else %}
+          <p class="m-0">You have reached the required search judgements! Please go to CAL</p>
+        <div class="d-flex justify-content-end pt-3">
+          <a href="{% url 'CAL:main' %}" class="btn btn-sm btn-success">Go to CAL</a>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>

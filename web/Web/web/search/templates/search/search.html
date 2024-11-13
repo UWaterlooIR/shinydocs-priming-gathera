@@ -56,7 +56,9 @@
 <!-- Discovery failed to receive judgment toast -->
 {% include 'toasts/discovery_failed_to_receive_judgment.html' %}
 <!--max search effort toast -->
-{% include 'toasts/reached_x_search_judgments_goto_CAL.html' %}
+{% if nudge_to_cal %}
+  {% include 'toasts/reached_x_search_judgments_goto_CAL.html' %}
+{% endif %}
 
 
 {% endblock %}
@@ -224,10 +226,14 @@
         var dvCALModal = new docViewCALModal();
 
         function hide_full_doc(){
-          // hide button
-          $("#docViewDocShowFullDocumentButtonCALModal").show();
-          // show full document
-          $("#FullDocumentBodyCALModal").hide();
+          {% if not request.user.current_session.strategy == 'doc' %}
+
+            // hide button
+            $("#docViewDocShowFullDocumentButtonCALModal").show();
+            // show full document
+            $("#FullDocumentBodyCALModal").hide();
+            {% endif %}
+
         }
 
         function show_full_doc(){
@@ -297,8 +303,11 @@
         })
 
         $('#documentModal').on('hidden.bs.modal', function () {
-          $("#docViewDocShowFullDocumentButton").show();
-          $("#FullDocumentBody").hide();
+          {% if not request.user.current_session.strategy == 'doc' %}
+              $("#docViewDocShowFullDocumentButton").show();
+              $("#FullDocumentBody").hide();
+            {% endif %}
+
         })
 
 
@@ -349,7 +358,8 @@
       {# };#}
           $(document).ready(function() {
             // Handle click event on the specified div
-            $('.col-12.col-md-10.CALModalSearch[data-toggle="modal"][data-target="#documentModalCALModal"]').on('click', function() {
+            $('.CALModalSearch[data-toggle="modal"][data-target="#documentModalCALModal"]').on
+            ('click', function() {
                 // Fetch data related to the document
                 var docIndicator = $('#docViewDocIndicatorCALModal').prop('innerText');
                 var docTitle = $('#docViewDocTitleCALModal').prop('innerText');

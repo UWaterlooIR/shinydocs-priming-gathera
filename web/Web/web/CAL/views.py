@@ -25,8 +25,19 @@ class CALHomePageView(views.LoginRequiredMixin,
     template_name = 'CAL/CAL.html'
 
     def get(self, request, *args, **kwargs):
-        # if not self.request.user.current_session:
-        return HttpResponseRedirect(reverse_lazy('core:home'))
+        if not self.request.user.current_session:
+            return HttpResponseRedirect(reverse_lazy('core:home'))
+        current_session_obj = request.user.current_session
+        positive_judgments = Judgment.objects.filter(
+                                                     session=current_session_obj
+                                                     ).filter(relevance__in=[1, 2]).count()
+        is_cal_allowed = not current_session_obj.integrated_cal and (
+            (current_session_obj.nudge_to_cal and positive_judgments > 5)
+            or not current_session_obj.nudge_to_cal)
+        if is_cal_allowed:
+            return super(CALHomePageView, self).get(self, request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse_lazy('core:home'))
         # return super(CALHomePageView, self).get(self, request, *args, **kwargs)
 
 

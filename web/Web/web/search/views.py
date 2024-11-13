@@ -17,6 +17,7 @@ from web.core.mixin import RetrievalMethodPermissionMixin
 from web.core.models import LogEvent
 from web.interfaces.DocumentSnippetEngine import functions as DocEngine
 from web.interfaces.SearchEngine.base import SearchInterface
+from web.judgment.models import Judgment
 from web.search import helpers
 from web.search.models import Query
 from web.search.models import SearchResult
@@ -74,9 +75,8 @@ class SimpleSearchView(views.LoginRequiredMixin,
         return page_number, num_display, offset
 
     def get(self, request, *args, **kwargs):
-        if not self.request.user.current_session:
+        if not self.request.user.current_session or self.request.user.current_session.disable_search:
             return HttpResponseRedirect(reverse_lazy('core:home'))
-
         query = request.GET.get('query', None)
         if query:
             page_number, num_display, offset = self.get_params()
@@ -96,6 +96,13 @@ class SimpleSearchView(views.LoginRequiredMixin,
 
             is_last_page = len(SERP["hits"]) != num_display
 
+            judgments_for_session = Judgment.objects.filter(session=request.user.current_session)
+            positive_judgments = judgments_for_session.filter(relevance__in=[1, 2]).count()
+
+            is_cal_allowed = self.request.user.current_session.integrated_cal and (
+                not self.request.user.current_session.nudge_to_cal or
+                positive_judgments > 5)
+
             context = {
                 "isQueryPage": True,
                 "queryID": query_id,
@@ -109,7 +116,10 @@ class SimpleSearchView(views.LoginRequiredMixin,
                     "page_range": range(max(1, page_number - 4),
                                         ((page_number + 4) if not is_last_page else page_number) + 1),
                     "is_last_page": is_last_page
-                }
+                },
+                "integrated_cal": self.request.user.current_session.integrated_cal,
+                "nudge_to_cal": self.request.user.current_session.nudge_to_cal,
+                "is_integrated_cal_allowed": is_cal_allowed,
             }
         else:
             context = {

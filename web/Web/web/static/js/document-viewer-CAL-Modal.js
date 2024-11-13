@@ -246,7 +246,7 @@ docViewCALModal.prototype = {
       // });
 
       $("body").on("click", options.searchItemSelector, function () {
-        showDocument($(this).data("doc-id").toString());
+        showDocument($(this).data("doc-id").toString(), true);
       });
 
       $(".additionalJudgingCriterion").each(function () {
@@ -305,17 +305,17 @@ docViewCALModal.prototype = {
     /**
      * Calls server to request document information and shows it once received.
      */
-    function showDocument(docid) {
+    function showDocument(docid, isIntegratedCAL = false) {
       parent.beforeDocumentLoad(docid);
       if (options.allowDocumentCaching) {
         // check if it exists in cache
         if (parent.documentCacheStore.get(docid) !== null) {
-          _showDocumentCallback(docid, parent.documentCacheStore.get(docid));
+          _showDocumentCallback(docid, parent.documentCacheStore.get(docid), isIntegratedCAL);
           return;
         }
       }
       showLoading();
-      fetchDocument(docid, _showDocumentCallback);
+      fetchDocument(docid, _showDocumentCallback, isIntegratedCAL);
     }
 
     function gotoNextDocument() {
@@ -354,7 +354,7 @@ docViewCALModal.prototype = {
         parent.viewStack.shift(); // remove it from viewStack
       }
       // Show document
-      showDocument(docid);
+      showDocument(docid, true);
       $(options.docViewSelector).trigger("updated");
       if (options.getSCALInfoURL !== null) {
         getSCALInfo();
@@ -851,14 +851,14 @@ docViewCALModal.prototype = {
     /**
      * Calls server to request document information.
      */
-    function fetchDocument(docid, callback) {
+    function fetchDocument(docid, callback, isIntegratedCAL) {
       $.ajax({
         url: getDocumentURL(docid),
         type: "GET",
         dataType: "json", // added data type
         success: function (res) {
           // AFTER SUCCESSFUL RETRIEVAL OF DOCUMENT INFO
-          callback(docid, res[0]);
+          callback(docid, res[0], isIntegratedCAL);
         }
       });
     }
@@ -1119,18 +1119,21 @@ docViewCALModal.prototype = {
      * CALLBACKS *
      *************/
 
-    function _showDocumentCallback(docid, data) {
+    function _showDocumentCallback(docid, data, isIntegratedCAL = false) {
       /**
        * Callback to show document in document view once server returns document information.
        */
       clearDocumentView();
 
       updateDocID(docid);
-
+      let titleColor = options.primaryColor;
+      if (isIntegratedCAL) {
+        titleColor = '#001ba0';
+      }
       if (typeof data.title === "string") {
         updateTitle(data.title, {
           "font": options.primaryTitleFont,
-          "color": options.primaryColor
+          "color": titleColor
         });
       }
       if (typeof data.content === "string") {

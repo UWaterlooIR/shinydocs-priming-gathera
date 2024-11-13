@@ -51,6 +51,11 @@ class Session(models.Model):
                                       editable=False)
     updated_at = models.DateTimeField(auto_now=True)
 
+    integrated_cal = models.BooleanField(default=False)
+
+    nudge_to_cal = models.BooleanField(default=False)
+
+    disable_search = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.username}-{self.topic.title}-{self.topic.seed_query}'[:25]

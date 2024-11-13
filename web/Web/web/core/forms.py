@@ -36,6 +36,12 @@ class SessionPredefinedTopicForm(forms.ModelForm):
                                                 label="Debugging mode",
                                                 )
 
+    integrated_cal = forms.BooleanField(required=False, label="Use Integrated CAL")
+
+    nudge_to_cal = forms.BooleanField(required=False, label="Nudge to CAL")
+
+    disable_search = forms.BooleanField(required=False, label="Disable search")
+
     def __init__(self, *args, **kwargs):
         super(SessionPredefinedTopicForm, self).__init__(*args, **kwargs)
         self.fields['topic'].queryset = Topic.objects.filter(~Q(number=None)).order_by('number')
@@ -48,14 +54,20 @@ class SessionPredefinedTopicForm(forms.ModelForm):
                 Column('strategy', css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ),
+            Row(
+                Column('disable_search', css_class='form-group col-md-4 mb-0'),
+                Column('show_debugging_content', css_class='form-group col-md-4 mb-0',
+                       css_id="predefined-show_debugging_content"),
+            ),
+            Row(
+                Column('integrated_cal', css_class='form-group col-md-4 mb-0'),
+                Column('nudge_to_cal', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
             Div(
                 Field('show_full_document_content'),
                 css_class='d-none',
                 css_id="predefined-show_full_document_content"
-            ),
-            Div(
-                Field('show_debugging_content'),
-                css_id="predefined-show_debugging_content"
             ),
             StrictButton(u'Create session',
                          name=self.submit_name,
@@ -95,6 +107,12 @@ class SessionForm(forms.ModelForm):
                                                 )
     judgments_file = forms.FileField(required=False, label='Optional seed judgments (csv file)')
 
+    integrated_cal = forms.BooleanField(required=False, label="Use Integrated CAL")
+
+    nudge_to_cal = forms.BooleanField(required=False, label="Nudge to CAL")
+
+    disable_search = forms.BooleanField(required=False, label="Disable search")
+
     def __init__(self, *args, **kwargs):
         super(SessionForm, self).__init__(*args, **kwargs)
         self.fields['description'].widget.attrs['rows'] = 4
@@ -111,14 +129,19 @@ class SessionForm(forms.ModelForm):
                 Column('strategy', css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ),
+            Row(
+                Column('disable_search', css_class='form-group col-md-4 mb-0'),
+                Column('show_debugging_content', css_class='form-group col-md-4 mb-0',css_id="predefined-show_debugging_content"),
+            ),
+            Row(
+                Column('integrated_cal', css_class='form-group col-md-4 mb-0'),
+                Column('nudge_to_cal', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
             Div(
                 Field('show_full_document_content'),
                 css_class='d-none',
                 css_id="topic-show_full_document_content"
-            ),
-            Div(
-                Field('show_debugging_content'),
-                css_id="predefined-show_debugging_content"
             ),
             'judgments_file',
             StrictButton(u'Create session',

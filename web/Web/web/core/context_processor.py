@@ -30,9 +30,17 @@ def shared_session_processor(request):
                 logger.error("Could not find a shared session obj of activated session")
                 return context
 
+        # allowed: after nudge,
+        # not allowed: integrated cal, no nudge, less than 5 judgments
+        is_cal_allowed = not current_session_obj.integrated_cal and (
+            (current_session_obj.nudge_to_cal and positive_judgments > 5)
+            or not current_session_obj.nudge_to_cal)
+
+
         context["current_session_owner"] = True
         context["share_session_form"] = ShareSessionForm(user=request.user)
-        context["is_cal_allowed"] = False if positive_judgments < 5 else True
+        context["is_cal_allowed"] = is_cal_allowed
+        context["disable_search"] = current_session_obj.disable_search
 
     return context
 
