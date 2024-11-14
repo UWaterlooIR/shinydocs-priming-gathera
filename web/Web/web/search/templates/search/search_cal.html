@@ -5,7 +5,6 @@ padding-bottom: 30px;
 padding-top: 30px;
 padding-left: 10px;
 align-content: center;
-min-width: 800px;
 display: {% if not is_integrated_cal_allowed %} none {% else %} block {% endif %};" id="searchCALModal"  >
 
 
@@ -41,6 +40,8 @@ display: {% if not is_integrated_cal_allowed %} none {% else %} block {% endif %
                     <div id="{% if 'doc' in request.user.current_session.strategy %}docViewDocBodyCALModal{% else %}docViewDocSnippetCALModal{% endif %}"
                         style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
                          font-size: 12px; color: #545454; word-break: break-word;" ></div>
+                    <div id="{% if 'doc' in request.user.current_session.strategy %}docViewDocSnippetCALModal{% else %}docViewDocBodyCALModal{% endif %}"
+                         style="display:none;" ></div>
                   </div>
                 </div>
               </div>
