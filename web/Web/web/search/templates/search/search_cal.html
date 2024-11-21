@@ -1,3 +1,4 @@
+{% load static %}
 <div class="mb-4"  style="border: 1px solid #d7d7d7; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
   0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius:
   10px;
@@ -14,14 +15,16 @@ display: {% if not is_integrated_cal_allowed %} none {% else %} block {% endif %
 
       <div class="card border-0">
         <div class="highlight-include" id="docViewCALModal" data-doc-id="" >
-
           <div class="document-header highlight-include d-flex" >
             <div id="docViewDocIndicatorCALModal" class="align-self-center align-self-stretch p-2" style="border-width: 0.25rem!important;"></div>
             <div class="align-self-center">
+              <img src="{% static 'images/cal-logo.svg' %}" alt="cal" class="pb-1" width="100px">
+
               <div id="docViewDocTitleCALModal" style='margin-bottom: 0;
               font-size:18px; font-family: "Roboto",
               "Lucida Grande","DejaVu Sans",
               "Bitstream Vera Sans",Verdana,Arial,sans-serif'></div>
+              
               <div class="small" ><code id="docno_text" style='font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
                 font-size: 12px;
                 color: #006d21 !important;'>doc_id: </code><code
@@ -61,7 +64,7 @@ display: {% if not is_integrated_cal_allowed %} none {% else %} block {% endif %
     </div>
 
 
-          <div class="mx-auto align-self-start pt-4">
+          <div class="mx-auto align-self-start pt-5">
             <div class="d-flex flex-row flex-md-column  judging-criteria-btn-group SERP"
                  role="group" data-doc-id="">
               <a href="#" class="btn btn-sm center-text hoverOpacity btn-outline-secondary
