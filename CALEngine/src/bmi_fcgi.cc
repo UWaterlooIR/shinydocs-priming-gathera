@@ -170,7 +170,7 @@ void setup_view(const FCGX_Request & request, const vector<pair<string, string>>
         }
     }
 
-    // call corpus parser
+    // call corpus processor
     try {
         parse_documents(seed_documents, doc_features, para_features);
     } catch (const invalid_argument& ia) {

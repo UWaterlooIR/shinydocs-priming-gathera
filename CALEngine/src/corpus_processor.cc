@@ -44,7 +44,7 @@ inline void trim(string &str){
 /**
  *  Extract paragraphs from documents.
  */
-vector<string> get_paragraphs(const string& document) {
+inline vector<string> get_paragraphs(const string& document) {
     vector<string> paragraphs;
     istringstream stream(document);
     string paragraph;
@@ -83,7 +83,7 @@ vector<string> get_paragraphs(const string& document) {
     return final_paragraphs;
 }
  
-unordered_map <string, string> process_documents(const vector<pair<string, string>> &documents){
+inline unordered_map <string, string> process_documents(const vector<pair<string, string>> &documents){
     unordered_map<string, string> paragraphs;
     for (auto i=0; i<documents.size(); i++){
         vector<string> paragraphs_per_doc = get_paragraphs(documents[i].second);
