@@ -13,13 +13,16 @@ class NoAddNoDeleteAdmin(admin.ModelAdmin):
         return False
 
 
-@admin.register(Session)
+
 class SessionAdmin(NoAddNoDeleteAdmin):
-    list_display = ('username', 'topic',  'created_at', 'timespent')
+    list_display = ('username', 'get_topic',  'created_at', 'timespent')
+    def get_topic(self, obj):
+        return obj.topic.title
+    
     list_filter = ('username', 'topic', 'created_at', 'timespent')
     search_fields = ('username', 'topic', 'created_at', 'timespent')
 
-
+admin.site.register(Session, SessionAdmin)
 admin.site.register(SharedSession)
 
 @admin.register(SessionTimer)

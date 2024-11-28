@@ -30,8 +30,8 @@
               <div class="card-block highlight-include" id="docView" data-doc-id="">
 
                 <div class="document-header highlight-include d-flex" style="min-height: 5rem;">
-                  <div id="modalDocIndicator" class="align-self-center align-self-stretch p-2" style="border-width: 0.25rem!important; border-style: none none none solid; border-color: #DEE2E6;"></div>
-                  <div class="align-self-center py-2">
+                  <!-- <div id="modalDocIndicator" class="align-self-center align-self-stretch p-2" style="border-width: 0.25rem!important; border-style: none none none solid; border-color: #DEE2E6;"></div> -->
+                  <div class="align-self-center py-2 p-3">
                     <h2 class="document-title-font-family" id="modalDocTitle"
                         style="margin-bottom: 0;"></h2>
                     <small id="modalDocMeta" class="text-muted text-monospace small
@@ -120,22 +120,6 @@
                     <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary d-flex
                     align-items-center docViewDocHRelButtonCALModal">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
                   </div>
-                </div>
-
-
-                <div id="highlighted_words">
-                  <h5 class="card-title text-secondary mt-4 unselectable" unselectable="on">Highlighted terms <span class="badge badge-secondary float-right">Beta</span></h5>
-                  <div class="input-group mb-3">
-                    <input id="search_content" autocomplete="off" type="search" class="form-control search-input bg-light text-dark no-border shadow-none" placeholder="Highlight">
-
-                    <div class="input-group-append">
-                      <button class="btn btn-sm btn-light" data-search="next" id="searchNext"
-                           type="button">&darr;</button>
-                      <button class="btn btn-sm btn-light" data-search="prev" type="button">&uarr;</button>
-                      {%comment%}<button class="btn btn-sm btn-light" data-search="clear" type="button">&times;</button>{%endcomment%}
-                    </div>
-                  </div>
-                  <ul class="list-group" id="highlighted_terms_list"></ul>
                 </div>
 
               </div>

@@ -38,8 +38,8 @@ display: {% if not is_integrated_cal_allowed %} none {% else %} block {% endif %
           <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="extracted-text-tab-content" role="tabpanel">
               <div class="document-body" id="docViewDocWrapperCALModal">
-                <div class="card border-0">
-                  <div style="padding-right: 1rem; padding-left: 1rem">
+                <div class="card border-0 ">
+                  <div class="pl-3 pr-3">
                     <div id="{% if 'doc' in request.user.current_session.strategy %}docViewDocBodyCALModal{% else %}docViewDocSnippetCALModal{% endif %}"
                         style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
                          font-size: 12px; color: #545454; word-break: break-word;" ></div>
