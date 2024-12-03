@@ -183,7 +183,6 @@ docView.prototype = {
           sendSERPJudgment($(elm).data("doc-id"), rel_val);
         });
       } else {
-          $('#toast_reachedMaxSearchEffort').toast('dispose');
         $(elm).on("click", function () {
           sendJudgment(rel_val, (options.searchMode || options.reviewMode) ? null : refreshDocumentView, show_nudge_toast)
         });

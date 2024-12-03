@@ -66,7 +66,7 @@ display: {% if not is_integrated_cal_allowed %} none {% else %} block {% endif %
 
           <div class="mx-auto align-self-start pt-5">
             <div class="d-flex flex-row flex-md-column  judging-criteria-btn-group SERP"
-                 role="group" data-doc-id="">
+                 role="group" data-doc-id="" onclick="scroll_to_cal()">
               <a href="#" class="btn btn-sm center-text hoverOpacity btn-outline-secondary
               docViewDocHRelButtonCALModal rounded-0">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
               <a href="#" class="btn btn-sm center-text hoverOpacity btn-outline-secondary
