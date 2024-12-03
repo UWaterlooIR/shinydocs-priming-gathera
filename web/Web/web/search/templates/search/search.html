@@ -82,6 +82,13 @@
             "query": "{{ query }}"
         }
 
+        function scroll_to_cal() {
+          $('#toast_reachedMaxSearchEffort').toast('dispose');
+          var body = $("html, body");
+          body.stop().animate({scrollTop:0}, 500, 'swing');
+          console.log('scrolled')
+        }
+
         var dv = new docView();
         dv.init({
           username: '{{ request.user }}',
