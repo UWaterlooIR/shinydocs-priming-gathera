@@ -177,13 +177,14 @@ docView.prototype = {
     }
 
     function _linkJudgingButtons(elm, rel_val) {
+        var show_nudge_toast = $(elm).data("is-nudge-to-show");
       if ($(elm).data("is-serp-judging")) {
         $(elm).on("click", function () {
           sendSERPJudgment($(elm).data("doc-id"), rel_val);
         });
       } else {
         $(elm).on("click", function () {
-          sendJudgment(rel_val, (options.searchMode || options.reviewMode) ? null : refreshDocumentView)
+          sendJudgment(rel_val, (options.searchMode || options.reviewMode) ? null : refreshDocumentView, show_nudge_toast)
         });
       }
     }
@@ -1020,7 +1021,7 @@ docView.prototype = {
 
     }
 
-    function sendJudgment(rel, callback) {
+    function sendJudgment(rel, callback, show_nudge_toast=false) {
       var current_docview_stack_size = parent.viewStack.length;
       if (!(options.singleDocumentMode || options.searchMode)) {
         window.scrollTo(0, 0);
@@ -1108,6 +1109,9 @@ docView.prototype = {
             if (typeof callback === "function") {
               callback();
             }
+          }
+          if (show_nudge_toast && result["is_positive_judgements_reached"]) {
+            parent.afterMaxSearchEffort(docid, rel);
           }
           parent.afterDocumentJudge(docid, rel);
         },

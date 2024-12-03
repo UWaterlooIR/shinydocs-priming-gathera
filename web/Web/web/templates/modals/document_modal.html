@@ -31,7 +31,7 @@
                       <div id="docViewDocSnippet"></div>
                     </div>
                   </div>
-                  
+
                   <div class="card border-0">
                     <div class="card-body py-0" id="FullDocumentBody" style="display:block;">
                       <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
@@ -51,10 +51,14 @@
                 <div class="small"><code id="docno_text">Docid: </code><code id="docViewDocID"></code></div>
 
                 <div class="text-left">
+
                   <div class="btn-group mt-3 judging-criteria-btn-group" role="group" data-doc-id="">
-                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocNonRelButton">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
-                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
-                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary
+                    d-flex align-items-center docViewDocNonRelButton" data-is-nudge-to-show="true">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary
+                    d-flex align-items-center docViewDocRelButton" data-is-nudge-to-show="true">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary
+                    d-flex align-items-center docViewDocHRelButton" data-is-nudge-to-show="true">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
                   </div>
 
 
