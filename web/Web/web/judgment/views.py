@@ -139,12 +139,12 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
             relevance__in=(1, 2),
         ).count()
 
-        TIME_TO_EXIT = 5 #60*60 1 hour
+        TIME_TO_EXIT = 20 #60*60 1 hour
 
         context = {u"message": u"Your judgment on {} has been received!".format(doc_id),
                    u"is_max_judged_reached": False,
                    u"positive_judgements": total_positive_judgments_for_session,
-                   u"is_positive_judgements_reached": False if total_positive_judgments_for_session < 5 else True,
+                   u"is_positive_judgements_reached": total_positive_judgments_for_session == 5,
                    u"is_session_max_time_reached": total_session_timer >= TIME_TO_EXIT,
                    }
 
@@ -301,10 +301,11 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
                 context[u"is_max_judged_reached"] = True
 
         #activate the next session
-        if total_session_timer >= TIME_TO_EXIT:
-            session_order = current_session.session_order
+        session_order = current_session.session_order
+        if total_session_timer >= TIME_TO_EXIT and session_order is not None:
+            new_session_order = session_order + 1 if session_order is not None else 1
             next_session = Session.objects.filter(username=user,
-                                                    session_order=session_order+1).first()
+                                                    session_order=new_session_order).first()
             if next_session:
                 user.current_session = next_session
                 user.save()

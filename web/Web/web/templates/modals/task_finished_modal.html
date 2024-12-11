@@ -7,7 +7,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-     {% if request.user.current_session.session_order >= 5 %}
+     {% if request.user.current_session.session_order >= 4 or request.user.current_session.session_order is None %}
         <div class="modal-body">
             <p>Congratulations! You have completed all the tasks. We will contact you with further
               instructions
@@ -18,11 +18,12 @@
         </div>
       {% else %}
         <div class="modal-body">
-             <p>Congratulations! You have completed the task. You can now proceed to the next session.</p>
+             <p>Congratulations! You have completed the task. We have initiated your next task.
+               Please go to the home page to view instructions.</p>
         </div>
         <div class="modal-footer">
-            <a class="btn btn-outline-primary" href="{% url 'core:home'%}">Start the next
-            session</a>
+            <a class="btn btn-outline-primary" href="{% url 'core:home'%}">View task
+              Instructions</a>
         </div>
       {% endif %}
     </div>

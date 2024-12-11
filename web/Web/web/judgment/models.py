@@ -57,13 +57,13 @@ class Judgment(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     def save(self, *args, **kwargs):
         self.session.last_activity_timestamp = timezone.now()
         self.session.save()
         super(Judgment, self).save(*args, **kwargs)
         if SessionTimer.objects.filter(session=self.session).exists():
-            session_timer = SessionTimer.objects.last()
+            session_timer = SessionTimer.objects.filter(session=self.session).last()
             if (timezone.now() - session_timer.end_time).seconds < 120:
                 session_timer.end_time = timezone.now()
                 session_timer.save()

@@ -1,7 +1,45 @@
 import random
-
+from web.core.models import Session
+from web.users.models import User
+from web.topic.models import Topic
+import string
 
 SEED = 2025
+
+
+
+class TopicTypeCustom:
+    def __init__(self, seed_query, description=None, narrative=None, label=None):
+        self.seed_query = seed_query
+        self.description = description
+        self.narrative = narrative
+        self.label = label
+
+    def add_label(self, label):
+        assert label in ['a', 'b', 'c', 'd', 'e']
+        self.label = label
+
+    def __str__(self):
+        return f'{self.seed_query} - {self.label}'
+
+
+class SessionType:
+    def __init__(self, name, integrated_cal, nudge, search_disabled, label=None):
+        self.name = name
+        self.integrated_cal = integrated_cal
+        self.nudge = nudge
+        self.search_disabled = search_disabled
+        self.label = label
+
+    def add_label(self, label):
+        assert label in ['A', 'B', 'C', 'D', 'E']
+        self.label = label
+
+    def __str__(self):
+        return f'{self.name} - {self.label}'
+
+
+
 
 treatments_base = [
     ['A', 'B', 'C', 'D', 'E'],
@@ -57,7 +95,6 @@ def superimposed_latin_square(treatments, topics):
         super_imposed_square.append([])
         for j in range(len(topics)):
             super_imposed_square[i].append((treatments[i][j], topics[i][j]))
-    print_latin_sq(super_imposed_square)
     return super_imposed_square
 
 
@@ -75,54 +112,6 @@ def test_latin_sq_correct(latin_sq):
 
 
 
-
-class Topic:
-    def __init__(self, seed_query, description=None, narrative=None, label=None):
-        self.seed_query = seed_query
-        self.description = description
-        self.narrative = narrative
-        self.label = label
-
-    def add_label(self, label):
-        assert label in ['a', 'b', 'c', 'd', 'e']
-        self.label = label
-
-    def __str__(self):
-        return f'{self.seed_query} - {self.label}'
-
-
-class SessionType:
-    def __init__(self, name, integrated_cal, nudge, search_disabled, label=None):
-        self.name = name
-        self.integrated_cal = integrated_cal
-        self.nudge = nudge
-        self.search_disabled = search_disabled
-        self.label = label
-
-    def add_label(self, label):
-        assert label in ['A', 'B', 'C', 'D', 'E']
-        self.label = label
-
-    def __str__(self):
-        return f'{self.name} - {self.label}'
-
-
-
-SESSION_TYPES = [
-        SessionType('integrated-cal', True, False, False),
-        SessionType('cal-only', False, False, True),
-        SessionType('integrated-cal-with-nudge', True, True, False),
-        SessionType('cal-with-nudge', False, True, False),
-        SessionType('base', False, False, False)
-]
-
-TOPICS = [
-    Topic('apple',),
-    Topic('banana'),
-    Topic('cherry'),
-    Topic('date'),
-    Topic('elderberry')
-]
 
 def map_labels_to_treatments_and_topics(session_types, topics_list):
     session_mapping = {}
@@ -164,4 +153,60 @@ def create_final_latin_square(treatments, topics, base_latin_treatments, base_la
     assert test_latin_sq_correct(final_latin_sq)
     return final_latin_sq
 
-create_final_latin_square(SESSION_TYPES, TOPICS, treatments_base, topics_base)
+
+def create_5_sessions_and_a_random_user(config_list):
+    random.seed(None)
+    random_username = f'experiment_user_{random.randint(1000, 9999)}'
+    random_password = (f'{random.randint(1000, 9999)}_'
+                       f'{random.choice(string.ascii_lowercase)}_{random.choice(string.ascii_uppercase)}')
+    random_user = User.objects.create_user(random_username,
+                                                 '{}@crazymail.com'.format(random_username),
+                                                 random_password)
+    random_user.save()
+    print(random_username,  random_password)
+    for i, config in enumerate(config_list):
+        session_to_create = config[0]
+        query = config[1]
+        topic = Topic(
+            title=f'{query.seed_query}',
+            seed_query=f'{query.seed_query}',
+        )
+        topic.save()
+        session = Session.objects.create(
+            username=random_user,
+            integrated_cal=session_to_create.integrated_cal,
+            nudge_to_cal=session_to_create.nudge,
+            disable_search=session_to_create.search_disabled,
+            topic=topic,
+            session_order=i,
+            max_number_of_judgments=0,
+            show_full_document_content=False,
+            strategy='doc',
+            show_debugging_content=0,
+            is_shared=False,
+        )
+        session.save()
+    random_user.current_session = Session.objects.filter(username=random_user).order_by('session_order').first()
+    random_user.save()
+
+
+SESSION_TYPES = [
+        SessionType('integrated-cal', True, False, False),
+        SessionType('cal-only', False, False, True),
+        SessionType('integrated-cal-with-nudge', True, True, False),
+        SessionType('cal-with-nudge', False, True, False),
+        SessionType('base', False, False, False)
+]
+
+TOPICS = [
+    TopicTypeCustom('Capital Punishment',),
+    TopicTypeCustom('Black Bear Attacks'),
+    TopicTypeCustom('UV damage eyes'),
+    TopicTypeCustom('International Organized Crime'),
+    TopicTypeCustom('Hubble Telescope Achievements')
+]
+
+
+final = create_final_latin_square(SESSION_TYPES, TOPICS, treatments_base, topics_base)
+
+create_5_sessions_and_a_random_user(final[0])
