@@ -57,6 +57,8 @@ class Session(models.Model):
 
     disable_search = models.BooleanField(default=False)
 
+    session_order = models.IntegerField(null=True, blank=True)
+
     def __str__(self):
         return f'{self.username}-{self.topic.title}-{self.topic.seed_query}'[:25]
 

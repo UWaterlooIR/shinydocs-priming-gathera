@@ -73,6 +73,7 @@
           {% endif %}
 
           <a class="nav-item nav-link {% if 'review' in request.resolver_match.app_names %}text-primary{% endif %}" href="{% url 'review:main' %}">Review</a>
+        <button class="btn btn-outline-secondary d-none d-md-inline" data-toggle="modal" data-target="#TimeSpentModal">Time Spent</button>
         </div>
         {% endif %}
         <ul class="nav navbar-nav flex-fill justify-content-center align-self-center center-text pl-5 pr-5 order-2 {%block navbar-hidesmall %}d-none d-sm-block{%endblock%}">
@@ -160,6 +161,8 @@
         </ul>
       </div>
     </nav>
+
+    {% include 'modals/time_spent_modal.html' %}
 
     <!-- Notifications modal -->
     {% include 'modals/notification_modal.html' %}

@@ -80,7 +80,7 @@
               <div class="document-body mt-2" id="docViewDocWrapper">
                 <div class="card border-0 {% if not request.user.current_session.is_summary %}d-none{% endif %}">
                   <div class="card-body">
-                    
+
                     <div id="docViewDocSnippet"></div>
                   </div>
                 </div>
@@ -220,10 +220,13 @@
 
 <!-- Discovery failed to receive judgment toast -->
 {% include 'toasts/discovery_failed_to_receive_judgment.html' %}
+<!-- Task finished modal -->
+{% include 'modals/task_finished_modal.html' %}
 <!-- Judging criteria modal -->
 {% include 'modals/additional_judging_criteria_modal.html' %}
 <!-- Keyboard shortcuts modal -->
 {% include 'modals/keyboard_shortcuts_modal.html' %}
+
 
 
 {% endblock %}
@@ -240,7 +243,7 @@
     <script>
         var dv = new docView();
         dv.init({
-          username: '{{ request.user }}', 
+          username: '{{ request.user }}',
           getDocumentsToJudgeURL: '{% url 'CAL:get_docs' %}',
           getPrevDocumentsJudgedURL: '{% url 'judgment:get_latest' number_of_docs_to_show=50 %}',
           getDocumentIDsToJudgeURL: '{% url 'CAL:get_docs_ids' %}',
@@ -263,6 +266,13 @@
               $("#FullDocumentBody").hide();
             {% endif %}
           },
+
+          afterMaxSessionTime: function () {
+              console.log("Max session time reached");
+              $taskFinishedModal = $('#TaskFinishedModal');
+              $taskFinishedModal.modal('show');
+            },
+
 
           afterCALFailedToReceiveJudgment: function(docid, rel) {
             $('#toast_CALFailedToReceiveJudgment').toast('dispose');

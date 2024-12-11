@@ -92,7 +92,8 @@ var docViewCALModal = function () {
     afterDocumentClose: null,
     afterDocumentJudge: null,
     afterErrorShown: null,
-    afterCALFailedToReceiveJudgment: null
+    afterCALFailedToReceiveJudgment: null,
+      afterMaxSessionTime: false,
   };
 
   /*************
@@ -166,7 +167,8 @@ docViewCALModal.prototype = {
       "afterDocumentClose",
       "afterDocumentJudge",
       "afterErrorShown",
-      "afterCALFailedToReceiveJudgment"
+      "afterCALFailedToReceiveJudgment",
+        "afterMaxSessionTime"
     ];
 
     for (var k in s) {
@@ -176,6 +178,7 @@ docViewCALModal.prototype = {
     }
 
     function _linkJudgingButtons(elm, rel_val) {
+
       if ($(elm).data("is-serp-judging")) {
         $(elm).on("click", function () {
           sendSERPJudgment($(elm).data("doc-id"), rel_val);
@@ -985,6 +988,9 @@ docViewCALModal.prototype = {
             showMaxJudgmentReached();
             return;
           }
+          if (result["is_session_max_time_reached"]) {
+        parent.afterMaxSessionTime(docid, rel);
+      }
 
           if (result["CALFailedToReceiveJudgment"]) {
             parent.afterCALFailedToReceiveJudgment(docid, rel);
@@ -1083,6 +1089,10 @@ docViewCALModal.prototype = {
           if (result["is_max_judged_reached"]) {
             showMaxJudgmentReached();
             return;
+          }
+
+          if (result["is_session_max_time_reached"]) {
+            parent.afterMaxSessionTime(docid, rel);
           }
 
           if (result["CALFailedToReceiveJudgment"]) {
@@ -1431,6 +1441,11 @@ docViewCALModal.prototype = {
   afterCALFailedToReceiveJudgment: function (docid, rel) {
     "use strict";
     return this.triggerEvent("afterCALFailedToReceiveJudgment", [docid, rel]);
+  },
+
+    afterMaxSessionTime: function (docid, rel) {
+    "use strict";
+    return this.triggerEvent("afterMaxSessionTime", [docid, rel]);
   },
 
 

@@ -93,6 +93,7 @@ var docView = function () {
     afterErrorShown: null,
     afterCALFailedToReceiveJudgment: null,
     afterMaxSearchEffort: false,
+      afterMaxSessionTime: false,
   };
 
   /*************
@@ -168,6 +169,7 @@ docView.prototype = {
       "afterErrorShown",
       "afterCALFailedToReceiveJudgment",
       "afterMaxSearchEffort",
+        "afterMaxSessionTime",
     ];
 
     for (var k in s) {
@@ -177,6 +179,7 @@ docView.prototype = {
     }
 
     function _linkJudgingButtons(elm, rel_val) {
+
         var show_nudge_toast = $(elm).data("is-nudge-to-show");
       if ($(elm).data("is-serp-judging")) {
         $(elm).on("click", function () {
@@ -997,6 +1000,10 @@ docView.prototype = {
             parent.afterMaxSearchEffort(docid, rel);
           }
 
+          if (result["is_session_max_time_reached"]) {
+            parent.afterMaxSessionTime(docid, rel);
+          }
+
           if (result["is_max_judged_reached"]) {
             showMaxJudgmentReached();
             return;
@@ -1005,6 +1012,7 @@ docView.prototype = {
           if (result["CALFailedToReceiveJudgment"]) {
             parent.afterCALFailedToReceiveJudgment(docid, rel);
           }
+
 
           parent.afterDocumentJudge(docid, rel);
         },
@@ -1099,6 +1107,10 @@ docView.prototype = {
           if (result["is_max_judged_reached"]) {
             showMaxJudgmentReached();
             return;
+          }
+
+          if (result["is_session_max_time_reached"]) {
+            parent.afterMaxSessionTime(docid, rel);
           }
 
           if (result["CALFailedToReceiveJudgment"]) {
@@ -1454,6 +1466,12 @@ docView.prototype = {
     "use strict";
     console.log("5 relevant docs found")
     return this.triggerEvent("afterMaxSearchEffort", [docid, rel]);
+  },
+
+
+    afterMaxSessionTime: function (docid, rel) {
+    "use strict";
+    return this.triggerEvent("afterMaxSessionTime", [docid, rel]);
   },
 
 

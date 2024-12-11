@@ -1,0 +1,30 @@
+<div class="modal" id="TaskFinishedModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary">Task Completed!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+     {% if request.user.current_session.session_order >= 5 %}
+        <div class="modal-body">
+            <p>Congratulations! You have completed all the tasks. We will contact you with further
+              instructions
+              .</p>
+         </div>
+        <div class="modal-footer">
+            <a class="btn btn-outline-primary" data-dismiss="modal" href="{% url 'core:home'%}">Close</a>
+        </div>
+      {% else %}
+        <div class="modal-body">
+             <p>Congratulations! You have completed the task. You can now proceed to the next session.</p>
+        </div>
+        <div class="modal-footer">
+            <a class="btn btn-outline-primary" href="{% url 'core:home'%}">Start the next
+            session</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

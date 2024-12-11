@@ -16,6 +16,7 @@ def shared_session_processor(request):
     context = {"current_session_owner": False}
     current_session_obj = request.user.current_session
     if current_session_obj:
+        time_worked = current_session_obj.timespent
         judgments_for_session = Judgment.objects.filter(session=current_session_obj)
         positive_judgments = judgments_for_session.filter(relevance__in=[1, 2]).count()
         if current_session_obj.username != request.user:
@@ -41,6 +42,7 @@ def shared_session_processor(request):
         context["share_session_form"] = ShareSessionForm(user=request.user)
         context["is_cal_allowed"] = is_cal_allowed
         context["disable_search"] = current_session_obj.disable_search
+        context["time_worked"] = f'{time_worked//60} minutes and {time_worked:.2f} seconds'
 
     return context
 

@@ -15,7 +15,7 @@ from django.views import generic
 from interfaces.DocumentSnippetEngine import functions as DocEngine
 
 from web.CAL.exceptions import CALError
-from web.core.models import LogEvent
+from web.core.models import LogEvent, Session
 from web.interfaces.CAL import functions as CALFunctions
 from web.judgment.forms import UploadForm, UploadDebuggingJudgmentsForm
 from web.judgment.models import Judgment, DebuggingJudgment
@@ -131,16 +131,24 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
             }
         )
 
+        total_session_timer = current_session.timespent
+
         total_positive_judgments_for_session = Judgment.objects.filter(
             user=user,
             session=current_session,
             relevance__in=(1, 2),
         ).count()
 
+        TIME_TO_EXIT = 5 #60*60 1 hour
+
         context = {u"message": u"Your judgment on {} has been received!".format(doc_id),
                    u"is_max_judged_reached": False,
                    u"positive_judgements": total_positive_judgments_for_session,
-                   u"is_positive_judgements_reached": False if total_positive_judgments_for_session < 5 else True, }
+                   u"is_positive_judgements_reached": False if total_positive_judgments_for_session < 5 else True,
+                   u"is_session_max_time_reached": total_session_timer >= TIME_TO_EXIT,
+                   }
+
+
         error_message = None
 
         # This will take care of incomplete judgments (e.g. updating additional judging
@@ -291,6 +299,17 @@ class JudgmentAJAXView(views.CsrfExemptMixin,
                                      messages.SUCCESS,
                                      message)
                 context[u"is_max_judged_reached"] = True
+
+        #activate the next session
+        if total_session_timer >= TIME_TO_EXIT:
+            session_order = current_session.session_order
+            next_session = Session.objects.filter(username=user,
+                                                    session_order=session_order+1).first()
+            if next_session:
+                user.current_session = next_session
+                user.save()
+                context[u"next_session"] = next_session.uuid
+
 
         return self.render_json_response(context)
 
