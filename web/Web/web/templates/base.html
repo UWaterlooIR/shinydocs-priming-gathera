@@ -56,7 +56,7 @@
       </button>
 
       <div class="collapse navbar-collapse d-flex flex-column flex-md-row align-items-end align-right align-self-center" id="navbars">
-        {% if request.user.is_authenticated and request.user.current_session %}
+        {% if request.user.is_authenticated and request.user.current_session and is_task_in_progress %}
         <div class="navbar-nav order-2 order-md-1 align-self-md-center">
           {% if activated_shared_session and activated_shared_session.disallow_search %}
           {% else %}

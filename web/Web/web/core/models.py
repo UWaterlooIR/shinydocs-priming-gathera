@@ -59,6 +59,8 @@ class Session(models.Model):
 
     session_order = models.IntegerField(null=True, blank=True)
 
+    max_time = models.IntegerField(null=True, blank=True, help_text="Max time in seconds")
+
     def __str__(self):
         return f'{self.username}-{self.topic.title}-{self.topic.seed_query}'[:25]
 
@@ -143,3 +145,15 @@ class LogEvent(models.Model):
     # class Meta:
     #     abstract = True
     #     ordering = ['-created_at']
+
+
+class ExperimentForm(models.Model):
+    """
+    Model for storing form data for experiments
+    """
+    created_at = models.DateTimeField(auto_now_add=True,
+                                      editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, null=True, blank=True, related_name='experiment_forms')
+    form_data = models.TextField(null=True, blank=True)
+    form_type = models.CharField(max_length=64, null=False, blank=False)

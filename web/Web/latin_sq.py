@@ -71,13 +71,9 @@ def shuffle_rows(sq):
 
 def shuffle_columns(latin_square):
     random.seed(SEED)
-    # Get the number of columns (same as rows in a square matrix)
     n = len(latin_square)
-    # Generate a list of column indices
     column_indices = list(range(n))
-    # Shuffle the column indices
     random.shuffle(column_indices)
-    # Create a new square matrix by reordering columns
     shuffled_square = []
     for row in latin_square:
         shuffled_row = [row[i] for i in column_indices]
@@ -99,11 +95,9 @@ def superimposed_latin_square(treatments, topics):
 
 
 def test_latin_sq_correct(latin_sq):
-    # Check that each row contains all the treatments
     for row in latin_sq:
         if len(set(row)) != len(row):
             return False
-    # Check that each column contains all the topics
     for i in range(len(latin_sq)):
         column = [latin_sq[j][i] for j in range(len(latin_sq))]
         if len(set(column)) != len(column):
@@ -183,11 +177,14 @@ def create_5_sessions_and_a_random_user(config_list):
             show_full_document_content=False,
             strategy='doc',
             show_debugging_content=0,
-            is_shared=False,
+            max_time=20,
         )
         session.save()
-    random_user.current_session = Session.objects.filter(username=random_user).order_by('session_order').first()
+    current_session_to_start = Session.objects.filter(username=random_user).order_by('session_order').first()
+    random_user.current_session = current_session_to_start
     random_user.save()
+    current_session_to_start.begin_session_in_cal()
+
 
 
 SESSION_TYPES = [
