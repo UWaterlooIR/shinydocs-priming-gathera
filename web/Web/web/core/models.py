@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from config.settings.base import AUTH_USER_MODEL as User
 import uuid
 
@@ -76,6 +78,23 @@ class Session(models.Model):
         except (CALError, ConnectionRefusedError, Exception) as e:
             # TODO: log error
             pass
+
+    def update_session_timer(self):
+        if SessionTimer.objects.filter(session=self).exists():
+            session_timer = SessionTimer.objects.filter(session=self).last()
+            if (timezone.now() - session_timer.end_time).seconds < 120:
+                session_timer.end_time = timezone.now()
+                session_timer.save()
+            else:
+                SessionTimer.objects.create(session=self,
+                                            start_time=timezone.now(),
+                                            end_time=timezone.now()
+                                            )
+        else:
+            SessionTimer.objects.create(session=self,
+                                       start_time=timezone.now(),
+                                       end_time=timezone.now()
+                                       )
 
     def is_summary(self):
         return "para" in self.strategy

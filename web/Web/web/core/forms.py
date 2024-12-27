@@ -208,6 +208,7 @@ class PreTaskQuestionnaireForm(forms.Form):
     prefix = "pre-task"
 
     topic_familiarity_choices = (
+        ('', '-----------'),
         (1, 'Not at all'),
         (2, 'A little'),
         (3, 'Moderately'),
@@ -251,14 +252,16 @@ class PostTaskQuestionnaireForm(forms.Form):
     prefix = "post-task"
 
     topic_choices = (
+        ('', '-----------'),
         (1, 'Not at all'),
         (2, 'A little'),
-        (3, 'Moderate'),
+        (3, 'Moderately'),
         (4, 'Very'),
         (5, 'Extremely'),
     )
 
     mood_choices = (
+        ('', '-----------'),
         (1, 'Frustrated'),
         (2, 'Anxious'),
         (3, 'Neutral'),
@@ -308,14 +311,16 @@ class PostExperimentQuestionnaireForm(forms.Form):
     prefix = "post-experiment"
 
     topic_choices = (
+        ('', '-----------'),
         (1, 'Not at all'),
         (2, 'A little'),
-        (3, 'Moderate'),
+        (3, 'Moderately'),
         (4, 'Very'),
         (5, 'Extremely'),
     )
 
     mood_choices = (
+        ('', '-----------'),
         (1, 'Frustrated'),
         (2, 'Anxious'),
         (3, 'Neutral'),
@@ -324,6 +329,7 @@ class PostExperimentQuestionnaireForm(forms.Form):
     )
 
     experience_choices = (
+        ('', '-----------'),
         (1, 'Very dissatisfied'),
         (2, 'Dissatisfied'),
         (3, 'Unsure'),
@@ -347,11 +353,24 @@ class PostExperimentQuestionnaireForm(forms.Form):
         required=True
     )
     general_feedback = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 4}),
+        widget=forms.Textarea(attrs={'rows': 2}),
         label="Do you have any feedback/issues you would like to provide after finishing the "
               "study?",
         required=False
     )
+
+    likeness = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label="What did you like about the study?",
+        required=True
+    )
+
+    dislike = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label="What did you dislike about the study?",
+        required=True
+    )
+
 
     def __init__(self, *args, **kwargs):
         super(PostExperimentQuestionnaireForm, self).__init__(*args, **kwargs)
@@ -361,6 +380,8 @@ class PostExperimentQuestionnaireForm(forms.Form):
             'experience',
             'mood',
             'general_feedback',
+            'likeness',
+            'dislike',
             StrictButton(u'Submit',
                          name=self.submit_name,
                          type="submit",
