@@ -371,6 +371,12 @@ class PostExperimentQuestionnaireForm(forms.Form):
         required=True
     )
 
+    system = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label="Which feature was the most useful in finding documents? Explain.",
+        required=True
+    )
+
 
     def __init__(self, *args, **kwargs):
         super(PostExperimentQuestionnaireForm, self).__init__(*args, **kwargs)
@@ -382,6 +388,7 @@ class PostExperimentQuestionnaireForm(forms.Form):
             'general_feedback',
             'likeness',
             'dislike',
+            'system',
             StrictButton(u'Submit',
                          name=self.submit_name,
                          type="submit",
