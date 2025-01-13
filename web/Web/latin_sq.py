@@ -163,7 +163,9 @@ def create_5_sessions_and_a_random_user(config_list):
         query = config[1]
         topic = Topic(
             title=f'{query.seed_query}',
-            seed_query=f'{query.seed_query}',
+            seed_query=f'{query.seed_query}+{query.description}+{query.narrative}',
+            description=query.description,
+            narrative=query.narrative,
         )
         topic.save()
         session = Session.objects.create(
@@ -174,8 +176,8 @@ def create_5_sessions_and_a_random_user(config_list):
             topic=topic,
             session_order=i,
             max_number_of_judgments=0,
-            show_full_document_content=False,
-            strategy='doc',
+            show_full_document_content=True,
+            strategy='para',
             show_debugging_content=0,
             max_time=20,
         )
@@ -196,11 +198,52 @@ SESSION_TYPES = [
 ]
 
 TOPICS = [
-    TopicTypeCustom('Capital Punishment',),
-    TopicTypeCustom('Black Bear Attacks'),
-    TopicTypeCustom('UV damage eyes'),
-    TopicTypeCustom('International Organized Crime'),
-    TopicTypeCustom('Hubble Telescope Achievements')
+    TopicTypeCustom(
+        'tropical storms',
+        'What tropical storms (hurricanes and typhoons) have '
+        'caused significant property damage and loss of life?',
+        'The date of the storm, the area affected, and the extent of'
+        ' damage/casualties are all of interest.  Documents that describe the'
+        ' damage caused by a tropical storm as "slight", "limited", or "small"'
+        ' are not relevant.',
+        1,
+    ),
+    TopicTypeCustom(
+        'steel production',
+        'What are new methods of producing steel?',
+        'Relevant documents will discuss the processes adapted '
+        'by entrepreneurs who have organized so-called "minimills" '
+        'and are producing steel by methods which differ from the '
+        'old blast furnace method of production.  Documents that '
+        'identify the new companies, the problems they have have '
+        'encountered, and/or their successes or failures in the '
+        'national and international markets are also relevant.',
+        2,
+    ),
+    TopicTypeCustom(
+        'UV damage eyes',
+        'Find documents that discuss the damage ultraviolet (UV) light from the sun '
+        'can do to eyes.',
+        'A relevant document will discuss diseases that result '
+        'from exposure of the eyes to UV light, treatments for the damage, '
+        'and/or education programs that help prevent damage.  Documents discussing '
+        'treatment methods for cataracts and ocular melanoma are relevant even when '
+        'a specific cause is not mentioned. However, documents that discuss radiation '
+        'damage from nuclear sources or lasers are not relevant.'),
+    TopicTypeCustom(
+        'art, stolen, forged',
+        'What incidents have there been of stolen or forged art?',
+        'Instances of stolen or forged art in any media are relevant.'
+        ' Stolen mass-produced things, even though they might be decorative,'
+        ' are not relevant (unless they are mass-produced art reproductions).'
+        ' Pirated software, music, movies, etc. are not relevant.'),
+    TopicTypeCustom(
+        'robotic technology',
+        'What are the latest developments in robotic technology?',
+        'A relevant document will contain information on current applications of '
+        'robotic technology. Discussions of robotics research or simulations of '
+        'robots are not relevant.'
+    )
 ]
 
 

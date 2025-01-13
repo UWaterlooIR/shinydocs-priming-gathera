@@ -63,8 +63,10 @@ class Session(models.Model):
 
     max_time = models.IntegerField(null=True, blank=True, help_text="Max time in seconds")
 
+    label = models.CharField(max_length=64, null=True, blank=True)
+
     def __str__(self):
-        return f'{self.username}-{self.topic.title}-{self.topic.seed_query}'[:25]
+        return f'{self.username}-{self.topic.title}-{self.label}'[:25]
 
 
     def begin_session_in_cal(self):
