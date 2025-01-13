@@ -3,7 +3,8 @@ from config.settings.base import AUTH_USER_MODEL as User
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
-from web.core.models import Session
+from web.core.models import Session, SessionTimer
+from django.utils import timezone
 
 
 class Judgment(models.Model):
@@ -56,6 +57,13 @@ class Judgment(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.session.last_activity_timestamp = timezone.now()
+        self.session.save()
+        super(Judgment, self).save(*args, **kwargs)
+        self.session.update_session_timer()
+        print(str(self.session.last_activity_timestamp)+" updated")
 
     def __unicode__(self):
         return "{} on {}: {}".format(self.user, self.doc_id, self.relevance)

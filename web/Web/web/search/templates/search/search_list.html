@@ -26,11 +26,16 @@
   <div class="row">
     <div class="col-2 d-none d-sm-block">
       <div class="card border-0">
+        <button class="btn btn-outline-secondary d-none d-md-inline p-2 ml-4 mr-4"
+                data-toggle="modal"
+                data-target="#TimeSpentModal">Time Spent</button>
+        {% comment %}
+
         {% if SERP.total_time %}<small class="gray-text mx-auto mb-2">Your query took {{ SERP.total_time|floatformat }} seconds</small>{% endif %}
         <br/>
         <small class="gray-text mx-auto mb-2">query id is {{ queryID }}</small>
         <small class="gray-text mx-auto mb-2">serp id is {{ serpID }}</small>
-        {% comment %}
+
         <div class="card-header py-2 text-secondary">
           Filter
         </div>
@@ -45,7 +50,11 @@
     </div>
 
     <div class="col-sm-12 col-md-7">
-
+      {% if integrated_cal %}
+        <div class="d-flex flex-column flex-md-row align-items-center" id="cal-widget" >
+            {% include "search/search_cal.html" %}
+        </div>
+      {% endif %}
       {% for hit in SERP.hits %}
       <div class="d-flex flex-column flex-md-row align-items-center">
         <div class="document d-flex flex-grow-1 searchItemSelector col-sm-12 col-md-8"

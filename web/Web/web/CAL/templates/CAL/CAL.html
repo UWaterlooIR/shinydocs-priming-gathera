@@ -39,14 +39,14 @@
   <div class="row">
     <div class="col-12 col-md-8">
 
-      <nav class="nav nav-pills">
+      <!-- <nav class="nav nav-pills">
         <div class="d-flex px-3 py-2">
           <span class="pr-2 py-1 align-self-end small align-self-center text-muted border-right unselectable" unselectable="on">Document viewer settings</span>
           <a class="nav-link small ml-2 px-2 py-1 align-self-end active" href="#"><i class="fas fa-highlighter"></i></a>
           <a class="nav-link small ml-2 px-2 py-1"  data-toggle="modal" data-target="#keyboardShortcutsModal" href="#"><i class="fas fa-keyboard"></i></a>
           <a class="nav-link small ml-2 px-2 py-1 disabled" href="#" tabindex="-1"><i class="fas fa-tag"></i></a>
         </div>
-      </nav>
+      </nav> -->
 
       <div class="card border-0">
         <div class="card-block highlight-include" id="docView" data-doc-id="">
@@ -80,9 +80,7 @@
               <div class="document-body mt-2" id="docViewDocWrapper">
                 <div class="card border-0 {% if not request.user.current_session.is_summary %}d-none{% endif %}">
                   <div class="card-body">
-                    <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
-                      <small class="highlight-exclude">Summary</small>
-                    </div>
+
                     <div id="docViewDocSnippet"></div>
                   </div>
                 </div>
@@ -97,7 +95,7 @@
                   </div>
                 {% endif %}
 
-                <div class="card border-0">
+                <div class="card border-0" id="FullDocumentBody" style="display:{% if request.user.current_session.show_full_document_content and request.user.current_session.strategy != 'doc' %}none{% else %}block{% endif %};">
                   <div class="card-body py-0">
                     <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
                       <small class="highlight-exclude">Document content</small>
@@ -134,18 +132,15 @@
               <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
               <a href="#" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
             </div>
-
-            {% if additional_judging_criteria %}
-            <h6 class="card-title text-secondary mt-4 mb-1 unselectable" unselectable="on">Additional Criteria <a class="badge badge-secondary float-right shadow-none small" data-toggle="modal" data-target="#additionalJudgingCriteriaModal" href="#"><i class="fas fa-info-circle"></i></a></h6>
-            {% include 'cards/configurable_criteria_card.html' %}
-            {% endif %}
-
           </div>
+
 
           <div id="highlighted_words">
             <h6 class="card-title text-secondary mt-4 unselectable" unselectable="on">Highlighted terms <span class="badge badge-secondary float-right">Beta</span></h6>
             <ul class="list-group" id="highlighted_terms_list"></ul>
           </div>
+        <button class="btn btn-outline-secondary d-none d-md-inline p-2 mt-4" data-toggle="modal"
+                data-target="#TimeSpentModal">Time Spent</button>
 
         </div>
       </div>
@@ -227,10 +222,13 @@
 
 <!-- Discovery failed to receive judgment toast -->
 {% include 'toasts/discovery_failed_to_receive_judgment.html' %}
+<!-- Task finished modal -->
+{% include 'modals/task_finished_modal.html' %}
 <!-- Judging criteria modal -->
 {% include 'modals/additional_judging_criteria_modal.html' %}
 <!-- Keyboard shortcuts modal -->
 {% include 'modals/keyboard_shortcuts_modal.html' %}
+
 
 
 {% endblock %}
@@ -264,7 +262,19 @@
           afterDocumentLoad: function (docid) {
             // Perform keyword search if necessary
             searchForKeyword();
+
+            {% if request.user.current_session.show_full_document_content and request.user.current_session.strategy != 'doc' %}
+              $("#docViewDocShowFullDocumentButton").show();
+              $("#FullDocumentBody").hide();
+            {% endif %}
           },
+
+          afterMaxSessionTime: function () {
+              console.log("Max session time reached");
+              $taskFinishedModal = $('#TaskFinishedModal');
+              $taskFinishedModal.modal('show');
+            },
+
 
           afterCALFailedToReceiveJudgment: function(docid, rel) {
             $('#toast_CALFailedToReceiveJudgment').toast('dispose');
@@ -279,6 +289,40 @@
           }
 
         });
+
+
+
+
+        function show_full_doc(){
+          // hide button
+          $("#docViewDocShowFullDocumentButton").hide();
+          // show full document
+          $("#FullDocumentBody").show();
+          var now = + new Date();
+          var current_doc_snippet = $("#docViewDocSnippet").html();
+          var current_doc_title = $("#docViewDocTitle").html();
+          var current_doc_id = $("#docViewDocID").html();
+
+          show_full_doc_button_clicked = true;
+
+
+
+          sendLog(LOG_EVENT.OPEN_FULL_DOC, {
+            action: 'trig_show_full_doc',
+            message: 'Show full document button is clicked and document is shown',
+            doc_id: current_doc_id,
+            doc_title: current_doc_title,
+            doc_CAL_snippet: current_doc_snippet,
+            extra_context: {
+                'show_full_doc_button_clicked': show_full_doc_button_clicked
+            },
+            is_cal: false,
+            client_time: now,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            page_title: document.title,
+            track_backend: true,
+          })
+        }
 
     </script>
 

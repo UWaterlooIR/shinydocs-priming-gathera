@@ -1,4 +1,4 @@
-version: '2'  
+version: '2'
 
 volumes:
   postgres_data_local: {}
@@ -33,7 +33,7 @@ services:
   search:
     build: ./search/
     environment:
-      - ANSERINI_INDEXI_PATH=/data/lucene-index.athome.pos+docvectors+raw+content/
+      - ANSERINI_INDEXI_PATH=/data/nyt-lucene-index/
     volumes:
       - ./search/app:/app
       - ./data:/data
@@ -52,10 +52,10 @@ services:
     environment:
       - POSTGRES_USER=web
       - POSTGRES_HOST_AUTH_METHOD=trust
-#    ports:
-#      - "8004:5432"
-#    expose:
-#      - "8004"
+  #    ports:
+  #      - "8004:5432"
+  #    expose:
+  #      - "8004"
 
   nginx:
     image: nginx:latest

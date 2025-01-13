@@ -25,23 +25,15 @@
                 <div class="document-body" id="docViewDocWrapper">
                   <div class="card border-0 {% if not request.user.current_session.is_summary %}d-none{% endif %}">
                     <div class="card-body">
-                      <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
+                      <!-- <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
                         <small class="highlight-exclude">Summary</small>
-                      </div>
+                      </div> -->
                       <div id="docViewDocSnippet"></div>
                     </div>
                   </div>
-                  {% if request.user.current_session.show_full_document_content and request.user.current_session.strategy != 'doc' %}
-                    <div class="row mt-3">
-                      <div class="col-12">
-                        <a id="docViewDocShowFullDocumentButton"
-                           class="btn btn-sm btn-block btn-outline-secondary font-sans highlight-exclude" href="#"
-                           onclick="return show_full_doc();">Show full document</a>
-                      </div>
-                    </div>
-                  {% endif %}
+
                   <div class="card border-0">
-                    <div class="card-body py-0">
+                    <div class="card-body py-0" id="FullDocumentBody" style="display:block;">
                       <div class="d-flex w-50 justify-content-between font-sans text-primary mb-3 border-bottom highlight-exclude unselectable" unselectable="on">
                         <small class="highlight-exclude">Document content</small>
                       </div>
@@ -59,16 +51,17 @@
                 <div class="small"><code id="docno_text">Docid: </code><code id="docViewDocID"></code></div>
 
                 <div class="text-left">
+
                   <div class="btn-group mt-3 judging-criteria-btn-group" role="group" data-doc-id="">
-                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocNonRelButton">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
-                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocRelButton">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
-                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary d-flex align-items-center docViewDocHRelButton">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary
+                    d-flex align-items-center docViewDocNonRelButton" data-is-nudge-to-show="true">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary
+                    d-flex align-items-center docViewDocRelButton" data-is-nudge-to-show="true">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+                    <a href="#" data-dismiss="modal" class="btn btn-sm btn-outline-secondary
+                    d-flex align-items-center docViewDocHRelButton" data-is-nudge-to-show="true">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
                   </div>
 
-                  {% if additional_judging_criteria %}
-                  <h5 class="card-title text-secondary mt-4 mb-1 unselectable" unselectable="on">Additional Criteria <a class="badge badge-secondary float-right shadow-none small" data-toggle="modal" data-target="#additionalJudgingCriteriaModal" href="#"><i class="fas fa-info-circle"></i> Learn more</a></h5>
-                  {% include 'cards/configurable_criteria_card.html' %}
-                  {% endif %}
+
                 </div>
 
                 <div id="highlighted_words">

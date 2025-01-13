@@ -1,0 +1,84 @@
+{% load static %}
+<div class="mb-4"  style="border: 1px solid #d7d7d7; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+  0 6px 20px 0 rgba(0, 0, 0, 0.19); border-radius:
+  10px;
+padding-bottom: 30px;
+padding-top: 30px;
+padding-left: 10px;
+align-content: center;
+display: {% if not is_integrated_cal_allowed %} none {% else %} block {% endif %};" id="searchCALModal"  >
+
+
+  <div class="d-flex flex-column flex-md-row align-items-center">
+    <div class="d-flex flex-grow-1 col-sm-12 col-md-8 CALModalSearch" data-toggle="modal"
+             data-target="#documentModalCALModal" style="cursor:pointer;">
+
+      <div class="card border-0">
+        <div class="highlight-include" id="docViewCALModal" data-doc-id="" >
+          <div class="document-header highlight-include d-flex" >
+            <div id="docViewDocIndicatorCALModal" class="align-self-center align-self-stretch p-2" style="border-width: 0.25rem!important;"></div>
+            <div class="align-self-center">
+              <img src="{% static 'images/cal-logo.svg' %}" alt="cal" class="pb-1" width="100px">
+
+              <div id="docViewDocTitleCALModal" style='margin-bottom: 0;
+              font-size:18px; font-family: "Roboto",
+              "Lucida Grande","DejaVu Sans",
+              "Bitstream Vera Sans",Verdana,Arial,sans-serif'></div>
+              
+              <div class="small" ><code id="docno_text" style='font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                font-size: 12px;
+                color: #006d21 !important;'>doc_id: </code><code
+                            id="docViewDocIDCALModal" style='font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                font-size: 12px;
+                color: #006d21 !important;'></code></div>
+            </div>
+          </div>
+
+
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="extracted-text-tab-content" role="tabpanel">
+              <div class="document-body" id="docViewDocWrapperCALModal">
+                <div class="card border-0 ">
+                  <div class="pl-3 pr-3">
+                    <div id="{% if 'doc' in request.user.current_session.strategy %}docViewDocBodyCALModal{% else %}docViewDocSnippetCALModal{% endif %}"
+                        style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                         font-size: 12px; color: #545454; word-break: break-word;" ></div>
+                    <div id="{% if 'doc' in request.user.current_session.strategy %}docViewDocSnippetCALModal{% else %}docViewDocBodyCALModal{% endif %}"
+                         style="display:none;" ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="doc-preview-tab-content" role="tabpanel">
+              <!-- Document Preview Tab -->
+            </div>
+
+            <div class="tab-pane fade" id="doc-details-tab-content" role="tabpanel">
+              <!-- Document Details Tab -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+          <div class="mx-auto align-self-start pt-5">
+            <div class="d-flex flex-row flex-md-column  judging-criteria-btn-group SERP"
+                 role="group" data-doc-id="" onclick="scroll_to_cal()">
+              <a href="#" class="btn btn-sm center-text hoverOpacity btn-outline-secondary
+              docViewDocHRelButtonCALModal rounded-0">Highly {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+              <a href="#" class="btn btn-sm center-text hoverOpacity btn-outline-secondary
+              docViewDocRelButtonCALModal rounded-0 mx-1 mx-md-0 my-0 my-md-1">{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+              <a href="#" class="btn btn-sm center-text hoverOpacity btn-outline-secondary
+              docViewDocNonRelButtonCALModal rounded-0">Not {% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}</a>
+            </div>
+
+    </div>
+
+
+  </div>
+
+</div>
+

@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from config.settings.base import AUTH_USER_MODEL as User
 import uuid
 
@@ -45,9 +47,27 @@ class Session(models.Model):
     # last activity timestamp
     last_activity = models.FloatField(default=None, null=True, blank=True)
 
+    last_activity_timestamp = models.DateTimeField(default=None, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True,
                                       editable=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+    integrated_cal = models.BooleanField(default=False)
+
+    nudge_to_cal = models.BooleanField(default=False)
+
+    disable_search = models.BooleanField(default=False)
+
+    session_order = models.IntegerField(null=True, blank=True)
+
+    max_time = models.IntegerField(null=True, blank=True, help_text="Max time in seconds")
+
+    label = models.CharField(max_length=64, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.username}-{self.topic.title}-{self.label}'[:25]
+
 
     def begin_session_in_cal(self):
         try:
@@ -61,6 +81,23 @@ class Session(models.Model):
             # TODO: log error
             pass
 
+    def update_session_timer(self):
+        if SessionTimer.objects.filter(session=self).exists():
+            session_timer = SessionTimer.objects.filter(session=self).last()
+            if (timezone.now() - session_timer.end_time).seconds < 120:
+                session_timer.end_time = timezone.now()
+                session_timer.save()
+            else:
+                SessionTimer.objects.create(session=self,
+                                            start_time=timezone.now(),
+                                            end_time=timezone.now()
+                                            )
+        else:
+            SessionTimer.objects.create(session=self,
+                                       start_time=timezone.now(),
+                                       end_time=timezone.now()
+                                       )
+
     def is_summary(self):
         return "para" in self.strategy
 
@@ -69,9 +106,6 @@ class Session(models.Model):
 
     def __unicode__(self):
         return "<User:{}, Num:{}>".format(self.username, self.topic.number)
-
-    def __str__(self):
-        return self.__unicode__()
 
 
 class SharedSession(models.Model):
@@ -92,3 +126,55 @@ class SharedSession(models.Model):
 
     def __str__(self):
         return self.__unicode__()
+
+
+class SessionTimer(models.Model):
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='timers')
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    time_spent = models.FloatField(null=True, blank=True)
+
+
+    def save(self, *args, **kwargs):
+        old_time = self.time_spent if self.time_spent else 0
+        if self.end_time:
+            self.time_spent = (self.end_time - self.start_time).total_seconds()
+        time_delta = self.time_spent - old_time
+        self.session.timespent += time_delta
+        self.session.save()
+        super().save(*args, **kwargs)
+
+    def __unicode__(self):
+        return "<Session:{}>".format(self.session)
+
+    def __str__(self):
+        return self.__unicode__()
+
+
+
+class LogEvent(models.Model):
+    """
+    Model for logging user actions
+    """
+    created_at = models.DateTimeField(auto_now_add=True,
+                                      editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE)
+    action = models.CharField(max_length=256)
+    data = models.TextField(null=True, blank=True)
+
+    # class Meta:
+    #     abstract = True
+    #     ordering = ['-created_at']
+
+
+class ExperimentForm(models.Model):
+    """
+    Model for storing form data for experiments
+    """
+    created_at = models.DateTimeField(auto_now_add=True,
+                                      editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, null=True, blank=True, related_name='experiment_forms')
+    form_data = models.TextField(null=True, blank=True)
+    form_type = models.CharField(max_length=64, null=False, blank=False)

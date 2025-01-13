@@ -1,7 +1,7 @@
 /* docView.js, (c) 2016 - 2020 Mustafa Abualsaud - http://www.mustafa-s.com */
 /*jshint esversion: 6 */
 
-var docView = function () {
+var docViewCALModal = function () {
 
   var self = this;
   this.version = "0.1.0";
@@ -41,32 +41,33 @@ var docView = function () {
     query: null,
 
     // Selectors
-    docViewSelector: "#docView",
-    documentTabSelector: "#docViewTab",
-    documentIDSelector: "#docViewDocID",
-    documentIndicatorSelector: "#docViewDocIndicator",
-    documentTitleSelector: "#docViewDocTitle",
-    documentMetaSelector: "#docViewDocMeta",
-    documentMessageSelector: "#docViewDocMessage",
-    documentWrapperSelector: "#docViewDocWrapper",
-    documentSnippetSelector: "#docViewDocSnippet",
-    documentShowFullDocumentButtonSelector: "#docViewDocShowFullDocumentButton",
-    documentBodySelector: "#docViewDocBody",
-    documentCloseButtonSelector: "#docViewDocCloseButton",
-    documentJudgingCriteriaButtonGroupSelector: ".judging-criteria-btn-group",
-    documentHRelButtonSelector: ".docViewDocHRelButton",
-    documentRelButtonSelector: ".docViewDocRelButton",
-    docViewNextDocButtonSelector: ".docViewNextDocButton",
-    docViewPreviousDocButtonSelector: ".docViewPreviousDocButton",
-    documentNonRelButtonSelector: ".docViewDocNonRelButton",
-    documentAdditionalJudgingCriterionSelector: ".additionalJudgingCriterion",
-    previouslyReviewedListSelector: ".previouslyReviewedList",
-    previouslyReviewedListSpinnerSelector: ".previouslyReviewedListSpinner",
-    nextBatchListSelector: ".nextBatchList",
-    nextBatchListSpinnerSelector: ".nextBatchListSpinner",
-    searchItemSelector: ".searchItemSelector",
-    documentModalSelector: "#documentModal",
-    sortReviewedDocumentsSelector: ".docViewSortReviewListByRelButton",
+    docViewSelector: "#docViewCALModal",
+    documentTabSelector: "#docViewTabCALModal",
+    documentIDSelector: "#docViewDocIDCALModal",
+    documentIndicatorSelector: "#docViewDocIndicatorCALModal",
+    documentTitleSelector: "#docViewDocTitleCALModal",
+    documentMetaSelector: "#docViewDocMetaCALModal",
+    documentMessageSelector: "#docViewDocMessageCALModal",
+    documentWrapperSelector: "#docViewDocWrapperCALModal",
+    documentSnippetSelector: "#docViewDocSnippetCALModal",
+    documentShowFullDocumentButtonSelector: "#docViewDocShowFullDocumentButtonCALModal",
+    documentBodySelector: "#docViewDocBodyCALModal",
+    documentCloseButtonSelector: "#docViewDocCloseButtonCALModal",
+    documentJudgingCriteriaButtonGroupSelector: ".judging-criteria-btn-groupCALModal",
+    documentHRelButtonSelector: ".docViewDocHRelButtonCALModal",
+    documentRelButtonSelector: ".docViewDocRelButtonCALModal",
+    docViewNextDocButtonSelector: ".docViewNextDocButtonCALModal",
+    docViewPreviousDocButtonSelector: ".docViewPreviousDocButtonCALModal",
+    documentNonRelButtonSelector: ".docViewDocNonRelButtonCALModal",
+    documentAdditionalJudgingCriterionSelector: ".additionalJudgingCriterionCALModal",
+    previouslyReviewedListSelector: ".previouslyReviewedListCALModal",
+    previouslyReviewedListSpinnerSelector: ".previouslyReviewedListSpinnerCALModal",
+    nextBatchListSelector: ".nextBatchListCALModal",
+    nextBatchListSpinnerSelector: ".nextBatchListSpinnerCALModal",
+    searchItemSelector: ".searchItemSelectorCALModal",
+      calModalSelector: "#calModalSelector",
+    documentModalSelector: "#documentModalCALModal",
+    sortReviewedDocumentsSelector: ".docViewSortReviewListByRelButtonCALModal",
 
     // Colors
     highlyRelevantColor: "#84c273",
@@ -92,7 +93,6 @@ var docView = function () {
     afterDocumentJudge: null,
     afterErrorShown: null,
     afterCALFailedToReceiveJudgment: null,
-    afterMaxSearchEffort: false,
       afterMaxSessionTime: false,
   };
 
@@ -122,7 +122,7 @@ var docView = function () {
   };
 };
 
-docView.prototype = {
+docViewCALModal.prototype = {
   /**
    * Validate and merge user settings with default settings
    *
@@ -139,26 +139,26 @@ docView.prototype = {
 
     // Fatal errors
     // Stop script execution on error
-    validateSelector(options.docViewSelector, false, "docViewSelector");
-    validateSelector(options.documentIDSelector, false, "documentIDSelector");
-    validateSelector(options.documentIndicatorSelector, true, "documentIndicatorSelector");
-    validateSelector(options.documentTitleSelector, false, "documentTitleSelector");
-    validateSelector(options.documentMetaSelector, true, "documentMetaSelector");
-    validateSelector(options.documentMessageSelector, false, "documentMessageSelector");
-    validateSelector(options.documentWrapperSelector, false, "documentWrapperSelector");
-    validateSelector(options.previouslyReviewedListSelector, true, "previouslyReviewedListSelector");
-    validateSelector(options.previouslyReviewedListSpinnerSelector, true, "previouslyReviewedListSpinnerSelector");
-    validateSelector(options.nextBatchListSelector, true, "nextBatchListSelector");
-    validateSelector(options.nextBatchListSpinnerSelector, true, "nextBatchListSpinnerSelector");
-    validateSelector(options.documentSnippetSelector, true, "documentSnippetSelector");
-    validateSelector(options.documentShowFullDocumentButtonSelector, true, "documentShowFullDocumentButtonSelector");
-    validateSelector(options.documentJudgingCriteriaButtonGroupSelector, true, "documentJudgingCriteriaButtonGroupSelector");
-    validateSelector(options.documentBodySelector, false, "documentIDSelector");
-    validateSelector(options.documentCloseButtonSelector, true, "documentCloseButtonSelector");
-    validateSelector(options.searchItemSelector, true, "searchItemSelector");
-    validateSelector(options.documentModalSelector, true, "documentModalSelector");
-    validateSelector(options.documentAdditionalJudgingCriterionSelector, true, "additionalJudgingCriterion");
-    validateSelector(options.documentTabSelector, true, "documentTabSelector");
+    validateSelector(options.docViewSelector, false, "docViewSelectorCALModal");
+    validateSelector(options.documentIDSelector, false, "documentIDSelectorCALModal");
+    validateSelector(options.documentIndicatorSelector, true, "documentIndicatorSelectorCALModal");
+    validateSelector(options.documentTitleSelector, false, "documentTitleSelectorCALModal");
+    validateSelector(options.documentMetaSelector, true, "documentMetaSelectorCALModal");
+    validateSelector(options.documentMessageSelector, false, "documentMessageSelectorCALModal");
+    validateSelector(options.documentWrapperSelector, false, "documentWrapperSelectorCALModal");
+    validateSelector(options.previouslyReviewedListSelector, true, "previouslyReviewedListSelectorCALModal");
+    validateSelector(options.previouslyReviewedListSpinnerSelector, true, "previouslyReviewedListSpinnerSelectorCALModal");
+    validateSelector(options.nextBatchListSelector, true, "nextBatchListSelectorCALModal");
+    validateSelector(options.nextBatchListSpinnerSelector, true, "nextBatchListSpinnerSelectorCALModal");
+    validateSelector(options.documentSnippetSelector, true, "documentSnippetSelectorCALModal");
+    validateSelector(options.documentShowFullDocumentButtonSelector, true, "documentShowFullDocumentButtonSelectorCALModal");
+    validateSelector(options.documentJudgingCriteriaButtonGroupSelector, true, "documentJudgingCriteriaButtonGroupSelectorCALModal");
+    validateSelector(options.documentBodySelector, false, "documentIDSelectorCALModal");
+    validateSelector(options.documentCloseButtonSelector, true, "documentCloseButtonSelectorCALModal");
+    validateSelector(options.searchItemSelector, true, "searchItemSelectorCALModal");
+    validateSelector(options.documentModalSelector, true, "documentModalSelectorCALModal");
+    validateSelector(options.documentAdditionalJudgingCriterionSelector, true, "additionalJudgingCriterionCALModal");
+    validateSelector(options.documentTabSelector, true, "documentTabSelectorCALModal");
 
     // Don't touch these settings
     var s = [
@@ -168,8 +168,7 @@ docView.prototype = {
       "afterDocumentJudge",
       "afterErrorShown",
       "afterCALFailedToReceiveJudgment",
-      "afterMaxSearchEffort",
-        "afterMaxSessionTime",
+        "afterMaxSessionTime"
     ];
 
     for (var k in s) {
@@ -180,14 +179,13 @@ docView.prototype = {
 
     function _linkJudgingButtons(elm, rel_val) {
 
-        var show_nudge_toast = $(elm).data("is-nudge-to-show");
       if ($(elm).data("is-serp-judging")) {
         $(elm).on("click", function () {
           sendSERPJudgment($(elm).data("doc-id"), rel_val);
         });
       } else {
         $(elm).on("click", function () {
-          sendJudgment(rel_val, (options.searchMode || options.reviewMode) ? null : refreshDocumentView, show_nudge_toast)
+          sendJudgment(rel_val, (options.searchMode || options.reviewMode) ? null : refreshDocumentView)
         });
       }
     }
@@ -236,11 +234,22 @@ docView.prototype = {
               });
               break
           }
+          // close modal if open
+          $(options.calModalSelector).on("click", function () {
+              closeDocumentModal();
+          });
         }
       );
 
+      // $("body").on("click", options.calModalSelector, function () {
+      //   showDocument($(this).data("doc-id").toString());
+      //   // print it to the console
+      //   console.log($(this).data("doc-id").toString());
+      //
+      // });
+
       $("body").on("click", options.searchItemSelector, function () {
-        showDocument($(this).data("doc-id").toString());
+        showDocument($(this).data("doc-id").toString(), true);
       });
 
       $(".additionalJudgingCriterion").each(function () {
@@ -259,7 +268,7 @@ docView.prototype = {
       _linkSortByRelevanceButton($(options.sortReviewedDocumentsSelector));
 
       $(options.documentModalSelector).on('hidden.bs.modal', function () {
-        parent.afterDocumentClose(parent.currentDocID)
+        // parent.afterDocumentClose(parent.currentDocID)
       });
     });
 
@@ -299,17 +308,17 @@ docView.prototype = {
     /**
      * Calls server to request document information and shows it once received.
      */
-    function showDocument(docid) {
+    function showDocument(docid, isIntegratedCAL = false) {
       parent.beforeDocumentLoad(docid);
       if (options.allowDocumentCaching) {
         // check if it exists in cache
         if (parent.documentCacheStore.get(docid) !== null) {
-          _showDocumentCallback(docid, parent.documentCacheStore.get(docid));
+          _showDocumentCallback(docid, parent.documentCacheStore.get(docid), isIntegratedCAL);
           return;
         }
       }
       showLoading();
-      fetchDocument(docid, _showDocumentCallback);
+      fetchDocument(docid, _showDocumentCallback, isIntegratedCAL);
     }
 
     function gotoNextDocument() {
@@ -348,7 +357,7 @@ docView.prototype = {
         parent.viewStack.shift(); // remove it from viewStack
       }
       // Show document
-      showDocument(docid);
+      showDocument(docid, true);
       $(options.docViewSelector).trigger("updated");
       if (options.getSCALInfoURL !== null) {
         getSCALInfo();
@@ -514,24 +523,6 @@ docView.prototype = {
       window.setTimeout(function () {
         window.location.replace(window.location.origin);
       }, 2000);
-
-    }
-
-    function showSearchPositiveJudgementsReached() {
-      updateDocumentIndicator("", options.otherColor);
-      updateTitle("7 relevant docs found", {
-        "font": options.secondaryTitleFont,
-        "color": options.projectPrimaryColor
-      });
-      updateMessage("You have found 7 relevant docs with search. please go to CAL to continue. Redirecting in 10 seconds.");
-      updateMeta("");
-      updateDocID(null);
-      hideCloseButton();
-      hideDocTab();
-
-      window.setTimeout(function () {
-        window.location.replace(window.location.origin+'/CAL');
-      }, 20000);
 
     }
 
@@ -863,14 +854,14 @@ docView.prototype = {
     /**
      * Calls server to request document information.
      */
-    function fetchDocument(docid, callback) {
+    function fetchDocument(docid, callback, isIntegratedCAL) {
       $.ajax({
         url: getDocumentURL(docid),
         type: "GET",
         dataType: "json", // added data type
         success: function (res) {
           // AFTER SUCCESSFUL RETRIEVAL OF DOCUMENT INFO
-          callback(docid, res[0]);
+          callback(docid, res[0], isIntegratedCAL);
         }
       });
     }
@@ -993,26 +984,17 @@ docView.prototype = {
         success: function (result) {
           updateActiveJudgingButton(docid, rel);
 
-          console.log(result['positive_judgements']);
-
-          if (result["is_positive_judgements_reached"]) {
-            console.log("5 relevant docs found");
-            parent.afterMaxSearchEffort(docid, rel);
-          }
-
-          if (result["is_session_max_time_reached"]) {
-            parent.afterMaxSessionTime(docid, rel);
-          }
-
           if (result["is_max_judged_reached"]) {
             showMaxJudgmentReached();
             return;
           }
+          if (result["is_session_max_time_reached"]) {
+        parent.afterMaxSessionTime(docid, rel);
+      }
 
           if (result["CALFailedToReceiveJudgment"]) {
             parent.afterCALFailedToReceiveJudgment(docid, rel);
           }
-
 
           parent.afterDocumentJudge(docid, rel);
         },
@@ -1029,7 +1011,7 @@ docView.prototype = {
 
     }
 
-    function sendJudgment(rel, callback, show_nudge_toast=false) {
+    function sendJudgment(rel, callback) {
       var current_docview_stack_size = parent.viewStack.length;
       if (!(options.singleDocumentMode || options.searchMode)) {
         window.scrollTo(0, 0);
@@ -1122,9 +1104,6 @@ docView.prototype = {
               callback();
             }
           }
-          if (show_nudge_toast && result["is_positive_judgements_reached"]) {
-            parent.afterMaxSearchEffort(docid, rel);
-          }
           parent.afterDocumentJudge(docid, rel);
         },
         error: function (result) {
@@ -1150,18 +1129,21 @@ docView.prototype = {
      * CALLBACKS *
      *************/
 
-    function _showDocumentCallback(docid, data) {
+    function _showDocumentCallback(docid, data, isIntegratedCAL = false) {
       /**
        * Callback to show document in document view once server returns document information.
        */
       clearDocumentView();
 
       updateDocID(docid);
-
+      let titleColor = options.primaryColor;
+      if (isIntegratedCAL) {
+        titleColor = '#001ba0';
+      }
       if (typeof data.title === "string") {
         updateTitle(data.title, {
           "font": options.primaryTitleFont,
-          "color": options.primaryColor
+          "color": titleColor
         });
       }
       if (typeof data.content === "string") {
@@ -1460,14 +1442,6 @@ docView.prototype = {
     "use strict";
     return this.triggerEvent("afterCALFailedToReceiveJudgment", [docid, rel]);
   },
-
-
-  afterMaxSearchEffort: function (docid, rel) {
-    "use strict";
-    console.log("5 relevant docs found")
-    return this.triggerEvent("afterMaxSearchEffort", [docid, rel]);
-  },
-
 
     afterMaxSessionTime: function (docid, rel) {
     "use strict";

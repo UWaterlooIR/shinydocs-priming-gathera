@@ -49,10 +49,18 @@
 
 <!-- Document modal -->
 {% include 'modals/document_modal.html' %}
+<!-- Document modal CAL -->
+{% include 'modals/document_modal_CAL_modal.html' %}
 <!-- Judging criteria modal -->
 {% include 'modals/additional_judging_criteria_modal.html' %}
+<!-- Task finished modal -->
+{% include 'modals/task_finished_modal.html' %}
 <!-- Discovery failed to receive judgment toast -->
 {% include 'toasts/discovery_failed_to_receive_judgment.html' %}
+<!--max search effort toast -->
+{% if nudge_to_cal %}
+  {% include 'toasts/reached_x_search_judgments_goto_CAL.html' %}
+{% endif %}
 
 
 {% endblock %}
@@ -65,6 +73,7 @@
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     <script src="{% static 'js/logger.js' %}"></script>
     <script src="{% static 'js/document-viewer.js' %}"></script>
+    <script src="{% static 'js/document-viewer-CAL-Modal.js' %}"></script>
     <script src="{% static 'js/highlight.js' %}"></script>
 
     <script>
@@ -73,6 +82,13 @@
             "isQueryPage": {{ isQueryPage|yesno:"true,false"}},
             "queryID": "{{ queryID }}",
             "query": "{{ query }}"
+        }
+
+        function scroll_to_cal() {
+          $('#toast_reachedMaxSearchEffort').toast('dispose');
+          {# TODO: Fix scroll on every time only scroll when page is down #}
+          var body = $("html, body");
+          body.stop().animate({scrollTop:0}, 200, 'swing');
         }
 
         var dv = new docView();
@@ -106,20 +122,23 @@
             $(`#doc_${docid}_SERP_indicator`).attr('style', `border-color:${newColor}`);
             sendLog(LOG_EVENT.JUDGMENT_END, {
               docId: docid,
-              rel: rel
+              rel: rel,
+              track_backend: false,
             })
           },
 
           beforeDocumentLoad: function (docid) {
             sendLog(LOG_EVENT.SERP_SELECT, {
-              docId: docid
+              docId: docid,
+              track_backend: true,
             })
           },
 
           afterDocumentLoad: function (docid, rel) {
             sendLog(LOG_EVENT.JUDGMENT_START, {
               docId: docid,
-              rel: rel
+              rel: rel,
+              track_backend: true,
             })
             // Perform keyword search if necessary
             searchForKeyword();
@@ -128,8 +147,29 @@
           afterDocumentClose: function (docid) {
             sendLog(LOG_EVENT.JUDGMENT_END, {
               docId: docid,
-              rel: null
+              rel: null,
+              track_backend: true,
             })
+          },
+
+          afterMaxSessionTime: function () {
+            console.log("Max session time reached");
+            $taskFinishedModal = $('#TaskFinishedModal');
+            $taskFinishedModal.modal('show');
+          },
+
+          afterMaxSearchEffort: function(docid, rel) {
+            $('#searchCALModal').show();
+            console.log("Max search effort reached for document " + docid);
+            $('#toast_reachedMaxSearchEffort').toast('dispose');
+            $(".reachedMaxSearchEffortSpinner").removeClass("d-none");
+            $("#reachedMaxSearchEffort_toast_body").addClass("d-none");
+            setInterval(function(){
+              $("#reachedMaxSearchEffort_toast_body").removeClass("d-none");
+              $(".reachedMaxSearchEffortSpinner").addClass("d-none");
+            },500);
+            $('#toast_reachedMaxSearchEffort').toast('show');
+            {#$('#searc`hCALModal').load(location.href + ' #searchCALModal');#}
           },
 
           afterCALFailedToReceiveJudgment: function(docid, rel) {
@@ -169,7 +209,8 @@
             $("#search_result").addClass("d-none");
             $("#search-result-spinner").removeClass("d-none");
             sendLog(LOG_EVENT.SEARCH_ATTEMPT, {
-              query: $("#search_input").val()
+              query: $("#search_input").val(),
+              track_backend: true,
             })
             $(this).submit();
         });
@@ -195,4 +236,135 @@
 
 
     </script>
+
+    <script>
+        var dvCALModal = new docViewCALModal();
+
+        function hide_full_doc(){
+          {% if not request.user.current_session.strategy == 'doc' %}
+
+            // hide button
+            $("#docViewDocShowFullDocumentButtonCALModal").show();
+            // show full document
+            $("#FullDocumentBodyCALModal").hide();
+            {% endif %}
+
+        }
+
+        function show_full_doc_cal_modal(){
+          // hide button
+          $("#docViewDocShowFullDocumentButtonCALModal").hide();
+          // show full document
+          $("#FullDocumentBodyCALModal").show();
+          var now = + new Date();
+          var current_doc_snippet = $("#docViewDocSnippetCALModal").html();
+          var current_doc_title = $("#docViewDocTitleCALModal").html();
+          var current_doc_id = $("#docViewDocIDCALModal").html();
+
+          show_full_doc_button_clicked = true;
+
+
+
+          sendLog(LOG_EVENT.OPEN_FULL_DOC, {
+            action: 'trig_show_full_doc',
+            message: 'Show full document button is clicked and document is shown',
+            doc_id: current_doc_id,
+            doc_title: current_doc_title,
+            doc_CAL_snippet: current_doc_snippet,
+            extra_context: {
+                'show_full_doc_button_clicked': show_full_doc_button_clicked
+            },
+            is_cal: true,
+            client_time: now,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            page_title: document.title,
+            track_backend: true,
+          })
+        }
+
+        $('#documentModalCALModal').on('hidden.bs.modal', function () {
+          hide_full_doc();
+        })
+
+
+
+
+        dvCALModal.init({
+          username: '{{ request.user }}',
+          getDocumentsToJudgeURL: '{% url 'CAL:get_docs' %}',
+          getPrevDocumentsJudgedURL: '{% url 'judgment:get_latest' number_of_docs_to_show=50 %}',
+          getDocumentIDsToJudgeURL: '{% url 'CAL:get_docs_ids' %}',
+          {% if "scal" in request.user.current_session.strategy %}
+          getSCALInfoURL: '{% url 'CAL:get_scal_info' %}',
+          logDSInfoURL: '{% url 'CAL:ds_logging' %}',
+          {% endif %}
+          sendDocumentJudgmentURL: '{% url 'judgment:post_judgment' %}',
+          getDocumentURL: '{% url 'core:get_single_doc' %}?docid=',
+          fetchPreviouslyJudgedDocsOnInit: true,
+          mainJudgingCriteriaName: '{% if main_judging_criteria_name %}{{ main_judging_criteria_name }}{% else %}Relevant{% endif %}',
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+
+          afterDocumentLoad: function (docid) {
+            // Perform keyword search if necessary
+            searchForKeyword();
+          },
+
+          afterMaxSessionTime: function () {
+            console.log("Max session time reached");
+            $taskFinishedModal = $('#TaskFinishedModal');
+            $taskFinishedModal.modal('show');
+          },
+
+
+          afterCALFailedToReceiveJudgment: function(docid, rel) {
+            $('#toast_CALFailedToReceiveJudgment').toast('dispose');
+            $(".CALFailedToReceiveJudgmentSpinner").removeClass("d-none");
+            $("#CALFailedToReceiveJudgment_toast_body").addClass("d-none");
+            $("#toast_CALFailedToReceiveJudgment_docid").html(docid);
+            setInterval(function(){
+              $("#CALFailedToReceiveJudgment_toast_body").removeClass("d-none");
+              $(".CALFailedToReceiveJudgmentSpinner").addClass("d-none");
+            },500);
+            $('#toast_CALFailedToReceiveJudgment').toast('show');
+          }
+
+        });
+
+        // Get the elements
+      {#  window.onload = function() {#}
+      {#  var calModalSelector = document.querySelector('.searchItemSelectorCALModal');#}
+      {#  var docViewDocIDCALModal = document.getElementById('docViewDocIDCALModal');#}
+      {##}
+      {#  if (calModalSelector && docViewDocIDCALModal) {#}
+      {#    var docId = docViewDocIDCALModal.textContent;#}
+      {#    calModalSelector.setAttribute('data-doc-id', docId);#}
+      {#  }#}
+      {# };#}
+          $(document).ready(function() {
+            // Handle click event on the specified div
+            $('.CALModalSearch[data-toggle="modal"][data-target="#documentModalCALModal"]').on
+            ('click', function() {
+                // Fetch data related to the document
+                var docIndicator = $('#docViewDocIndicatorCALModal').prop('innerText');
+                var docTitle = $('#docViewDocTitleCALModal').prop('innerText');
+                var docMeta = $('#docViewDocMetaCALModal').prop('innerText');
+                var docMessage = $('#docViewDocMessageCALModal').prop('innerText');
+                var docWrapper = $('#docViewDocWrapperCALModal').html();
+                var docSnippet = $('#docViewDocSnippetCALModal').html();
+                var docBody = $('#docViewDocBodyCALModal').prop('innerText');
+                var docID = $('#docViewDocIDCALModal').text();
+                $('#modalDocIndicator').text(docIndicator);
+                $('#modalDocTitle').text(docTitle);
+                $('#modalDocMeta').text(docMeta);
+                $('#modalDocMessage').text(docMessage);
+                $('#modalDocWrapper').html(docWrapper);
+                $('#modalDocSnippet').html(docSnippet);
+                $('#modalDocBody').html(docBody);
+                $('#modalDocID').text(docID);
+                console.log(docBody);
+
+            });
+        });
+    </script>
+
 {% endblock %}
