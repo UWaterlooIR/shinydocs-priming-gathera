@@ -148,7 +148,7 @@ def create_final_latin_square(treatments, topics, base_latin_treatments, base_la
     return final_latin_sq
 
 
-def create_5_sessions_and_a_random_user(config_list):
+def create_experiment_sessions_and_a_random_user(config_list):
     random.seed(None)
     random_username = f'experiment_user_{random.randint(1000, 9999)}'
     random_password = (f'{random.randint(1000, 9999)}_'
@@ -158,43 +158,78 @@ def create_5_sessions_and_a_random_user(config_list):
                                                  random_password)
     random_user.save()
     print(random_username,  random_password)
+    create_two_practice_sessions(random_user)
     for i, config in enumerate(config_list):
         session_to_create = config[0]
         query = config[1]
-        topic = Topic(
-            title=f'{query.seed_query}',
-            seed_query=f'{query.seed_query}+{query.description}+{query.narrative}',
-            description=query.description,
-            narrative=query.narrative,
-        )
-        topic.save()
-        session = Session.objects.create(
-            username=random_user,
-            integrated_cal=session_to_create.integrated_cal,
-            nudge_to_cal=session_to_create.nudge,
-            disable_search=session_to_create.search_disabled,
-            topic=topic,
-            session_order=i,
-            max_number_of_judgments=0,
-            show_full_document_content=True,
-            strategy='para',
-            show_debugging_content=0,
-            max_time=20,
-        )
-        session.save()
+        create_session_from_topic_and_details(i + 2, query, random_user, session_to_create)
     current_session_to_start = Session.objects.filter(username=random_user).order_by('session_order').first()
     random_user.current_session = current_session_to_start
     random_user.save()
     current_session_to_start.begin_session_in_cal()
 
 
+def create_session_from_topic_and_details(i, query, random_user, session_to_create):
+    topic = Topic(
+        title=f'{query.seed_query}',
+        seed_query=f'{query.seed_query}+{query.description}+{query.narrative}',
+        description=query.description,
+        narrative=query.narrative,
+    )
+    topic.save()
+    session = Session.objects.create(
+        username=random_user,
+        integrated_cal=session_to_create.integrated_cal,
+        nudge_to_cal=session_to_create.nudge,
+        disable_search=session_to_create.search_disabled,
+        topic=topic,
+        session_order=i,
+        max_number_of_judgments=0,
+        show_full_document_content=True,
+        strategy='para',
+        show_debugging_content=0,
+        max_time=20,
+        label=session_to_create.name
+    )
+    session.save()
+
+
+def create_two_practice_sessions(user):
+    practice_sessions = [
+        SessionType('Prectice Task: Search with Integrated CAL', True, False, False),
+        SessionType('Experiment: Search and CAL', False, False, False)
+    ]
+
+    practice_topics = [
+        TopicTypeCustom(
+            'UV damage eyes',
+            'Find documents that discuss the damage ultraviolet (UV) light from the sun '
+            'can do to eyes.',
+            'A relevant document will discuss diseases that result '
+            'from exposure of the eyes to UV light, treatments for the damage, '
+            'and/or education programs that help prevent damage.  Documents discussing '
+            'treatment methods for cataracts and ocular melanoma are relevant even when '
+            'a specific cause is not mentioned. However, documents that discuss radiation '
+            'damage from nuclear sources or lasers are not relevant.'),
+        TopicTypeCustom(
+            'art, stolen, forged',
+            'What incidents have there been of stolen or forged art?',
+            'Instances of stolen or forged art in any media are relevant.'
+            ' Stolen mass-produced things, even though they might be decorative,'
+            ' are not relevant (unless they are mass-produced art reproductions).'
+            ' Pirated software, music, movies, etc. are not relevant.'),]
+
+    for i in range(2):
+        create_session_from_topic_and_details(i, practice_topics[i], user, practice_sessions[i])
+
+
 
 SESSION_TYPES = [
-        SessionType('integrated-cal', True, False, False),
-        SessionType('cal-only', False, False, True),
-        SessionType('integrated-cal-with-nudge', True, True, False),
-        SessionType('cal-with-nudge', False, True, False),
-        SessionType('base', False, False, False)
+        SessionType('Experiment: Search with Integrated CAL', True, False, False),
+        SessionType('Experiment: CAL only', False, False, True),
+        SessionType('Experiment: Search with Integrated CAL Disabled Initially', True, True, False),
+        SessionType('Experiment: Search with CAL Disabled Initially', False, True, False),
+        SessionType('Experiment: Search and CAL', False, False, False)
 ]
 
 TOPICS = [
@@ -249,4 +284,4 @@ TOPICS = [
 
 final = create_final_latin_square(SESSION_TYPES, TOPICS, treatments_base, topics_base)
 
-create_5_sessions_and_a_random_user(final[0])
+create_experiment_sessions_and_a_random_user(final[0])

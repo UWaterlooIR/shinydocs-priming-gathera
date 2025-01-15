@@ -69,7 +69,7 @@ def shared_session_processor(request):
         context["share_session_form"] = ShareSessionForm(user=request.user)
         context["is_cal_allowed"] = is_cal_allowed
         context["disable_search"] = current_session_obj.disable_search
-        context["time_worked"] = f'{time_worked//60} minutes and {time_worked:.2f} seconds'
+        context["time_worked"] = f'{int(time_worked // 60)} minutes and {int(time_worked % 60)} seconds'
 
     return context
 

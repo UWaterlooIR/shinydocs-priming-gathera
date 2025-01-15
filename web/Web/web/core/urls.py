@@ -25,4 +25,7 @@ urlpatterns = [
          name='get_session_details'),
     path('share_session_view/', views.SessionShareView.as_view(),
          name='share_session'),
+
+    path('update_session_timer/', views.update_remote_session_timer, name='update_session_timer'),
+    path('update_task_time/', views.update_task_time, name='update_task_time'),
 ]

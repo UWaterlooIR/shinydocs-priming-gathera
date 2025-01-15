@@ -32,6 +32,22 @@ from web.judgment.models import Judgment
 logger = logging.getLogger(__name__)
 
 
+
+def update_remote_session_timer(request):
+    if request.user.is_authenticated:
+        if request.user.current_session:
+            request.user.current_session.update_session_timer()
+    return JsonResponse({"message": "Session updated."})
+
+
+def update_task_time(request):
+    if request.user.is_authenticated:
+        if request.user.current_session:
+            time_worked = request.user.current_session.timespent
+    return JsonResponse({"task_time": f'{int(time_worked // 60)} minutes and'
+                                      f' {int(time_worked % 60)} seconds'})
+
+
 class Home(views.LoginRequiredMixin, generic.TemplateView):
     template_name = 'core/home.html'
 

@@ -24,6 +24,9 @@
             </button>
           {% else %}
             <div class="ml-auto">
+            <h3>
+              {{ request.user.current_session.label }}
+            </h3>
               <p>
                 Please carefully read and understand the topic below before you start the task. For
                 this task, you will have the following tools at your disposal:

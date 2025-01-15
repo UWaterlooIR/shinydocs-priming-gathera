@@ -140,7 +140,7 @@
             <ul class="list-group" id="highlighted_terms_list"></ul>
           </div>
         <button class="btn btn-outline-secondary d-none d-md-inline p-2 mt-4" data-toggle="modal"
-                data-target="#TimeSpentModal">Time Spent</button>
+                data-target="#TimeSpentModal" onclick="updateTaskTime()">Time Spent</button>
 
         </div>
       </div>
@@ -224,6 +224,7 @@
 {% include 'toasts/discovery_failed_to_receive_judgment.html' %}
 <!-- Task finished modal -->
 {% include 'modals/task_finished_modal.html' %}
+{% include 'modals/idle_modal.html' %}
 <!-- Judging criteria modal -->
 {% include 'modals/additional_judging_criteria_modal.html' %}
 <!-- Keyboard shortcuts modal -->
@@ -242,7 +243,73 @@
     <script src="{% static 'js/document-viewer.js' %}"></script>
     <script src="{% static 'js/highlight.js' %}"></script>
 
+
     <script>
+        var audio = new Audio('https://media.geeksforgeeks' +
+              '.org/wp-content/uploads/20190531135120/beep.mp3')
+        let timer;
+        const timerTime = 105;
+        let timeLeft = 105; // 1 minute in seconds
+
+        // Function to start the timer
+        function startTimer() {
+          clearInterval(timer); // Clear any existing timer
+          timeLeft = timerTime; // Reset to 60 seconds
+
+          timer = setInterval(function () {
+            timeLeft--;
+
+            if (timeLeft <= 0) {
+              clearInterval(timer); // Stop the timer
+              showCustomAlert(); // Show custom alert
+            }
+          }, 1000);
+        }
+
+        function showCustomAlert() {
+          audio.play();
+          document.getElementById('IdleModal').style.display = 'block';
+          document.getElementById('modal-ok').addEventListener('click', function () {
+            closeModal();
+          });
+        }
+
+        function resetTimer() {
+          clearInterval(timer); // Clear the current timer
+          timeLeft = timerTime; // Reset to 60 seconds
+          console.log('Timer reset!');
+          startTimer();
+        }
+
+        function extendRemoteTimer() {
+          $.ajax({
+            url: '{% url 'core:update_session_timer' %}',
+            success: function (result) {
+              console.log(result['message']);
+            }
+          });
+        }
+
+        function updateTaskTime() {
+          $.ajax({
+            url: '{% url 'core:update_task_time' %}',
+            success: function (result) {
+              $('#time_worked_div').html(result['task_time']);
+              console.log(result['task_time'])
+            }
+          });
+        }
+
+
+        function closeModal() {
+          document.getElementById('IdleModal').style.display = 'none';
+          resetTimer();
+          extendRemoteTimer();
+        }
+
+        startTimer();
+
+
         var dv = new docView();
         dv.init({
           username: '{{ request.user }}',
@@ -275,6 +342,10 @@
               $taskFinishedModal.modal('show');
             },
 
+          afterDocumentJudge: function () {
+            resetTimer();
+          },
+
 
           afterCALFailedToReceiveJudgment: function(docid, rel) {
             $('#toast_CALFailedToReceiveJudgment').toast('dispose');
@@ -289,6 +360,7 @@
           }
 
         });
+
 
 
 
