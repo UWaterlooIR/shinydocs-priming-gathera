@@ -88,14 +88,16 @@ class Session(models.Model):
                 session_timer.end_time = timezone.now()
                 session_timer.save()
             else:
+                now_time = timezone.now()
                 SessionTimer.objects.create(session=self,
-                                            start_time=timezone.now(),
-                                            end_time=timezone.now()
+                                            start_time=now_time,
+                                            end_time=now_time
                                             )
         else:
+            now_time = timezone.now()
             SessionTimer.objects.create(session=self,
-                                       start_time=timezone.now(),
-                                       end_time=timezone.now()
+                                       start_time=now_time,
+                                       end_time=now_time
                                        )
 
     def is_summary(self):

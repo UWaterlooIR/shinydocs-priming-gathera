@@ -163,6 +163,7 @@
     </nav>
 
     {% include 'modals/time_spent_modal.html' %}
+    {% include 'modals/topic_details_modal.html' %}
 
     <!-- Notifications modal -->
     {% include 'modals/notification_modal.html' %}
@@ -433,8 +434,7 @@
                   $("#sessionActionsTab").html(templateSessionActions(session_id, title, is_active_session, owner))
 
                   $("#session_created_at").html(session['created_at']);
-                  $("#session_description").html(session['topic_description']);
-                  $("#session_narrative").html(session['topic_narrative']);
+                  $("#session_description").html(session['topic_description']+ ' ' + session['topic_narrative']);
                   $("#session_seed_query").html(session['topic_seed_query']);
                   $("#session_strategy").html(session['strategy']);
                   $("#session_effort").html(effort);

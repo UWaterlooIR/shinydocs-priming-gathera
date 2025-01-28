@@ -25,7 +25,7 @@
           {% else %}
             <div class="ml-auto">
             <h3>
-              {{ request.user.current_session.label }}
+              {{ request.user.current_session.label|default_if_none:"Task" }}
             </h3>
               <p>
                 Please carefully read and understand the topic below before you start the task. For
@@ -90,9 +90,10 @@
                       <small>#{{ user.current_session.topic.number }}</small>{% endif %}
                   </div>
                   {% if user.current_session.topic.description %}<p class="mb-1">Topic
-                    Description: {{ user.current_session.topic.description }}</p>{% endif %}
-                  {% if user.current_session.topic.narrative %}<p class="mb-1">Topic
-                    Narrative: {{ user.current_session.topic.narrative }}</p>{% endif %}
+                    Description: {{ user.current_session.topic.description }}
+                      {{ user.current_session.topic.narrative|default_if_none:"" }}
+                  </p>
+                  {% endif %}
                 </div>
               </div>
 

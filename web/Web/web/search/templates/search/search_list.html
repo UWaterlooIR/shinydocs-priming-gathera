@@ -29,6 +29,10 @@
         <button class="btn btn-outline-secondary d-none d-md-inline p-2 ml-4 mr-4"
                 data-toggle="modal"
                 data-target="#TimeSpentModal" onclick="updateTaskTime()">Time Spent</button>
+
+        <button class="btn btn-outline-secondary d-none d-md-inline mt-2 p-2 ml-4 mr-4 mh-4"
+                data-toggle="modal"
+                data-target="#TopicDetailsModal">Topic Details</button>
         {% comment %}
 
         {% if SERP.total_time %}<small class="gray-text mx-auto mb-2">Your query took {{ SERP.total_time|floatformat }} seconds</small>{% endif %}

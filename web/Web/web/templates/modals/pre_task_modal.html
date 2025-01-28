@@ -26,9 +26,9 @@
                           {% if user.current_session.topic.number %}<small>#{{ user.current_session.topic.number }}</small>{% endif %}
                         </div>
                         {% if user.current_session.topic.description %}<p class="mb-1">Topic
-                          Description: {{ user.current_session.topic.description }}</p>{% endif %}
-                    {% if user.current_session.topic.narrative %}<p class="mb-1">Topic
-                          Narrative: {{ user.current_session.topic.narrative }}</p>{% endif %}
+                          Description: {{ user.current_session.topic.description }}
+                          {{ user.current_session.topic.narrative|default_if_none:"" }}
+                        </p>{% endif %}
                     </div>
                 </div>
                 <form method="POST" action="{% url 'core:home' %} " enctype="multipart/form-data">
