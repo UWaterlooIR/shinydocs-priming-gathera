@@ -1,0 +1,27 @@
+<div class="modal" id="TopicDetailsModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary">Topic Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class=" border-0 p-0">
+            <div class="d-flex w-100 justify-content-between">
+              <p class="mb-2">Topic title: {{ user.current_session.topic.title }}</p>
+              {% if user.current_session.topic.number %}<small>#{{ user.current_session.topic.number }}</small>{% endif %}
+            </div>
+            {% if user.current_session.topic.description %}<p class="mb-1">Topic
+              Description: {{ user.current_session.topic.description }}
+              {{ user.current_session.topic.narrative|default_if_none:"" }}
+            </p>{% endif %}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

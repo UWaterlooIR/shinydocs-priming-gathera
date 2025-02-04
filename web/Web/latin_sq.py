@@ -196,8 +196,8 @@ def create_session_from_topic_and_details(i, query, random_user, session_to_crea
 
 def create_two_practice_sessions(user):
     practice_sessions = [
-        SessionType('Prectice Task: Search with Integrated CAL', True, False, False),
-        SessionType('Experiment: Search and CAL', False, False, False)
+        SessionType('Practice Task: Search with Integrated CAL', True, False, False),
+        SessionType('Practice Task: Search and CAL', False, False, False)
     ]
 
     practice_topics = [
