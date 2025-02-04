@@ -143,7 +143,7 @@ DOC_BIN=/data/latimes.bin PARA_BIN=/data/latimes_para.bin docker-compose up -d
 #### Create a database backup
 
 ```bash
-docker exec -t gathera_postgres_1  pg_dump -U web web > backup.sql
+docker exec -t gathera_postgres_1 pg_dump -U web --clean --if-exists -d web > backup.sql
 ```
 
 #### Restore a database backup
