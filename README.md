@@ -147,6 +147,12 @@ docker exec -t gathera_postgres_1 pg_dump -U web --clean --if-exists -d web > ba
 ```
 
 #### Restore a database backup
+Drop existing database
+```
+docker-compose run web bash
+python ./manage.py reset_db
+```
+Restore db
 ```bash
 docker exec -i gathera-postgres-1 psql -U web -d web < backup.sql
 ```
